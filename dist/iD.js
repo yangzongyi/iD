@@ -5,12 +5,14 @@
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __getProtoOf = Object.getPrototypeOf;
   var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __typeError = (msg) => {
+    throw TypeError(msg);
+  };
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
   var __require = /* @__PURE__ */ ((x2) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x2, {
     get: (a2, b2) => (typeof require !== "undefined" ? require : a2)[b2]
   }) : x2)(function(x2) {
-    if (typeof require !== "undefined")
-      return require.apply(this, arguments);
+    if (typeof require !== "undefined") return require.apply(this, arguments);
     throw Error('Dynamic require of "' + x2 + '" is not supported');
   });
   var __commonJS = (cb, mod) => function __require2() {
@@ -36,23 +38,10 @@
     isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
     mod
   ));
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
-  var __accessCheck = (obj, member, msg) => {
-    if (!member.has(obj))
-      throw TypeError("Cannot " + msg);
-  };
-  var __privateAdd = (obj, member, value) => {
-    if (member.has(obj))
-      throw TypeError("Cannot add the same private member more than once");
-    member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-  };
-  var __privateMethod = (obj, member, method) => {
-    __accessCheck(obj, member, "access private method");
-    return method;
-  };
+  var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+  var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+  var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 
   // node_modules/diacritics/index.js
   var require_diacritics = __commonJS({
@@ -3087,27 +3076,21 @@
             var i3 = left;
             var j2 = right;
             swap2(arr, left, k2);
-            if (compare2(arr[right], t2) > 0)
-              swap2(arr, left, right);
+            if (compare2(arr[right], t2) > 0) swap2(arr, left, right);
             while (i3 < j2) {
               swap2(arr, i3, j2);
               i3++;
               j2--;
-              while (compare2(arr[i3], t2) < 0)
-                i3++;
-              while (compare2(arr[j2], t2) > 0)
-                j2--;
+              while (compare2(arr[i3], t2) < 0) i3++;
+              while (compare2(arr[j2], t2) > 0) j2--;
             }
-            if (compare2(arr[left], t2) === 0)
-              swap2(arr, left, j2);
+            if (compare2(arr[left], t2) === 0) swap2(arr, left, j2);
             else {
               j2++;
               swap2(arr, j2, right);
             }
-            if (j2 <= k2)
-              left = j2 + 1;
-            if (k2 <= j2)
-              right = j2 - 1;
+            if (j2 <= k2) left = j2 + 1;
+            if (k2 <= j2) right = j2 - 1;
           }
         }
         function swap2(arr, i3, j2) {
@@ -3131,8 +3114,7 @@
       module2.exports.default = rbush;
       var quickselect2 = require_quickselect();
       function rbush(maxEntries, format2) {
-        if (!(this instanceof rbush))
-          return new rbush(maxEntries, format2);
+        if (!(this instanceof rbush)) return new rbush(maxEntries, format2);
         this._maxEntries = Math.max(4, maxEntries || 9);
         this._minEntries = Math.max(2, Math.ceil(this._maxEntries * 0.4));
         if (format2) {
@@ -3146,20 +3128,16 @@
         },
         search: function(bbox2) {
           var node = this.data, result = [], toBBox = this.toBBox;
-          if (!intersects(bbox2, node))
-            return result;
+          if (!intersects(bbox2, node)) return result;
           var nodesToSearch = [], i3, len, child, childBBox;
           while (node) {
             for (i3 = 0, len = node.children.length; i3 < len; i3++) {
               child = node.children[i3];
               childBBox = node.leaf ? toBBox(child) : child;
               if (intersects(bbox2, childBBox)) {
-                if (node.leaf)
-                  result.push(child);
-                else if (contains(bbox2, childBBox))
-                  this._all(child, result);
-                else
-                  nodesToSearch.push(child);
+                if (node.leaf) result.push(child);
+                else if (contains(bbox2, childBBox)) this._all(child, result);
+                else nodesToSearch.push(child);
               }
             }
             node = nodesToSearch.pop();
@@ -3168,16 +3146,14 @@
         },
         collides: function(bbox2) {
           var node = this.data, toBBox = this.toBBox;
-          if (!intersects(bbox2, node))
-            return false;
+          if (!intersects(bbox2, node)) return false;
           var nodesToSearch = [], i3, len, child, childBBox;
           while (node) {
             for (i3 = 0, len = node.children.length; i3 < len; i3++) {
               child = node.children[i3];
               childBBox = node.leaf ? toBBox(child) : child;
               if (intersects(bbox2, childBBox)) {
-                if (node.leaf || contains(bbox2, childBBox))
-                  return true;
+                if (node.leaf || contains(bbox2, childBBox)) return true;
                 nodesToSearch.push(child);
               }
             }
@@ -3186,8 +3162,7 @@
           return false;
         },
         load: function(data) {
-          if (!(data && data.length))
-            return this;
+          if (!(data && data.length)) return this;
           if (data.length < this._minEntries) {
             for (var i3 = 0, len = data.length; i3 < len; i3++) {
               this.insert(data[i3]);
@@ -3210,8 +3185,7 @@
           return this;
         },
         insert: function(item) {
-          if (item)
-            this._insert(item, this.data.height - 1);
+          if (item) this._insert(item, this.data.height - 1);
           return this;
         },
         clear: function() {
@@ -3219,8 +3193,7 @@
           return this;
         },
         remove: function(item, equalsFn) {
-          if (!item)
-            return this;
+          if (!item) return this;
           var node = this.data, bbox2 = this.toBBox(item), path = [], indexes = [], i3, parent, index, goingUp;
           while (node || path.length) {
             if (!node) {
@@ -3248,8 +3221,7 @@
               i3++;
               node = parent.children[i3];
               goingUp = false;
-            } else
-              node = null;
+            } else node = null;
           }
           return this;
         },
@@ -3268,10 +3240,8 @@
         _all: function(node, result) {
           var nodesToSearch = [];
           while (node) {
-            if (node.leaf)
-              result.push.apply(result, node.children);
-            else
-              nodesToSearch.push.apply(nodesToSearch, node.children);
+            if (node.leaf) result.push.apply(result, node.children);
+            else nodesToSearch.push.apply(nodesToSearch, node.children);
             node = nodesToSearch.pop();
           }
           return result;
@@ -3307,8 +3277,7 @@
           var i3, len, child, targetNode, area, enlargement, minArea, minEnlargement;
           while (true) {
             path.push(node);
-            if (node.leaf || path.length - 1 === level)
-              break;
+            if (node.leaf || path.length - 1 === level) break;
             minArea = minEnlargement = Infinity;
             for (i3 = 0, len = node.children.length; i3 < len; i3++) {
               child = node.children[i3];
@@ -3338,8 +3307,7 @@
             if (insertPath[level].children.length > this._maxEntries) {
               this._split(insertPath, level);
               level--;
-            } else
-              break;
+            } else break;
           }
           this._adjustParentBBoxes(bbox2, insertPath, level);
         },
@@ -3353,10 +3321,8 @@
           newNode.leaf = node.leaf;
           calcBBox(node, this.toBBox);
           calcBBox(newNode, this.toBBox);
-          if (level)
-            insertPath[level - 1].children.push(newNode);
-          else
-            this._splitRoot(node, newNode);
+          if (level) insertPath[level - 1].children.push(newNode);
+          else this._splitRoot(node, newNode);
         },
         _splitRoot: function(node, newNode) {
           this.data = createNode([node, newNode]);
@@ -3388,8 +3354,7 @@
         // sorts node children by the best axis for split
         _chooseSplitAxis: function(node, m2, M2) {
           var compareMinX = node.leaf ? this.compareMinX : compareNodeMinX, compareMinY = node.leaf ? this.compareMinY : compareNodeMinY, xMargin = this._allDistMargin(node, m2, M2, compareMinX), yMargin = this._allDistMargin(node, m2, M2, compareMinY);
-          if (xMargin < yMargin)
-            node.children.sort(compareMinX);
+          if (xMargin < yMargin) node.children.sort(compareMinX);
         },
         // total margin of all possible split distributions where each node is at least m full
         _allDistMargin: function(node, m2, M2, compare2) {
@@ -3418,10 +3383,8 @@
               if (i3 > 0) {
                 siblings = path[i3 - 1].children;
                 siblings.splice(siblings.indexOf(path[i3]), 1);
-              } else
-                this.clear();
-            } else
-              calcBBox(path[i3], this.toBBox);
+              } else this.clear();
+            } else calcBBox(path[i3], this.toBBox);
           }
         },
         _initFormat: function(format2) {
@@ -3435,11 +3398,9 @@
         }
       };
       function findItem(item, items, equalsFn) {
-        if (!equalsFn)
-          return items.indexOf(item);
+        if (!equalsFn) return items.indexOf(item);
         for (var i3 = 0; i3 < items.length; i3++) {
-          if (equalsFn(item, items[i3]))
-            return i3;
+          if (equalsFn(item, items[i3])) return i3;
         }
         return -1;
       }
@@ -3447,8 +3408,7 @@
         distBBox(node, 0, node.children.length, toBBox, node);
       }
       function distBBox(node, k2, p2, toBBox, destNode) {
-        if (!destNode)
-          destNode = createNode(null);
+        if (!destNode) destNode = createNode(null);
         destNode.minX = Infinity;
         destNode.minY = Infinity;
         destNode.maxX = -Infinity;
@@ -3507,8 +3467,7 @@
         while (stack.length) {
           right = stack.pop();
           left = stack.pop();
-          if (right - left <= n3)
-            continue;
+          if (right - left <= n3) continue;
           mid = left + Math.ceil((right - left) / n3 / 2) * n3;
           quickselect2(arr, mid, left, right, compare2);
           stack.push(left, mid, mid, right);
@@ -3526,8 +3485,7 @@
       lineclip2.polygon = polygonclip2;
       function lineclip2(points, bbox2, result) {
         var len = points.length, codeA = bitCode2(points[0], bbox2), part = [], i3, a2, b2, codeB, lastCode;
-        if (!result)
-          result = [];
+        if (!result) result = [];
         for (i3 = 1; i3 < len; i3++) {
           a2 = points[i3 - 1];
           b2 = points[i3];
@@ -3557,8 +3515,7 @@
           }
           codeA = lastCode;
         }
-        if (part.length)
-          result.push(part);
+        if (part.length) result.push(part);
         return result;
       }
       function polygonclip2(points, bbox2) {
@@ -3570,16 +3527,13 @@
           for (i3 = 0; i3 < points.length; i3++) {
             p2 = points[i3];
             inside = !(bitCode2(p2, bbox2) & edge);
-            if (inside !== prevInside)
-              result.push(intersect2(prev, p2, edge, bbox2));
-            if (inside)
-              result.push(p2);
+            if (inside !== prevInside) result.push(intersect2(prev, p2, edge, bbox2));
+            if (inside) result.push(p2);
             prev = p2;
             prevInside = inside;
           }
           points = result;
-          if (!points.length)
-            break;
+          if (!points.length) break;
         }
         return result;
       }
@@ -3600,14 +3554,10 @@
       }
       function bitCode2(p2, bbox2) {
         var code = 0;
-        if (p2[0] < bbox2[0])
-          code |= 1;
-        else if (p2[0] > bbox2[2])
-          code |= 2;
-        if (p2[1] < bbox2[1])
-          code |= 4;
-        else if (p2[1] > bbox2[3])
-          code |= 8;
+        if (p2[0] < bbox2[0]) code |= 1;
+        else if (p2[0] > bbox2[2]) code |= 2;
+        if (p2[1] < bbox2[1]) code |= 4;
+        else if (p2[1] > bbox2[3]) code |= 8;
         return code;
       }
     }
@@ -3624,8 +3574,7 @@
         var bboxes = [];
         for (var i3 = 0; i3 < data.features.length; i3++) {
           var feature3 = data.features[i3];
-          if (!feature3.geometry)
-            continue;
+          if (!feature3.geometry) continue;
           var coords = feature3.geometry.coordinates;
           if (feature3.geometry.type === "Polygon") {
             bboxes.push(treeItem(coords, feature3.properties));
@@ -3676,11 +3625,9 @@
           (bbox2[0] + bbox2[2]) / 2,
           (bbox2[1] + bbox2[3]) / 2
         ];
-        if (insidePolygon(polygon2, bboxCenter))
-          return true;
+        if (insidePolygon(polygon2, bboxCenter)) return true;
         for (var i3 = 0; i3 < polygon2.length; i3++) {
-          if (lineclip2(polygon2[i3], bbox2).length > 0)
-            return true;
+          if (lineclip2(polygon2[i3], bbox2).length > 0) return true;
         }
         return false;
       }
@@ -3689,8 +3636,7 @@
         for (var i3 = 0, len = rings.length; i3 < len; i3++) {
           var ring = rings[i3];
           for (var j2 = 0, len2 = ring.length, k2 = len2 - 1; j2 < len2; k2 = j2++) {
-            if (rayIntersect(p2, ring[j2], ring[k2]))
-              inside = !inside;
+            if (rayIntersect(p2, ring[j2], ring[k2])) inside = !inside;
           }
         }
         return inside;
@@ -10251,38 +10197,28 @@
     "node_modules/fast-deep-equal/index.js"(exports2, module2) {
       "use strict";
       module2.exports = function equal(a2, b2) {
-        if (a2 === b2)
-          return true;
+        if (a2 === b2) return true;
         if (a2 && b2 && typeof a2 == "object" && typeof b2 == "object") {
-          if (a2.constructor !== b2.constructor)
-            return false;
+          if (a2.constructor !== b2.constructor) return false;
           var length2, i3, keys2;
           if (Array.isArray(a2)) {
             length2 = a2.length;
-            if (length2 != b2.length)
-              return false;
+            if (length2 != b2.length) return false;
             for (i3 = length2; i3-- !== 0; )
-              if (!equal(a2[i3], b2[i3]))
-                return false;
+              if (!equal(a2[i3], b2[i3])) return false;
             return true;
           }
-          if (a2.constructor === RegExp)
-            return a2.source === b2.source && a2.flags === b2.flags;
-          if (a2.valueOf !== Object.prototype.valueOf)
-            return a2.valueOf() === b2.valueOf();
-          if (a2.toString !== Object.prototype.toString)
-            return a2.toString() === b2.toString();
+          if (a2.constructor === RegExp) return a2.source === b2.source && a2.flags === b2.flags;
+          if (a2.valueOf !== Object.prototype.valueOf) return a2.valueOf() === b2.valueOf();
+          if (a2.toString !== Object.prototype.toString) return a2.toString() === b2.toString();
           keys2 = Object.keys(a2);
           length2 = keys2.length;
-          if (length2 !== Object.keys(b2).length)
-            return false;
+          if (length2 !== Object.keys(b2).length) return false;
           for (i3 = length2; i3-- !== 0; )
-            if (!Object.prototype.hasOwnProperty.call(b2, keys2[i3]))
-              return false;
+            if (!Object.prototype.hasOwnProperty.call(b2, keys2[i3])) return false;
           for (i3 = length2; i3-- !== 0; ) {
             var key = keys2[i3];
-            if (!equal(a2[key], b2[key]))
-              return false;
+            if (!equal(a2[key], b2[key])) return false;
           }
           return true;
         }
@@ -10307,10 +10243,8 @@
               }
               var p3 = n4[r4], d4 = e6, x2 = a4;
               for (i3(n4, e6, r4), h4(n4[a4], p3) > 0 && i3(n4, e6, a4); d4 < x2; ) {
-                for (i3(n4, d4, x2), d4++, x2--; h4(n4[d4], p3) < 0; )
-                  d4++;
-                for (; h4(n4[x2], p3) > 0; )
-                  x2--;
+                for (i3(n4, d4, x2), d4++, x2--; h4(n4[d4], p3) < 0; ) d4++;
+                for (; h4(n4[x2], p3) > 0; ) x2--;
               }
               0 === h4(n4[e6], p3) ? i3(n4, e6, x2) : i3(n4, ++x2, a4), x2 <= r4 && (e6 = x2 + 1), r4 <= x2 && (a4 = x2 - 1);
             }
@@ -10327,11 +10261,8 @@
           void 0 === t3 && (t3 = 9), this._maxEntries = Math.max(4, t3), this._minEntries = Math.max(2, Math.ceil(0.4 * this._maxEntries)), this.clear();
         };
         function e3(t3, i4, n4) {
-          if (!n4)
-            return i4.indexOf(t3);
-          for (var r3 = 0; r3 < i4.length; r3++)
-            if (n4(t3, i4[r3]))
-              return r3;
+          if (!n4) return i4.indexOf(t3);
+          for (var r3 = 0; r3 < i4.length; r3++) if (n4(t3, i4[r3])) return r3;
           return -1;
         }
         function a2(t3, i4) {
@@ -10370,18 +10301,16 @@
           return { children: t3, height: 1, leaf: true, minX: 1 / 0, minY: 1 / 0, maxX: -1 / 0, maxY: -1 / 0 };
         }
         function d2(i4, n4, r3, e4, a3) {
-          for (var h3 = [n4, r3]; h3.length; )
-            if (!((r3 = h3.pop()) - (n4 = h3.pop()) <= e4)) {
-              var o3 = n4 + Math.ceil((r3 - n4) / e4 / 2) * e4;
-              t2(i4, o3, n4, r3, a3), h3.push(n4, o3, o3, r3);
-            }
+          for (var h3 = [n4, r3]; h3.length; ) if (!((r3 = h3.pop()) - (n4 = h3.pop()) <= e4)) {
+            var o3 = n4 + Math.ceil((r3 - n4) / e4 / 2) * e4;
+            t2(i4, o3, n4, r3, a3), h3.push(n4, o3, o3, r3);
+          }
         }
         return r2.prototype.all = function() {
           return this._all(this.data, []);
         }, r2.prototype.search = function(t3) {
           var i4 = this.data, n4 = [];
-          if (!c2(t3, i4))
-            return n4;
+          if (!c2(t3, i4)) return n4;
           for (var r3 = this.toBBox, e4 = []; i4; ) {
             for (var a3 = 0; a3 < i4.children.length; a3++) {
               var h3 = i4.children[a3], o3 = i4.leaf ? r3(h3) : h3;
@@ -10392,14 +10321,12 @@
           return n4;
         }, r2.prototype.collides = function(t3) {
           var i4 = this.data;
-          if (!c2(t3, i4))
-            return false;
+          if (!c2(t3, i4)) return false;
           for (var n4 = []; i4; ) {
             for (var r3 = 0; r3 < i4.children.length; r3++) {
               var e4 = i4.children[r3], a3 = i4.leaf ? this.toBBox(e4) : e4;
               if (c2(t3, a3)) {
-                if (i4.leaf || m2(t3, a3))
-                  return true;
+                if (i4.leaf || m2(t3, a3)) return true;
                 n4.push(e4);
               }
             }
@@ -10407,39 +10334,32 @@
           }
           return false;
         }, r2.prototype.load = function(t3) {
-          if (!t3 || !t3.length)
-            return this;
+          if (!t3 || !t3.length) return this;
           if (t3.length < this._minEntries) {
-            for (var i4 = 0; i4 < t3.length; i4++)
-              this.insert(t3[i4]);
+            for (var i4 = 0; i4 < t3.length; i4++) this.insert(t3[i4]);
             return this;
           }
           var n4 = this._build(t3.slice(), 0, t3.length - 1, 0);
-          if (this.data.children.length)
-            if (this.data.height === n4.height)
-              this._splitRoot(this.data, n4);
-            else {
-              if (this.data.height < n4.height) {
-                var r3 = this.data;
-                this.data = n4, n4 = r3;
-              }
-              this._insert(n4, this.data.height - n4.height - 1, true);
+          if (this.data.children.length) if (this.data.height === n4.height) this._splitRoot(this.data, n4);
+          else {
+            if (this.data.height < n4.height) {
+              var r3 = this.data;
+              this.data = n4, n4 = r3;
             }
-          else
-            this.data = n4;
+            this._insert(n4, this.data.height - n4.height - 1, true);
+          }
+          else this.data = n4;
           return this;
         }, r2.prototype.insert = function(t3) {
           return t3 && this._insert(t3, this.data.height - 1), this;
         }, r2.prototype.clear = function() {
           return this.data = p2([]), this;
         }, r2.prototype.remove = function(t3, i4) {
-          if (!t3)
-            return this;
+          if (!t3) return this;
           for (var n4, r3, a3, h3 = this.data, o3 = this.toBBox(t3), s3 = [], l3 = []; h3 || s3.length; ) {
             if (h3 || (h3 = s3.pop(), r3 = s3[s3.length - 1], n4 = l3.pop(), a3 = true), h3.leaf) {
               var f3 = e3(t3, h3.children, i4);
-              if (-1 !== f3)
-                return h3.children.splice(f3, 1), s3.push(h3), this._condense(s3), this;
+              if (-1 !== f3) return h3.children.splice(f3, 1), s3.push(h3), this._condense(s3), this;
             }
             a3 || h3.leaf || !m2(h3, o3) ? r3 ? (n4++, h3 = r3.children[n4], a3 = false) : h3 = null : (s3.push(h3), l3.push(n4), n4 = 0, r3 = h3, h3 = h3.children[0]);
           }
@@ -10455,13 +10375,11 @@
         }, r2.prototype.fromJSON = function(t3) {
           return this.data = t3, this;
         }, r2.prototype._all = function(t3, i4) {
-          for (var n4 = []; t3; )
-            t3.leaf ? i4.push.apply(i4, t3.children) : n4.push.apply(n4, t3.children), t3 = n4.pop();
+          for (var n4 = []; t3; ) t3.leaf ? i4.push.apply(i4, t3.children) : n4.push.apply(n4, t3.children), t3 = n4.pop();
           return i4;
         }, r2.prototype._build = function(t3, i4, n4, r3) {
           var e4, h3 = n4 - i4 + 1, o3 = this._maxEntries;
-          if (h3 <= o3)
-            return a2(e4 = p2(t3.slice(i4, n4 + 1)), this.toBBox), e4;
+          if (h3 <= o3) return a2(e4 = p2(t3.slice(i4, n4 + 1)), this.toBBox), e4;
           r3 || (r3 = Math.ceil(Math.log(h3) / Math.log(o3)), o3 = Math.ceil(h3 / Math.pow(o3, r3 - 1))), (e4 = p2([])).leaf = false, e4.height = r3;
           var s3 = Math.ceil(h3 / o3), l3 = s3 * Math.ceil(Math.sqrt(o3));
           d2(t3, i4, n4, l3, this.compareMinX);
@@ -10486,8 +10404,7 @@
           return i4;
         }, r2.prototype._insert = function(t3, i4, n4) {
           var r3 = n4 ? t3 : this.toBBox(t3), e4 = [], a3 = this._chooseSubtree(r3, this.data, i4, e4);
-          for (a3.children.push(t3), o2(a3, r3); i4 >= 0 && e4[i4].children.length > this._maxEntries; )
-            this._split(e4, i4), i4--;
+          for (a3.children.push(t3), o2(a3, r3); i4 >= 0 && e4[i4].children.length > this._maxEntries; ) this._split(e4, i4), i4--;
           this._adjustParentBBoxes(r3, e4, i4);
         }, r2.prototype._split = function(t3, i4) {
           var n4 = t3[i4], r3 = n4.children.length, e4 = this._minEntries;
@@ -10517,11 +10434,9 @@
           }
           return l3;
         }, r2.prototype._adjustParentBBoxes = function(t3, i4, n4) {
-          for (var r3 = n4; r3 >= 0; r3--)
-            o2(i4[r3], t3);
+          for (var r3 = n4; r3 >= 0; r3--) o2(i4[r3], t3);
         }, r2.prototype._condense = function(t3) {
-          for (var i4 = t3.length - 1, n4 = void 0; i4 >= 0; i4--)
-            0 === t3[i4].children.length ? i4 > 0 ? (n4 = t3[i4 - 1].children).splice(n4.indexOf(t3[i4]), 1) : this.clear() : a2(t3[i4], this.toBBox);
+          for (var i4 = t3.length - 1, n4 = void 0; i4 >= 0; i4--) 0 === t3[i4].children.length ? i4 > 0 ? (n4 = t3[i4 - 1].children).splice(n4.indexOf(t3[i4]), 1) : this.clear() : a2(t3[i4], this.toBBox);
         }, r2;
       });
     }
@@ -10641,8 +10556,7 @@
             var val = this.readVarint(), tag2 = val >> 3, startPos = this.pos;
             this.type = val & 7;
             readField(tag2, result, this);
-            if (this.pos === startPos)
-              this.skip(val);
+            if (this.pos === startPos) this.skip(val);
           }
           return result;
         },
@@ -10684,20 +10598,16 @@
           var buf = this.buf, val, b2;
           b2 = buf[this.pos++];
           val = b2 & 127;
-          if (b2 < 128)
-            return val;
+          if (b2 < 128) return val;
           b2 = buf[this.pos++];
           val |= (b2 & 127) << 7;
-          if (b2 < 128)
-            return val;
+          if (b2 < 128) return val;
           b2 = buf[this.pos++];
           val |= (b2 & 127) << 14;
-          if (b2 < 128)
-            return val;
+          if (b2 < 128) return val;
           b2 = buf[this.pos++];
           val |= (b2 & 127) << 21;
-          if (b2 < 128)
-            return val;
+          if (b2 < 128) return val;
           b2 = buf[this.pos];
           val |= (b2 & 15) << 28;
           return readVarintRemainder(val, isSigned, this);
@@ -10728,99 +10638,76 @@
         },
         // verbose for performance reasons; doesn't affect gzipped size
         readPackedVarint: function(arr, isSigned) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readVarint(isSigned));
+          if (this.type !== Pbf.Bytes) return arr.push(this.readVarint(isSigned));
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readVarint(isSigned));
+          while (this.pos < end) arr.push(this.readVarint(isSigned));
           return arr;
         },
         readPackedSVarint: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readSVarint());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readSVarint());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readSVarint());
+          while (this.pos < end) arr.push(this.readSVarint());
           return arr;
         },
         readPackedBoolean: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readBoolean());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readBoolean());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readBoolean());
+          while (this.pos < end) arr.push(this.readBoolean());
           return arr;
         },
         readPackedFloat: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readFloat());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readFloat());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readFloat());
+          while (this.pos < end) arr.push(this.readFloat());
           return arr;
         },
         readPackedDouble: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readDouble());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readDouble());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readDouble());
+          while (this.pos < end) arr.push(this.readDouble());
           return arr;
         },
         readPackedFixed32: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readFixed32());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readFixed32());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readFixed32());
+          while (this.pos < end) arr.push(this.readFixed32());
           return arr;
         },
         readPackedSFixed32: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readSFixed32());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readSFixed32());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readSFixed32());
+          while (this.pos < end) arr.push(this.readSFixed32());
           return arr;
         },
         readPackedFixed64: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readFixed64());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readFixed64());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readFixed64());
+          while (this.pos < end) arr.push(this.readFixed64());
           return arr;
         },
         readPackedSFixed64: function(arr) {
-          if (this.type !== Pbf.Bytes)
-            return arr.push(this.readSFixed64());
+          if (this.type !== Pbf.Bytes) return arr.push(this.readSFixed64());
           var end = readPackedEnd(this);
           arr = arr || [];
-          while (this.pos < end)
-            arr.push(this.readSFixed64());
+          while (this.pos < end) arr.push(this.readSFixed64());
           return arr;
         },
         skip: function(val) {
           var type2 = val & 7;
-          if (type2 === Pbf.Varint)
-            while (this.buf[this.pos++] > 127) {
-            }
-          else if (type2 === Pbf.Bytes)
-            this.pos = this.readVarint() + this.pos;
-          else if (type2 === Pbf.Fixed32)
-            this.pos += 4;
-          else if (type2 === Pbf.Fixed64)
-            this.pos += 8;
-          else
-            throw new Error("Unimplemented type: " + type2);
+          if (type2 === Pbf.Varint) while (this.buf[this.pos++] > 127) {
+          }
+          else if (type2 === Pbf.Bytes) this.pos = this.readVarint() + this.pos;
+          else if (type2 === Pbf.Fixed32) this.pos += 4;
+          else if (type2 === Pbf.Fixed64) this.pos += 8;
+          else throw new Error("Unimplemented type: " + type2);
         },
         // === WRITING =================================================================
         writeTag: function(tag2, type2) {
@@ -10828,8 +10715,7 @@
         },
         realloc: function(min3) {
           var length2 = this.length || 16;
-          while (length2 < this.pos + min3)
-            length2 *= 2;
+          while (length2 < this.pos + min3) length2 *= 2;
           if (length2 !== this.length) {
             var buf = new Uint8Array(length2);
             buf.set(this.buf);
@@ -10872,14 +10758,11 @@
           }
           this.realloc(4);
           this.buf[this.pos++] = val & 127 | (val > 127 ? 128 : 0);
-          if (val <= 127)
-            return;
+          if (val <= 127) return;
           this.buf[this.pos++] = (val >>>= 7) & 127 | (val > 127 ? 128 : 0);
-          if (val <= 127)
-            return;
+          if (val <= 127) return;
           this.buf[this.pos++] = (val >>>= 7) & 127 | (val > 127 ? 128 : 0);
-          if (val <= 127)
-            return;
+          if (val <= 127) return;
           this.buf[this.pos++] = val >>> 7 & 127;
         },
         writeSVarint: function(val) {
@@ -10895,8 +10778,7 @@
           var startPos = this.pos;
           this.pos = writeUtf8(this.buf, str, this.pos);
           var len = this.pos - startPos;
-          if (len >= 128)
-            makeRoomForExtraLength(startPos, len, this);
+          if (len >= 128) makeRoomForExtraLength(startPos, len, this);
           this.pos = startPos - 1;
           this.writeVarint(len);
           this.pos += len;
@@ -10915,16 +10797,14 @@
           var len = buffer.length;
           this.writeVarint(len);
           this.realloc(len);
-          for (var i3 = 0; i3 < len; i3++)
-            this.buf[this.pos++] = buffer[i3];
+          for (var i3 = 0; i3 < len; i3++) this.buf[this.pos++] = buffer[i3];
         },
         writeRawMessage: function(fn, obj) {
           this.pos++;
           var startPos = this.pos;
           fn(obj, this);
           var len = this.pos - startPos;
-          if (len >= 128)
-            makeRoomForExtraLength(startPos, len, this);
+          if (len >= 128) makeRoomForExtraLength(startPos, len, this);
           this.pos = startPos - 1;
           this.writeVarint(len);
           this.pos += len;
@@ -10934,40 +10814,31 @@
           this.writeRawMessage(fn, obj);
         },
         writePackedVarint: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedVarint, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedVarint, arr);
         },
         writePackedSVarint: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedSVarint, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedSVarint, arr);
         },
         writePackedBoolean: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedBoolean, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedBoolean, arr);
         },
         writePackedFloat: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedFloat, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedFloat, arr);
         },
         writePackedDouble: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedDouble, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedDouble, arr);
         },
         writePackedFixed32: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedFixed32, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedFixed32, arr);
         },
         writePackedSFixed32: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedSFixed32, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedSFixed32, arr);
         },
         writePackedFixed64: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedFixed64, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedFixed64, arr);
         },
         writePackedSFixed64: function(tag2, arr) {
-          if (arr.length)
-            this.writeMessage(tag2, writePackedSFixed64, arr);
+          if (arr.length) this.writeMessage(tag2, writePackedSFixed64, arr);
         },
         writeBytesField: function(tag2, buffer) {
           this.writeTag(tag2, Pbf.Bytes);
@@ -11017,28 +10888,22 @@
         var buf = p2.buf, h2, b2;
         b2 = buf[p2.pos++];
         h2 = (b2 & 112) >> 4;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         b2 = buf[p2.pos++];
         h2 |= (b2 & 127) << 3;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         b2 = buf[p2.pos++];
         h2 |= (b2 & 127) << 10;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         b2 = buf[p2.pos++];
         h2 |= (b2 & 127) << 17;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         b2 = buf[p2.pos++];
         h2 |= (b2 & 127) << 24;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         b2 = buf[p2.pos++];
         h2 |= (b2 & 1) << 31;
-        if (b2 < 128)
-          return toNum(l2, h2, s2);
+        if (b2 < 128) return toNum(l2, h2, s2);
         throw new Error("Expected varint not more than 10 bytes");
       }
       function readPackedEnd(pbf) {
@@ -11086,63 +10951,48 @@
       function writeBigVarintHigh(high, pbf) {
         var lsb = (high & 7) << 4;
         pbf.buf[pbf.pos++] |= lsb | ((high >>>= 3) ? 128 : 0);
-        if (!high)
-          return;
+        if (!high) return;
         pbf.buf[pbf.pos++] = high & 127 | ((high >>>= 7) ? 128 : 0);
-        if (!high)
-          return;
+        if (!high) return;
         pbf.buf[pbf.pos++] = high & 127 | ((high >>>= 7) ? 128 : 0);
-        if (!high)
-          return;
+        if (!high) return;
         pbf.buf[pbf.pos++] = high & 127 | ((high >>>= 7) ? 128 : 0);
-        if (!high)
-          return;
+        if (!high) return;
         pbf.buf[pbf.pos++] = high & 127 | ((high >>>= 7) ? 128 : 0);
-        if (!high)
-          return;
+        if (!high) return;
         pbf.buf[pbf.pos++] = high & 127;
       }
       function makeRoomForExtraLength(startPos, len, pbf) {
         var extraLen = len <= 16383 ? 1 : len <= 2097151 ? 2 : len <= 268435455 ? 3 : Math.floor(Math.log(len) / (Math.LN2 * 7));
         pbf.realloc(extraLen);
-        for (var i3 = pbf.pos - 1; i3 >= startPos; i3--)
-          pbf.buf[i3 + extraLen] = pbf.buf[i3];
+        for (var i3 = pbf.pos - 1; i3 >= startPos; i3--) pbf.buf[i3 + extraLen] = pbf.buf[i3];
       }
       function writePackedVarint(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeVarint(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeVarint(arr[i3]);
       }
       function writePackedSVarint(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeSVarint(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeSVarint(arr[i3]);
       }
       function writePackedFloat(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeFloat(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeFloat(arr[i3]);
       }
       function writePackedDouble(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeDouble(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeDouble(arr[i3]);
       }
       function writePackedBoolean(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeBoolean(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeBoolean(arr[i3]);
       }
       function writePackedFixed32(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeFixed32(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeFixed32(arr[i3]);
       }
       function writePackedSFixed32(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeSFixed32(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeSFixed32(arr[i3]);
       }
       function writePackedFixed64(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeFixed64(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeFixed64(arr[i3]);
       }
       function writePackedSFixed64(arr, pbf) {
-        for (var i3 = 0; i3 < arr.length; i3++)
-          pbf.writeSFixed64(arr[i3]);
+        for (var i3 = 0; i3 < arr.length; i3++) pbf.writeSFixed64(arr[i3]);
       }
       function readUInt32(buf, pos) {
         return (buf[pos] | buf[pos + 1] << 8 | buf[pos + 2] << 16) + buf[pos + 3] * 16777216;
@@ -11163,8 +11013,7 @@
           var b0 = buf[i3];
           var c2 = null;
           var bytesPerSequence = b0 > 239 ? 4 : b0 > 223 ? 3 : b0 > 191 ? 2 : 1;
-          if (i3 + bytesPerSequence > end)
-            break;
+          if (i3 + bytesPerSequence > end) break;
           var b1, b2, b3;
           if (bytesPerSequence === 1) {
             if (b0 < 128) {
@@ -11560,14 +11409,10 @@
         pbf.readFields(readFeature, this, end);
       }
       function readFeature(tag2, feature3, pbf) {
-        if (tag2 == 1)
-          feature3.id = pbf.readVarint();
-        else if (tag2 == 2)
-          readTag(pbf, feature3);
-        else if (tag2 == 3)
-          feature3.type = pbf.readVarint();
-        else if (tag2 == 4)
-          feature3._geometry = pbf.pos;
+        if (tag2 == 1) feature3.id = pbf.readVarint();
+        else if (tag2 == 2) readTag(pbf, feature3);
+        else if (tag2 == 3) feature3.type = pbf.readVarint();
+        else if (tag2 == 4) feature3._geometry = pbf.pos;
       }
       function readTag(pbf, feature3) {
         var end = pbf.readVarint() + pbf.pos;
@@ -11592,8 +11437,7 @@
             x2 += pbf.readSVarint();
             y2 += pbf.readSVarint();
             if (cmd === 1) {
-              if (line)
-                lines.push(line);
+              if (line) lines.push(line);
               line = [];
             }
             line.push(new Point(x2, y2));
@@ -11605,8 +11449,7 @@
             throw new Error("unknown command " + cmd);
           }
         }
-        if (line)
-          lines.push(line);
+        if (line) lines.push(line);
         return lines;
       };
       VectorTileFeature.prototype.bbox = function() {
@@ -11623,14 +11466,10 @@
           if (cmd === 1 || cmd === 2) {
             x2 += pbf.readSVarint();
             y2 += pbf.readSVarint();
-            if (x2 < x12)
-              x12 = x2;
-            if (x2 > x22)
-              x22 = x2;
-            if (y2 < y12)
-              y12 = y2;
-            if (y2 > y22)
-              y22 = y2;
+            if (x2 < x12) x12 = x2;
+            if (x2 > x22) x22 = x2;
+            if (y2 < y12) y12 = y2;
+            if (y2 > y22) y22 = y2;
           } else if (cmd !== 7) {
             throw new Error("unknown command " + cmd);
           }
@@ -11691,25 +11530,20 @@
       };
       function classifyRings(rings) {
         var len = rings.length;
-        if (len <= 1)
-          return [rings];
+        if (len <= 1) return [rings];
         var polygons = [], polygon2, ccw;
         for (var i3 = 0; i3 < len; i3++) {
           var area = signedArea(rings[i3]);
-          if (area === 0)
-            continue;
-          if (ccw === void 0)
-            ccw = area < 0;
+          if (area === 0) continue;
+          if (ccw === void 0) ccw = area < 0;
           if (ccw === area < 0) {
-            if (polygon2)
-              polygons.push(polygon2);
+            if (polygon2) polygons.push(polygon2);
             polygon2 = [rings[i3]];
           } else {
             polygon2.push(rings[i3]);
           }
         }
-        if (polygon2)
-          polygons.push(polygon2);
+        if (polygon2) polygons.push(polygon2);
         return polygons;
       }
       function signedArea(ring) {
@@ -11743,18 +11577,12 @@
         this.length = this._features.length;
       }
       function readLayer(tag2, layer, pbf) {
-        if (tag2 === 15)
-          layer.version = pbf.readVarint();
-        else if (tag2 === 1)
-          layer.name = pbf.readString();
-        else if (tag2 === 5)
-          layer.extent = pbf.readVarint();
-        else if (tag2 === 2)
-          layer._features.push(pbf.pos);
-        else if (tag2 === 3)
-          layer._keys.push(pbf.readString());
-        else if (tag2 === 4)
-          layer._values.push(readValueMessage(pbf));
+        if (tag2 === 15) layer.version = pbf.readVarint();
+        else if (tag2 === 1) layer.name = pbf.readString();
+        else if (tag2 === 5) layer.extent = pbf.readVarint();
+        else if (tag2 === 2) layer._features.push(pbf.pos);
+        else if (tag2 === 3) layer._keys.push(pbf.readString());
+        else if (tag2 === 4) layer._values.push(readValueMessage(pbf));
       }
       function readValueMessage(pbf) {
         var value = null, end = pbf.readVarint() + pbf.pos;
@@ -11765,8 +11593,7 @@
         return value;
       }
       VectorTileLayer.prototype.feature = function(i3) {
-        if (i3 < 0 || i3 >= this._features.length)
-          throw new Error("feature index out of bounds");
+        if (i3 < 0 || i3 >= this._features.length) throw new Error("feature index out of bounds");
         this._pbf.pos = this._features[i3];
         var end = this._pbf.readVarint() + this._pbf.pos;
         return new VectorTileFeature(this._pbf, end, this.extent, this._keys, this._values);
@@ -11786,8 +11613,7 @@
       function readTile(tag2, layers, pbf) {
         if (tag2 === 3) {
           var layer = new VectorTileLayer(pbf, pbf.readVarint() + pbf.pos);
-          if (layer.length)
-            layers[layer.name] = layer;
+          if (layer.length) layers[layer.name] = layer;
         }
       }
     }
@@ -11807,10 +11633,8 @@
     "node_modules/fast-json-stable-stringify/index.js"(exports2, module2) {
       "use strict";
       module2.exports = function(data, opts) {
-        if (!opts)
-          opts = {};
-        if (typeof opts === "function")
-          opts = { cmp: opts };
+        if (!opts) opts = {};
+        if (typeof opts === "function") opts = { cmp: opts };
         var cycles = typeof opts.cycles === "boolean" ? opts.cycles : false;
         var cmp = opts.cmp && /* @__PURE__ */ function(f2) {
           return function(node) {
@@ -11826,27 +11650,21 @@
           if (node && node.toJSON && typeof node.toJSON === "function") {
             node = node.toJSON();
           }
-          if (node === void 0)
-            return;
-          if (typeof node == "number")
-            return isFinite(node) ? "" + node : "null";
-          if (typeof node !== "object")
-            return JSON.stringify(node);
+          if (node === void 0) return;
+          if (typeof node == "number") return isFinite(node) ? "" + node : "null";
+          if (typeof node !== "object") return JSON.stringify(node);
           var i3, out;
           if (Array.isArray(node)) {
             out = "[";
             for (i3 = 0; i3 < node.length; i3++) {
-              if (i3)
-                out += ",";
+              if (i3) out += ",";
               out += stringify3(node[i3]) || "null";
             }
             return out + "]";
           }
-          if (node === null)
-            return "null";
+          if (node === null) return "null";
           if (seen.indexOf(node) !== -1) {
-            if (cycles)
-              return JSON.stringify("__cycle__");
+            if (cycles) return JSON.stringify("__cycle__");
             throw new TypeError("Converting circular structure to JSON");
           }
           var seenIndex = seen.push(node) - 1;
@@ -11855,10 +11673,8 @@
           for (i3 = 0; i3 < keys2.length; i3++) {
             var key = keys2[i3];
             var value = stringify3(node[key]);
-            if (!value)
-              continue;
-            if (out)
-              out += ",";
+            if (!value) continue;
+            if (out) out += ",";
             out += JSON.stringify(key) + ":" + value;
           }
           seen.splice(seenIndex, 1);
@@ -11904,15 +11720,12 @@
         };
       }
       function search(input, dims) {
-        if (!dims)
-          dims = "NSEW";
-        if (typeof input !== "string")
-          return null;
+        if (!dims) dims = "NSEW";
+        if (typeof input !== "string") return null;
         input = input.toUpperCase();
         var regex = /^[\s\,]*([NSEW])?\s*([\-|\—|\―]?[0-9.]+)[°º˚]?\s*(?:([0-9.]+)['’′‘]\s*)?(?:([0-9.]+)(?:''|"|”|″)\s*)?([NSEW])?/;
         var m2 = input.match(regex);
-        if (!m2)
-          return null;
+        if (!m2) return null;
         var matched = m2[0];
         var dim;
         if (m2[1] && m2[5]) {
@@ -11921,14 +11734,12 @@
         } else {
           dim = m2[1] || m2[5];
         }
-        if (dim && dims.indexOf(dim) === -1)
-          return null;
+        if (dim && dims.indexOf(dim) === -1) return null;
         var deg = m2[2] ? parseFloat(m2[2]) : 0;
         var min3 = m2[3] ? parseFloat(m2[3]) / 60 : 0;
         var sec = m2[4] ? parseFloat(m2[4]) / 3600 : 0;
         var sign2 = deg < 0 ? -1 : 1;
-        if (dim === "S" || dim === "W")
-          sign2 *= -1;
+        if (dim === "S" || dim === "W") sign2 *= -1;
         return {
           val: (Math.abs(deg) + min3 + sec) * sign2,
           dim,
@@ -11939,12 +11750,10 @@
       function pair3(input, dims) {
         input = input.trim();
         var one2 = search(input, dims);
-        if (!one2)
-          return null;
+        if (!one2) return null;
         input = one2.remain.trim();
         var two = search(input, dims);
-        if (!two || two.remain)
-          return null;
+        if (!two || two.remain) return null;
         if (one2.dim) {
           return swapdim(one2.val, two.val, one2.dim);
         } else {
@@ -11952,10 +11761,8 @@
         }
       }
       function swapdim(a2, b2, dim) {
-        if (dim === "N" || dim === "S")
-          return [a2, b2];
-        if (dim === "W" || dim === "E")
-          return [b2, a2];
+        if (dim === "N" || dim === "S") return [a2, b2];
+        if (dim === "W" || dim === "E") return [b2, a2];
       }
     }
   });
@@ -11971,8 +11778,7 @@
           var _2 = {
             label: 0,
             sent: function() {
-              if (t2[0] & 1)
-                throw t2[1];
+              if (t2[0] & 1) throw t2[1];
               return t2[1];
             },
             trys: [],
@@ -11991,67 +11797,61 @@
             };
           }
           function step(op) {
-            if (f2)
-              throw new TypeError("Generator is already executing.");
-            while (_2)
-              try {
-                if (f2 = 1, y2 && (t2 = op[0] & 2 ? y2["return"] : op[0] ? y2["throw"] || ((t2 = y2["return"]) && t2.call(y2), 0) : y2.next) && !(t2 = t2.call(y2, op[1])).done)
-                  return t2;
-                if (y2 = 0, t2)
-                  op = [op[0] & 2, t2.value];
-                switch (op[0]) {
-                  case 0:
-                  case 1:
+            if (f2) throw new TypeError("Generator is already executing.");
+            while (_2) try {
+              if (f2 = 1, y2 && (t2 = op[0] & 2 ? y2["return"] : op[0] ? y2["throw"] || ((t2 = y2["return"]) && t2.call(y2), 0) : y2.next) && !(t2 = t2.call(y2, op[1])).done) return t2;
+              if (y2 = 0, t2) op = [op[0] & 2, t2.value];
+              switch (op[0]) {
+                case 0:
+                case 1:
+                  t2 = op;
+                  break;
+                case 4:
+                  _2.label++;
+                  return {
+                    value: op[1],
+                    done: false
+                  };
+                case 5:
+                  _2.label++;
+                  y2 = op[1];
+                  op = [0];
+                  continue;
+                case 7:
+                  op = _2.ops.pop();
+                  _2.trys.pop();
+                  continue;
+                default:
+                  if (!(t2 = _2.trys, t2 = t2.length > 0 && t2[t2.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                    _2 = 0;
+                    continue;
+                  }
+                  if (op[0] === 3 && (!t2 || op[1] > t2[0] && op[1] < t2[3])) {
+                    _2.label = op[1];
+                    break;
+                  }
+                  if (op[0] === 6 && _2.label < t2[1]) {
+                    _2.label = t2[1];
                     t2 = op;
                     break;
-                  case 4:
-                    _2.label++;
-                    return {
-                      value: op[1],
-                      done: false
-                    };
-                  case 5:
-                    _2.label++;
-                    y2 = op[1];
-                    op = [0];
-                    continue;
-                  case 7:
-                    op = _2.ops.pop();
-                    _2.trys.pop();
-                    continue;
-                  default:
-                    if (!(t2 = _2.trys, t2 = t2.length > 0 && t2[t2.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-                      _2 = 0;
-                      continue;
-                    }
-                    if (op[0] === 3 && (!t2 || op[1] > t2[0] && op[1] < t2[3])) {
-                      _2.label = op[1];
-                      break;
-                    }
-                    if (op[0] === 6 && _2.label < t2[1]) {
-                      _2.label = t2[1];
-                      t2 = op;
-                      break;
-                    }
-                    if (t2 && _2.label < t2[2]) {
-                      _2.label = t2[2];
-                      _2.ops.push(op);
-                      break;
-                    }
-                    if (t2[2])
-                      _2.ops.pop();
-                    _2.trys.pop();
-                    continue;
-                }
-                op = body.call(thisArg, _2);
-              } catch (e3) {
-                op = [6, e3];
-                y2 = 0;
-              } finally {
-                f2 = t2 = 0;
+                  }
+                  if (t2 && _2.label < t2[2]) {
+                    _2.label = t2[2];
+                    _2.ops.push(op);
+                    break;
+                  }
+                  if (t2[2]) _2.ops.pop();
+                  _2.trys.pop();
+                  continue;
               }
-            if (op[0] & 5)
-              throw op[1];
+              op = body.call(thisArg, _2);
+            } catch (e3) {
+              op = [6, e3];
+              y2 = 0;
+            } finally {
+              f2 = t2 = 0;
+            }
+            if (op[0] & 5) throw op[1];
             return {
               value: op[0] ? op[1] : void 0,
               done: true
@@ -12081,35 +11881,30 @@
           while (true) {
             var cmp2 = comparator(i3, t2.key);
             if (cmp2 < 0) {
-              if (t2.left === null)
-                break;
+              if (t2.left === null) break;
               if (comparator(i3, t2.left.key) < 0) {
                 var y2 = t2.left;
                 t2.left = y2.right;
                 y2.right = t2;
                 t2 = y2;
-                if (t2.left === null)
-                  break;
+                if (t2.left === null) break;
               }
               r2.left = t2;
               r2 = t2;
               t2 = t2.left;
             } else if (cmp2 > 0) {
-              if (t2.right === null)
-                break;
+              if (t2.right === null) break;
               if (comparator(i3, t2.right.key) > 0) {
                 var y2 = t2.right;
                 t2.right = y2.left;
                 y2.left = t2;
                 t2 = y2;
-                if (t2.right === null)
-                  break;
+                if (t2.right === null) break;
               }
               l2.right = t2;
               l2 = t2;
               t2 = t2.right;
-            } else
-              break;
+            } else break;
           }
           l2.right = t2.left;
           r2.left = t2.right;
@@ -12161,10 +11956,8 @@
           };
         }
         function merge2(left, right, comparator) {
-          if (right === null)
-            return left;
-          if (left === null)
-            return right;
+          if (right === null) return left;
+          if (left === null) return right;
           right = splay(left.key, right, comparator);
           right.left = left;
           return right;
@@ -12173,10 +11966,8 @@
           if (root3) {
             out("" + prefix + (isTail ? "\u2514\u2500\u2500 " : "\u251C\u2500\u2500 ") + printNode(root3) + "\n");
             var indent = prefix + (isTail ? "    " : "\u2502   ");
-            if (root3.left)
-              printRow(root3.left, indent, false, out, printNode);
-            if (root3.right)
-              printRow(root3.right, indent, true, out, printNode);
+            if (root3.left) printRow(root3.left, indent, false, out, printNode);
+            if (root3.right) printRow(root3.right, indent, true, out, printNode);
           }
         }
         var Tree = (
@@ -12204,8 +11995,7 @@
               var comparator = this._comparator;
               var t2 = splay(key, this._root, comparator);
               var cmp2 = comparator(key, t2.key);
-              if (cmp2 === 0)
-                this._root = t2;
+              if (cmp2 === 0) this._root = t2;
               else {
                 if (cmp2 < 0) {
                   node.left = t2.left;
@@ -12226,8 +12016,7 @@
             };
             Tree2.prototype._remove = function(i3, t2, comparator) {
               var x2;
-              if (t2 === null)
-                return null;
+              if (t2 === null) return null;
               t2 = splay(i3, t2, comparator);
               var cmp2 = comparator(i3, t2.key);
               if (cmp2 === 0) {
@@ -12245,8 +12034,7 @@
             Tree2.prototype.pop = function() {
               var node = this._root;
               if (node) {
-                while (node.left)
-                  node = node.left;
+                while (node.left) node = node.left;
                 this._root = splay(node.key, this._root, this._comparator);
                 this._root = this._remove(node.key, this._root, this._comparator);
                 return {
@@ -12261,20 +12049,16 @@
               var compare2 = this._comparator;
               while (current) {
                 var cmp2 = compare2(key, current.key);
-                if (cmp2 === 0)
-                  return current;
-                else if (cmp2 < 0)
-                  current = current.left;
-                else
-                  current = current.right;
+                if (cmp2 === 0) return current;
+                else if (cmp2 < 0) current = current.left;
+                else current = current.right;
               }
               return null;
             };
             Tree2.prototype.find = function(key) {
               if (this._root) {
                 this._root = splay(key, this._root, this._comparator);
-                if (this._comparator(key, this._root.key) !== 0)
-                  return null;
+                if (this._comparator(key, this._root.key) !== 0) return null;
               }
               return this._root;
             };
@@ -12283,12 +12067,9 @@
               var compare2 = this._comparator;
               while (current) {
                 var cmp2 = compare2(key, current.key);
-                if (cmp2 === 0)
-                  return true;
-                else if (cmp2 < 0)
-                  current = current.left;
-                else
-                  current = current.right;
+                if (cmp2 === 0) return true;
+                else if (cmp2 < 0) current = current.left;
+                else current = current.right;
               }
               return false;
             };
@@ -12305,8 +12086,7 @@
                     current = Q2.pop();
                     visitor.call(ctx, current);
                     current = current.right;
-                  } else
-                    done = true;
+                  } else done = true;
                 }
               }
               return this;
@@ -12326,8 +12106,7 @@
                   if (cmp2 > 0) {
                     break;
                   } else if (compare2(node.key, low) >= 0) {
-                    if (fn.call(ctx, node))
-                      return this;
+                    if (fn.call(ctx, node)) return this;
                   }
                   node = node.right;
                 }
@@ -12336,46 +12115,40 @@
             };
             Tree2.prototype.keys = function() {
               var keys2 = [];
-              this.forEach(function(_a2) {
-                var key = _a2.key;
+              this.forEach(function(_a3) {
+                var key = _a3.key;
                 return keys2.push(key);
               });
               return keys2;
             };
             Tree2.prototype.values = function() {
               var values = [];
-              this.forEach(function(_a2) {
-                var data = _a2.data;
+              this.forEach(function(_a3) {
+                var data = _a3.data;
                 return values.push(data);
               });
               return values;
             };
             Tree2.prototype.min = function() {
-              if (this._root)
-                return this.minNode(this._root).key;
+              if (this._root) return this.minNode(this._root).key;
               return null;
             };
             Tree2.prototype.max = function() {
-              if (this._root)
-                return this.maxNode(this._root).key;
+              if (this._root) return this.maxNode(this._root).key;
               return null;
             };
             Tree2.prototype.minNode = function(t2) {
               if (t2 === void 0) {
                 t2 = this._root;
               }
-              if (t2)
-                while (t2.left)
-                  t2 = t2.left;
+              if (t2) while (t2.left) t2 = t2.left;
               return t2;
             };
             Tree2.prototype.maxNode = function(t2) {
               if (t2 === void 0) {
                 t2 = this._root;
               }
-              if (t2)
-                while (t2.right)
-                  t2 = t2.right;
+              if (t2) while (t2.right) t2 = t2.right;
               return t2;
             };
             Tree2.prototype.at = function(index2) {
@@ -12390,12 +12163,10 @@
                 } else {
                   if (Q2.length > 0) {
                     current = Q2.pop();
-                    if (i3 === index2)
-                      return current;
+                    if (i3 === index2) return current;
                     i3++;
                     current = current.right;
-                  } else
-                    done = true;
+                  } else done = true;
                 }
               }
               return null;
@@ -12405,20 +12176,17 @@
               var successor = null;
               if (d2.right) {
                 successor = d2.right;
-                while (successor.left)
-                  successor = successor.left;
+                while (successor.left) successor = successor.left;
                 return successor;
               }
               var comparator = this._comparator;
               while (root3) {
                 var cmp2 = comparator(d2.key, root3.key);
-                if (cmp2 === 0)
-                  break;
+                if (cmp2 === 0) break;
                 else if (cmp2 < 0) {
                   successor = root3;
                   root3 = root3.left;
-                } else
-                  root3 = root3.right;
+                } else root3 = root3.right;
               }
               return successor;
             };
@@ -12427,17 +12195,14 @@
               var predecessor = null;
               if (d2.left !== null) {
                 predecessor = d2.left;
-                while (predecessor.right)
-                  predecessor = predecessor.right;
+                while (predecessor.right) predecessor = predecessor.right;
                 return predecessor;
               }
               var comparator = this._comparator;
               while (root3) {
                 var cmp2 = comparator(d2.key, root3.key);
-                if (cmp2 === 0)
-                  break;
-                else if (cmp2 < 0)
-                  root3 = root3.left;
+                if (cmp2 === 0) break;
+                else if (cmp2 < 0) root3 = root3.left;
                 else {
                   predecessor = root3;
                   root3 = root3.right;
@@ -12462,8 +12227,7 @@
               }
               var size = keys2.length;
               var comparator = this._comparator;
-              if (presort)
-                sort(keys2, values, 0, size - 1, comparator);
+              if (presort) sort(keys2, values, 0, size - 1, comparator);
               if (this._root === null) {
                 this._root = loadRecursive(keys2, values, 0, size);
                 this._size = size;
@@ -12507,7 +12271,7 @@
             };
             Tree2.prototype.update = function(key, newKey, newData) {
               var comparator = this._comparator;
-              var _a2 = split(key, this._root, comparator), left = _a2.left, right = _a2.right;
+              var _a3 = split(key, this._root, comparator), left = _a3.left, right = _a3.right;
               if (comparator(key, newKey) < 0) {
                 right = insert(newKey, newData, right, comparator);
               } else {
@@ -12520,33 +12284,30 @@
             };
             Tree2.prototype[Symbol.iterator] = function() {
               var current, Q2, done;
-              return __generator(this, function(_a2) {
-                switch (_a2.label) {
+              return __generator(this, function(_a3) {
+                switch (_a3.label) {
                   case 0:
                     current = this._root;
                     Q2 = [];
                     done = false;
-                    _a2.label = 1;
+                    _a3.label = 1;
                   case 1:
-                    if (!!done)
-                      return [3, 6];
-                    if (!(current !== null))
-                      return [3, 2];
+                    if (!!done) return [3, 6];
+                    if (!(current !== null)) return [3, 2];
                     Q2.push(current);
                     current = current.left;
                     return [3, 5];
                   case 2:
-                    if (!(Q2.length !== 0))
-                      return [3, 4];
+                    if (!(Q2.length !== 0)) return [3, 4];
                     current = Q2.pop();
                     return [4, current];
                   case 3:
-                    _a2.sent();
+                    _a3.sent();
                     current = current.right;
                     return [3, 5];
                   case 4:
                     done = true;
-                    _a2.label = 5;
+                    _a3.label = 5;
                   case 5:
                     return [3, 1];
                   case 6:
@@ -12596,8 +12357,7 @@
               if (Q2.length > 0) {
                 current = p2 = p2.next = Q2.pop();
                 current = current.right;
-              } else
-                done = true;
+              } else done = true;
             }
           }
           p2.next = null;
@@ -12639,8 +12399,7 @@
           return head.next;
         }
         function sort(keys2, values, left, right, compare2) {
-          if (left >= right)
-            return;
+          if (left >= right) return;
           var pivot = keys2[left + right >> 1];
           var i3 = left - 1;
           var j2 = right + 1;
@@ -12651,8 +12410,7 @@
             do
               j2--;
             while (compare2(keys2[j2], pivot) > 0);
-            if (i3 >= j2)
-              break;
+            if (i3 >= j2) break;
             var tmp = keys2[i3];
             keys2[i3] = keys2[j2];
             keys2[j2] = tmp;
@@ -12667,8 +12425,7 @@
           return bbox2.ll.x <= point2.x && point2.x <= bbox2.ur.x && bbox2.ll.y <= point2.y && point2.y <= bbox2.ur.y;
         };
         const getBboxOverlap2 = (b1, b2) => {
-          if (b2.ur.x < b1.ll.x || b1.ur.x < b2.ll.x || b2.ur.y < b1.ll.y || b1.ur.y < b2.ll.y)
-            return null;
+          if (b2.ur.x < b1.ll.x || b1.ur.x < b2.ll.x || b2.ur.y < b1.ll.y || b1.ur.y < b2.ll.y) return null;
           const lowerX = b1.ll.x < b2.ll.x ? b2.ll.x : b1.ll.x;
           const upperX = b1.ur.x < b2.ur.x ? b1.ur.x : b2.ur.x;
           const lowerY = b1.ll.y < b2.ll.y ? b2.ll.y : b1.ll.y;
@@ -12685,8 +12442,7 @@
           };
         };
         let epsilon$1 = Number.EPSILON;
-        if (epsilon$1 === void 0)
-          epsilon$1 = Math.pow(2, -52);
+        if (epsilon$1 === void 0) epsilon$1 = Math.pow(2, -52);
         const EPSILON_SQ = epsilon$1 * epsilon$1;
         const cmp = (a2, b2) => {
           if (-epsilon$1 < a2 && a2 < epsilon$1) {
@@ -12819,8 +12575,7 @@
         }
         function estimate(elen, e3) {
           let Q2 = e3[0];
-          for (let i3 = 1; i3 < elen; i3++)
-            Q2 += e3[i3];
+          for (let i3 = 1; i3 < elen; i3++) Q2 += e3[i3];
           return Q2;
         }
         function vec(n3) {
@@ -12888,8 +12643,7 @@
           }
           errbound = ccwerrboundC * detsum + resulterrbound * Math.abs(det);
           det += acx * bcytail + bcy * acxtail - (acy * bcxtail + bcx * acytail);
-          if (det >= errbound || -det >= errbound)
-            return det;
+          if (det >= errbound || -det >= errbound) return det;
           s1 = acxtail * bcy;
           c2 = splitter * acxtail;
           ahi = c2 - (c2 - acxtail);
@@ -12987,18 +12741,15 @@
           const detright = (ax - cx) * (by - cy);
           const det = detleft - detright;
           const detsum = Math.abs(detleft + detright);
-          if (Math.abs(det) >= ccwerrboundA * detsum)
-            return det;
+          if (Math.abs(det) >= ccwerrboundA * detsum) return det;
           return -orient2dadapt(ax, ay, bx, by, cx, cy, detsum);
         }
         const crossProduct2 = (a2, b2) => a2.x * b2.y - a2.y * b2.x;
         const dotProduct2 = (a2, b2) => a2.x * b2.x + a2.y * b2.y;
         const compareVectorAngles = (basePt, endPt1, endPt2) => {
           const res = orient2d(basePt.x, basePt.y, endPt1.x, endPt1.y, endPt2.x, endPt2.y);
-          if (res > 0)
-            return -1;
-          if (res < 0)
-            return 1;
+          if (res > 0) return -1;
+          if (res < 0) return 1;
           return 0;
         };
         const length2 = (v2) => Math.sqrt(dotProduct2(v2, v2));
@@ -13025,33 +12776,26 @@
           return dotProduct2(vAngle, vBase) / length2(vAngle) / length2(vBase);
         };
         const horizontalIntersection2 = (pt2, v2, y2) => {
-          if (v2.y === 0)
-            return null;
+          if (v2.y === 0) return null;
           return {
             x: pt2.x + v2.x / v2.y * (y2 - pt2.y),
             y: y2
           };
         };
         const verticalIntersection2 = (pt2, v2, x2) => {
-          if (v2.x === 0)
-            return null;
+          if (v2.x === 0) return null;
           return {
             x: x2,
             y: pt2.y + v2.y / v2.x * (x2 - pt2.x)
           };
         };
         const intersection$1 = (pt1, v1, pt2, v2) => {
-          if (v1.x === 0)
-            return verticalIntersection2(pt2, v2, pt1.x);
-          if (v2.x === 0)
-            return verticalIntersection2(pt1, v1, pt2.x);
-          if (v1.y === 0)
-            return horizontalIntersection2(pt2, v2, pt1.y);
-          if (v2.y === 0)
-            return horizontalIntersection2(pt1, v1, pt2.y);
+          if (v1.x === 0) return verticalIntersection2(pt2, v2, pt1.x);
+          if (v2.x === 0) return verticalIntersection2(pt1, v1, pt2.x);
+          if (v1.y === 0) return horizontalIntersection2(pt2, v2, pt1.y);
+          if (v2.y === 0) return horizontalIntersection2(pt1, v1, pt2.y);
           const kross = crossProduct2(v1, v2);
-          if (kross == 0)
-            return null;
+          if (kross == 0) return null;
           const ve2 = {
             x: pt2.x - pt1.x,
             y: pt2.y - pt1.y
@@ -13071,32 +12815,23 @@
           // for ordering sweep events in the sweep event queue
           static compare(a2, b2) {
             const ptCmp = SweepEvent2.comparePoints(a2.point, b2.point);
-            if (ptCmp !== 0)
-              return ptCmp;
-            if (a2.point !== b2.point)
-              a2.link(b2);
-            if (a2.isLeft !== b2.isLeft)
-              return a2.isLeft ? 1 : -1;
+            if (ptCmp !== 0) return ptCmp;
+            if (a2.point !== b2.point) a2.link(b2);
+            if (a2.isLeft !== b2.isLeft) return a2.isLeft ? 1 : -1;
             return Segment2.compare(a2.segment, b2.segment);
           }
           // for ordering points in sweep line order
           static comparePoints(aPt, bPt) {
-            if (aPt.x < bPt.x)
-              return -1;
-            if (aPt.x > bPt.x)
-              return 1;
-            if (aPt.y < bPt.y)
-              return -1;
-            if (aPt.y > bPt.y)
-              return 1;
+            if (aPt.x < bPt.x) return -1;
+            if (aPt.x > bPt.x) return 1;
+            if (aPt.y < bPt.y) return -1;
+            if (aPt.y > bPt.y) return 1;
             return 0;
           }
           // Warning: 'point' input will be modified and re-used (for performance)
           constructor(point2, isLeft) {
-            if (point2.events === void 0)
-              point2.events = [this];
-            else
-              point2.events.push(this);
+            if (point2.events === void 0) point2.events = [this];
+            else point2.events.push(this);
             this.point = point2;
             this.isLeft = isLeft;
           }
@@ -13118,14 +12853,11 @@
             const numEvents = this.point.events.length;
             for (let i3 = 0; i3 < numEvents; i3++) {
               const evt1 = this.point.events[i3];
-              if (evt1.segment.consumedBy !== void 0)
-                continue;
+              if (evt1.segment.consumedBy !== void 0) continue;
               for (let j2 = i3 + 1; j2 < numEvents; j2++) {
                 const evt2 = this.point.events[j2];
-                if (evt2.consumedBy !== void 0)
-                  continue;
-                if (evt1.otherSE.point.events !== evt2.otherSE.point.events)
-                  continue;
+                if (evt2.consumedBy !== void 0) continue;
+                if (evt1.otherSE.point.events !== evt2.otherSE.point.events) continue;
                 evt1.segment.consume(evt2.segment);
               }
             }
@@ -13160,10 +12892,8 @@
               });
             };
             return (a2, b2) => {
-              if (!cache.has(a2))
-                fillCache(a2);
-              if (!cache.has(b2))
-                fillCache(b2);
+              if (!cache.has(a2)) fillCache(a2);
+              if (!cache.has(b2)) fillCache(b2);
               const {
                 sine: asine,
                 cosine: acosine
@@ -13173,23 +12903,17 @@
                 cosine: bcosine
               } = cache.get(b2);
               if (asine >= 0 && bsine >= 0) {
-                if (acosine < bcosine)
-                  return 1;
-                if (acosine > bcosine)
-                  return -1;
+                if (acosine < bcosine) return 1;
+                if (acosine > bcosine) return -1;
                 return 0;
               }
               if (asine < 0 && bsine < 0) {
-                if (acosine < bcosine)
-                  return -1;
-                if (acosine > bcosine)
-                  return 1;
+                if (acosine < bcosine) return -1;
+                if (acosine > bcosine) return 1;
                 return 0;
               }
-              if (bsine < asine)
-                return -1;
-              if (bsine > asine)
-                return 1;
+              if (bsine < asine) return -1;
+              if (bsine > asine) return 1;
               return 0;
             };
           }
@@ -13214,82 +12938,57 @@
             const blx = b2.leftSE.point.x;
             const arx = a2.rightSE.point.x;
             const brx = b2.rightSE.point.x;
-            if (brx < alx)
-              return 1;
-            if (arx < blx)
-              return -1;
+            if (brx < alx) return 1;
+            if (arx < blx) return -1;
             const aly = a2.leftSE.point.y;
             const bly = b2.leftSE.point.y;
             const ary = a2.rightSE.point.y;
             const bry = b2.rightSE.point.y;
             if (alx < blx) {
-              if (bly < aly && bly < ary)
-                return 1;
-              if (bly > aly && bly > ary)
-                return -1;
+              if (bly < aly && bly < ary) return 1;
+              if (bly > aly && bly > ary) return -1;
               const aCmpBLeft = a2.comparePoint(b2.leftSE.point);
-              if (aCmpBLeft < 0)
-                return 1;
-              if (aCmpBLeft > 0)
-                return -1;
+              if (aCmpBLeft < 0) return 1;
+              if (aCmpBLeft > 0) return -1;
               const bCmpARight = b2.comparePoint(a2.rightSE.point);
-              if (bCmpARight !== 0)
-                return bCmpARight;
+              if (bCmpARight !== 0) return bCmpARight;
               return -1;
             }
             if (alx > blx) {
-              if (aly < bly && aly < bry)
-                return -1;
-              if (aly > bly && aly > bry)
-                return 1;
+              if (aly < bly && aly < bry) return -1;
+              if (aly > bly && aly > bry) return 1;
               const bCmpALeft = b2.comparePoint(a2.leftSE.point);
-              if (bCmpALeft !== 0)
-                return bCmpALeft;
+              if (bCmpALeft !== 0) return bCmpALeft;
               const aCmpBRight = a2.comparePoint(b2.rightSE.point);
-              if (aCmpBRight < 0)
-                return 1;
-              if (aCmpBRight > 0)
-                return -1;
+              if (aCmpBRight < 0) return 1;
+              if (aCmpBRight > 0) return -1;
               return 1;
             }
-            if (aly < bly)
-              return -1;
-            if (aly > bly)
-              return 1;
+            if (aly < bly) return -1;
+            if (aly > bly) return 1;
             if (arx < brx) {
               const bCmpARight = b2.comparePoint(a2.rightSE.point);
-              if (bCmpARight !== 0)
-                return bCmpARight;
+              if (bCmpARight !== 0) return bCmpARight;
             }
             if (arx > brx) {
               const aCmpBRight = a2.comparePoint(b2.rightSE.point);
-              if (aCmpBRight < 0)
-                return 1;
-              if (aCmpBRight > 0)
-                return -1;
+              if (aCmpBRight < 0) return 1;
+              if (aCmpBRight > 0) return -1;
             }
             if (arx !== brx) {
               const ay = ary - aly;
               const ax = arx - alx;
               const by = bry - bly;
               const bx = brx - blx;
-              if (ay > ax && by < bx)
-                return 1;
-              if (ay < ax && by > bx)
-                return -1;
+              if (ay > ax && by < bx) return 1;
+              if (ay < ax && by > bx) return -1;
             }
-            if (arx > brx)
-              return 1;
-            if (arx < brx)
-              return -1;
-            if (ary < bry)
-              return -1;
-            if (ary > bry)
-              return 1;
-            if (a2.id < b2.id)
-              return -1;
-            if (a2.id > b2.id)
-              return 1;
+            if (arx > brx) return 1;
+            if (arx < brx) return -1;
+            if (ary < bry) return -1;
+            if (ary > bry) return 1;
+            if (a2.id < b2.id) return -1;
+            if (a2.id > b2.id) return 1;
             return 0;
           }
           /* Warning: a reference to ringWindings input will be stored,
@@ -13316,8 +13015,7 @@
               leftPt = pt2;
               rightPt = pt1;
               winding = -1;
-            } else
-              throw new Error("Tried to create degenerate segment at [".concat(pt1.x, ", ").concat(pt1.y, "]"));
+            } else throw new Error("Tried to create degenerate segment at [".concat(pt1.x, ", ").concat(pt1.y, "]"));
             const leftSE = new SweepEvent2(leftPt, true);
             const rightSE = new SweepEvent2(rightPt, false);
             return new Segment2(leftSE, rightSE, [ring], [winding]);
@@ -13367,24 +13065,20 @@
            *  -1: point lies below the segment (to the right of vertical)
            */
           comparePoint(point2) {
-            if (this.isAnEndpoint(point2))
-              return 0;
+            if (this.isAnEndpoint(point2)) return 0;
             const lPt = this.leftSE.point;
             const rPt = this.rightSE.point;
             const v2 = this.vector();
             if (lPt.x === rPt.x) {
-              if (point2.x === lPt.x)
-                return 0;
+              if (point2.x === lPt.x) return 0;
               return point2.x < lPt.x ? 1 : -1;
             }
             const yDist = (point2.y - lPt.y) / v2.y;
             const xFromYDist = lPt.x + yDist * v2.x;
-            if (point2.x === xFromYDist)
-              return 0;
+            if (point2.x === xFromYDist) return 0;
             const xDist = (point2.x - lPt.x) / v2.x;
             const yFromXDist = lPt.y + xDist * v2.y;
-            if (point2.y === yFromXDist)
-              return 0;
+            if (point2.y === yFromXDist) return 0;
             return point2.y < yFromXDist ? -1 : 1;
           }
           /**
@@ -13406,8 +13100,7 @@
             const tBbox = this.bbox();
             const oBbox = other.bbox();
             const bboxOverlap = getBboxOverlap2(tBbox, oBbox);
-            if (bboxOverlap === null)
-              return null;
+            if (bboxOverlap === null) return null;
             const tlp = this.leftSE.point;
             const trp = this.rightSE.point;
             const olp = other.leftSE.point;
@@ -13417,37 +13110,28 @@
             const touchesOtherRSE = isInBbox2(tBbox, orp) && this.comparePoint(orp) === 0;
             const touchesThisRSE = isInBbox2(oBbox, trp) && other.comparePoint(trp) === 0;
             if (touchesThisLSE && touchesOtherLSE) {
-              if (touchesThisRSE && !touchesOtherRSE)
-                return trp;
-              if (!touchesThisRSE && touchesOtherRSE)
-                return orp;
+              if (touchesThisRSE && !touchesOtherRSE) return trp;
+              if (!touchesThisRSE && touchesOtherRSE) return orp;
               return null;
             }
             if (touchesThisLSE) {
               if (touchesOtherRSE) {
-                if (tlp.x === orp.x && tlp.y === orp.y)
-                  return null;
+                if (tlp.x === orp.x && tlp.y === orp.y) return null;
               }
               return tlp;
             }
             if (touchesOtherLSE) {
               if (touchesThisRSE) {
-                if (trp.x === olp.x && trp.y === olp.y)
-                  return null;
+                if (trp.x === olp.x && trp.y === olp.y) return null;
               }
               return olp;
             }
-            if (touchesThisRSE && touchesOtherRSE)
-              return null;
-            if (touchesThisRSE)
-              return trp;
-            if (touchesOtherRSE)
-              return orp;
+            if (touchesThisRSE && touchesOtherRSE) return null;
+            if (touchesThisRSE) return trp;
+            if (touchesOtherRSE) return orp;
             const pt2 = intersection$1(tlp, this.vector(), olp, other.vector());
-            if (pt2 === null)
-              return null;
-            if (!isInBbox2(bboxOverlap, pt2))
-              return null;
+            if (pt2 === null) return null;
+            if (!isInBbox2(bboxOverlap, pt2)) return null;
             return rounder.round(pt2.x, pt2.y);
           }
           /**
@@ -13500,13 +13184,10 @@
           consume(other) {
             let consumer = this;
             let consumee = other;
-            while (consumer.consumedBy)
-              consumer = consumer.consumedBy;
-            while (consumee.consumedBy)
-              consumee = consumee.consumedBy;
+            while (consumer.consumedBy) consumer = consumer.consumedBy;
+            while (consumee.consumedBy) consumee = consumee.consumedBy;
             const cmp2 = Segment2.compare(consumer, consumee);
-            if (cmp2 === 0)
-              return;
+            if (cmp2 === 0) return;
             if (cmp2 > 0) {
               const tmp = consumer;
               consumer = consumee;
@@ -13524,8 +13205,7 @@
               if (index2 === -1) {
                 consumer.rings.push(ring);
                 consumer.windings.push(winding);
-              } else
-                consumer.windings[index2] += winding;
+              } else consumer.windings[index2] += winding;
             }
             consumee.rings = null;
             consumee.windings = null;
@@ -13535,25 +13215,19 @@
           }
           /* The first segment previous segment chain that is in the result */
           prevInResult() {
-            if (this._prevInResult !== void 0)
-              return this._prevInResult;
-            if (!this.prev)
-              this._prevInResult = null;
-            else if (this.prev.isInResult())
-              this._prevInResult = this.prev;
-            else
-              this._prevInResult = this.prev.prevInResult();
+            if (this._prevInResult !== void 0) return this._prevInResult;
+            if (!this.prev) this._prevInResult = null;
+            else if (this.prev.isInResult()) this._prevInResult = this.prev;
+            else this._prevInResult = this.prev.prevInResult();
             return this._prevInResult;
           }
           beforeState() {
-            if (this._beforeState !== void 0)
-              return this._beforeState;
-            if (!this.prev)
-              this._beforeState = {
-                rings: [],
-                windings: [],
-                multiPolys: []
-              };
+            if (this._beforeState !== void 0) return this._beforeState;
+            if (!this.prev) this._beforeState = {
+              rings: [],
+              windings: [],
+              multiPolys: []
+            };
             else {
               const seg = this.prev.consumedBy || this.prev;
               this._beforeState = seg.afterState();
@@ -13561,8 +13235,7 @@
             return this._beforeState;
           }
           afterState() {
-            if (this._afterState !== void 0)
-              return this._afterState;
+            if (this._afterState !== void 0) return this._afterState;
             const beforeState = this.beforeState();
             this._afterState = {
               rings: beforeState.rings.slice(0),
@@ -13579,41 +13252,32 @@
               if (index2 === -1) {
                 ringsAfter.push(ring);
                 windingsAfter.push(winding);
-              } else
-                windingsAfter[index2] += winding;
+              } else windingsAfter[index2] += winding;
             }
             const polysAfter = [];
             const polysExclude = [];
             for (let i3 = 0, iMax = ringsAfter.length; i3 < iMax; i3++) {
-              if (windingsAfter[i3] === 0)
-                continue;
+              if (windingsAfter[i3] === 0) continue;
               const ring = ringsAfter[i3];
               const poly = ring.poly;
-              if (polysExclude.indexOf(poly) !== -1)
-                continue;
-              if (ring.isExterior)
-                polysAfter.push(poly);
+              if (polysExclude.indexOf(poly) !== -1) continue;
+              if (ring.isExterior) polysAfter.push(poly);
               else {
-                if (polysExclude.indexOf(poly) === -1)
-                  polysExclude.push(poly);
+                if (polysExclude.indexOf(poly) === -1) polysExclude.push(poly);
                 const index2 = polysAfter.indexOf(ring.poly);
-                if (index2 !== -1)
-                  polysAfter.splice(index2, 1);
+                if (index2 !== -1) polysAfter.splice(index2, 1);
               }
             }
             for (let i3 = 0, iMax = polysAfter.length; i3 < iMax; i3++) {
               const mp = polysAfter[i3].multiPoly;
-              if (mpsAfter.indexOf(mp) === -1)
-                mpsAfter.push(mp);
+              if (mpsAfter.indexOf(mp) === -1) mpsAfter.push(mp);
             }
             return this._afterState;
           }
           /* Is this segment part of the final result? */
           isInResult() {
-            if (this.consumedBy)
-              return false;
-            if (this._isInResult !== void 0)
-              return this._isInResult;
+            if (this.consumedBy) return false;
+            if (this._isInResult !== void 0) return this._isInResult;
             const mpsBefore = this.beforeState().multiPolys;
             const mpsAfter = this.afterState().multiPolys;
             switch (operation2.type) {
@@ -13680,17 +13344,12 @@
                 throw new Error("Input geometry is not a valid Polygon or MultiPolygon");
               }
               let point2 = rounder.round(geomRing[i3][0], geomRing[i3][1]);
-              if (point2.x === prevPoint.x && point2.y === prevPoint.y)
-                continue;
+              if (point2.x === prevPoint.x && point2.y === prevPoint.y) continue;
               this.segments.push(Segment2.fromRing(prevPoint, point2, this));
-              if (point2.x < this.bbox.ll.x)
-                this.bbox.ll.x = point2.x;
-              if (point2.y < this.bbox.ll.y)
-                this.bbox.ll.y = point2.y;
-              if (point2.x > this.bbox.ur.x)
-                this.bbox.ur.x = point2.x;
-              if (point2.y > this.bbox.ur.y)
-                this.bbox.ur.y = point2.y;
+              if (point2.x < this.bbox.ll.x) this.bbox.ll.x = point2.x;
+              if (point2.y < this.bbox.ll.y) this.bbox.ll.y = point2.y;
+              if (point2.x > this.bbox.ur.x) this.bbox.ur.x = point2.x;
+              if (point2.y > this.bbox.ur.y) this.bbox.ur.y = point2.y;
               prevPoint = point2;
             }
             if (firstPoint.x !== prevPoint.x || firstPoint.y !== prevPoint.y) {
@@ -13726,14 +13385,10 @@
             this.interiorRings = [];
             for (let i3 = 1, iMax = geomPoly.length; i3 < iMax; i3++) {
               const ring = new RingIn2(geomPoly[i3], this, false);
-              if (ring.bbox.ll.x < this.bbox.ll.x)
-                this.bbox.ll.x = ring.bbox.ll.x;
-              if (ring.bbox.ll.y < this.bbox.ll.y)
-                this.bbox.ll.y = ring.bbox.ll.y;
-              if (ring.bbox.ur.x > this.bbox.ur.x)
-                this.bbox.ur.x = ring.bbox.ur.x;
-              if (ring.bbox.ur.y > this.bbox.ur.y)
-                this.bbox.ur.y = ring.bbox.ur.y;
+              if (ring.bbox.ll.x < this.bbox.ll.x) this.bbox.ll.x = ring.bbox.ll.x;
+              if (ring.bbox.ll.y < this.bbox.ll.y) this.bbox.ll.y = ring.bbox.ll.y;
+              if (ring.bbox.ur.x > this.bbox.ur.x) this.bbox.ur.x = ring.bbox.ur.x;
+              if (ring.bbox.ur.y > this.bbox.ur.y) this.bbox.ur.y = ring.bbox.ur.y;
               this.interiorRings.push(ring);
             }
             this.multiPoly = multiPoly;
@@ -13755,8 +13410,7 @@
               throw new Error("Input geometry is not a valid Polygon or MultiPolygon");
             }
             try {
-              if (typeof geom[0][0][0] === "number")
-                geom = [geom];
+              if (typeof geom[0][0][0] === "number") geom = [geom];
             } catch (ex) {
             }
             this.polys = [];
@@ -13772,14 +13426,10 @@
             };
             for (let i3 = 0, iMax = geom.length; i3 < iMax; i3++) {
               const poly = new PolyIn2(geom[i3], this);
-              if (poly.bbox.ll.x < this.bbox.ll.x)
-                this.bbox.ll.x = poly.bbox.ll.x;
-              if (poly.bbox.ll.y < this.bbox.ll.y)
-                this.bbox.ll.y = poly.bbox.ll.y;
-              if (poly.bbox.ur.x > this.bbox.ur.x)
-                this.bbox.ur.x = poly.bbox.ur.x;
-              if (poly.bbox.ur.y > this.bbox.ur.y)
-                this.bbox.ur.y = poly.bbox.ur.y;
+              if (poly.bbox.ll.x < this.bbox.ll.x) this.bbox.ll.x = poly.bbox.ll.x;
+              if (poly.bbox.ll.y < this.bbox.ll.y) this.bbox.ll.y = poly.bbox.ll.y;
+              if (poly.bbox.ur.x > this.bbox.ur.x) this.bbox.ur.x = poly.bbox.ur.x;
+              if (poly.bbox.ur.y > this.bbox.ur.y) this.bbox.ur.y = poly.bbox.ur.y;
               this.polys.push(poly);
             }
             this.isSubject = isSubject;
@@ -13802,8 +13452,7 @@
             const ringsOut = [];
             for (let i3 = 0, iMax = allSegments.length; i3 < iMax; i3++) {
               const segment = allSegments[i3];
-              if (!segment.isInResult() || segment.ringOut)
-                continue;
+              if (!segment.isInResult() || segment.ringOut) continue;
               let prevEvent = null;
               let event = segment.leftSE;
               let nextEvent = segment.rightSE;
@@ -13814,8 +13463,7 @@
                 prevEvent = event;
                 event = nextEvent;
                 events.push(event);
-                if (event.point === startingPoint)
-                  break;
+                if (event.point === startingPoint) break;
                 while (true) {
                   const availableLEs = event.getAvailableLinkedEvents();
                   if (availableLEs.length === 0) {
@@ -13867,24 +13515,20 @@
             for (let i3 = 1, iMax = this.events.length - 1; i3 < iMax; i3++) {
               const pt3 = this.events[i3].point;
               const nextPt2 = this.events[i3 + 1].point;
-              if (compareVectorAngles(pt3, prevPt, nextPt2) === 0)
-                continue;
+              if (compareVectorAngles(pt3, prevPt, nextPt2) === 0) continue;
               points.push(pt3);
               prevPt = pt3;
             }
-            if (points.length === 1)
-              return null;
+            if (points.length === 1) return null;
             const pt2 = points[0];
             const nextPt = points[1];
-            if (compareVectorAngles(pt2, prevPt, nextPt) === 0)
-              points.shift();
+            if (compareVectorAngles(pt2, prevPt, nextPt) === 0) points.shift();
             points.push(points[0]);
             const step = this.isExteriorRing() ? 1 : -1;
             const iStart = this.isExteriorRing() ? 0 : points.length - 1;
             const iEnd = this.isExteriorRing() ? points.length : -1;
             const orderedPoints = [];
-            for (let i3 = iStart; i3 != iEnd; i3 += step)
-              orderedPoints.push([points[i3].x, points[i3].y]);
+            for (let i3 = iStart; i3 != iEnd; i3 += step) orderedPoints.push([points[i3].x, points[i3].y]);
             return orderedPoints;
           }
           isExteriorRing() {
@@ -13905,21 +13549,17 @@
             let leftMostEvt = this.events[0];
             for (let i3 = 1, iMax = this.events.length; i3 < iMax; i3++) {
               const evt = this.events[i3];
-              if (SweepEvent2.compare(leftMostEvt, evt) > 0)
-                leftMostEvt = evt;
+              if (SweepEvent2.compare(leftMostEvt, evt) > 0) leftMostEvt = evt;
             }
             let prevSeg = leftMostEvt.segment.prevInResult();
             let prevPrevSeg = prevSeg ? prevSeg.prevInResult() : null;
             while (true) {
-              if (!prevSeg)
-                return null;
-              if (!prevPrevSeg)
-                return prevSeg.ringOut;
+              if (!prevSeg) return null;
+              if (!prevPrevSeg) return prevSeg.ringOut;
               if (prevPrevSeg.ringOut !== prevSeg.ringOut) {
                 if (prevPrevSeg.ringOut.enclosingRing() !== prevSeg.ringOut) {
                   return prevSeg.ringOut;
-                } else
-                  return prevSeg.ringOut.enclosingRing();
+                } else return prevSeg.ringOut.enclosingRing();
               }
               prevSeg = prevPrevSeg.prevInResult();
               prevPrevSeg = prevSeg ? prevSeg.prevInResult() : null;
@@ -13938,12 +13578,10 @@
           }
           getGeom() {
             const geom = [this.exteriorRing.getGeom()];
-            if (geom[0] === null)
-              return null;
+            if (geom[0] === null) return null;
             for (let i3 = 0, iMax = this.interiorRings.length; i3 < iMax; i3++) {
               const ringGeom = this.interiorRings[i3].getGeom();
-              if (ringGeom === null)
-                continue;
+              if (ringGeom === null) continue;
               geom.push(ringGeom);
             }
             return geom;
@@ -13958,8 +13596,7 @@
             const geom = [];
             for (let i3 = 0, iMax = this.polys.length; i3 < iMax; i3++) {
               const polyGeom = this.polys[i3].getGeom();
-              if (polyGeom === null)
-                continue;
+              if (polyGeom === null) continue;
               geom.push(polyGeom);
             }
             return geom;
@@ -13968,14 +13605,11 @@
             const polys = [];
             for (let i3 = 0, iMax = rings.length; i3 < iMax; i3++) {
               const ring = rings[i3];
-              if (ring.poly)
-                continue;
-              if (ring.isExteriorRing())
-                polys.push(new PolyOut2(ring));
+              if (ring.poly) continue;
+              if (ring.isExteriorRing()) polys.push(new PolyOut2(ring));
               else {
                 const enclosingRing = ring.enclosingRing();
-                if (!enclosingRing.poly)
-                  polys.push(new PolyOut2(enclosingRing));
+                if (!enclosingRing.poly) polys.push(new PolyOut2(enclosingRing));
                 enclosingRing.poly.addInterior(ring);
               }
             }
@@ -13993,40 +13627,32 @@
             const segment = event.segment;
             const newEvents = [];
             if (event.consumedBy) {
-              if (event.isLeft)
-                this.queue.remove(event.otherSE);
-              else
-                this.tree.remove(segment);
+              if (event.isLeft) this.queue.remove(event.otherSE);
+              else this.tree.remove(segment);
               return newEvents;
             }
             const node = event.isLeft ? this.tree.add(segment) : this.tree.find(segment);
-            if (!node)
-              throw new Error("Unable to find segment #".concat(segment.id, " ") + "[".concat(segment.leftSE.point.x, ", ").concat(segment.leftSE.point.y, "] -> ") + "[".concat(segment.rightSE.point.x, ", ").concat(segment.rightSE.point.y, "] ") + "in SweepLine tree.");
+            if (!node) throw new Error("Unable to find segment #".concat(segment.id, " ") + "[".concat(segment.leftSE.point.x, ", ").concat(segment.leftSE.point.y, "] -> ") + "[".concat(segment.rightSE.point.x, ", ").concat(segment.rightSE.point.y, "] ") + "in SweepLine tree.");
             let prevNode = node;
             let nextNode = node;
             let prevSeg = void 0;
             let nextSeg = void 0;
             while (prevSeg === void 0) {
               prevNode = this.tree.prev(prevNode);
-              if (prevNode === null)
-                prevSeg = null;
-              else if (prevNode.key.consumedBy === void 0)
-                prevSeg = prevNode.key;
+              if (prevNode === null) prevSeg = null;
+              else if (prevNode.key.consumedBy === void 0) prevSeg = prevNode.key;
             }
             while (nextSeg === void 0) {
               nextNode = this.tree.next(nextNode);
-              if (nextNode === null)
-                nextSeg = null;
-              else if (nextNode.key.consumedBy === void 0)
-                nextSeg = nextNode.key;
+              if (nextNode === null) nextSeg = null;
+              else if (nextNode.key.consumedBy === void 0) nextSeg = nextNode.key;
             }
             if (event.isLeft) {
               let prevMySplitter = null;
               if (prevSeg) {
                 const prevInter = prevSeg.getIntersection(segment);
                 if (prevInter !== null) {
-                  if (!segment.isAnEndpoint(prevInter))
-                    prevMySplitter = prevInter;
+                  if (!segment.isAnEndpoint(prevInter)) prevMySplitter = prevInter;
                   if (!prevSeg.isAnEndpoint(prevInter)) {
                     const newEventsFromSplit = this._splitSafely(prevSeg, prevInter);
                     for (let i3 = 0, iMax = newEventsFromSplit.length; i3 < iMax; i3++) {
@@ -14039,8 +13665,7 @@
               if (nextSeg) {
                 const nextInter = nextSeg.getIntersection(segment);
                 if (nextInter !== null) {
-                  if (!segment.isAnEndpoint(nextInter))
-                    nextMySplitter = nextInter;
+                  if (!segment.isAnEndpoint(nextInter)) nextMySplitter = nextInter;
                   if (!nextSeg.isAnEndpoint(nextInter)) {
                     const newEventsFromSplit = this._splitSafely(nextSeg, nextInter);
                     for (let i3 = 0, iMax = newEventsFromSplit.length; i3 < iMax; i3++) {
@@ -14051,10 +13676,8 @@
               }
               if (prevMySplitter !== null || nextMySplitter !== null) {
                 let mySplitter = null;
-                if (prevMySplitter === null)
-                  mySplitter = nextMySplitter;
-                else if (nextMySplitter === null)
-                  mySplitter = prevMySplitter;
+                if (prevMySplitter === null) mySplitter = nextMySplitter;
+                else if (nextMySplitter === null) mySplitter = prevMySplitter;
                 else {
                   const cmpSplitters = SweepEvent2.comparePoints(prevMySplitter, nextMySplitter);
                   mySplitter = cmpSplitters <= 0 ? prevMySplitter : nextMySplitter;
@@ -14103,8 +13726,7 @@
             this.queue.remove(rightSE);
             const newEvents = seg.split(pt2);
             newEvents.push(rightSE);
-            if (seg.consumedBy === void 0)
-              this.tree.add(seg);
+            if (seg.consumedBy === void 0) this.tree.add(seg);
             return newEvents;
           }
         }
@@ -14123,18 +13745,15 @@
               const subject = multipolys[0];
               let i3 = 1;
               while (i3 < multipolys.length) {
-                if (getBboxOverlap2(multipolys[i3].bbox, subject.bbox) !== null)
-                  i3++;
-                else
-                  multipolys.splice(i3, 1);
+                if (getBboxOverlap2(multipolys[i3].bbox, subject.bbox) !== null) i3++;
+                else multipolys.splice(i3, 1);
               }
             }
             if (operation2.type === "intersection") {
               for (let i3 = 0, iMax = multipolys.length; i3 < iMax; i3++) {
                 const mpA = multipolys[i3];
                 for (let j2 = i3 + 1, jMax = multipolys.length; j2 < jMax; j2++) {
-                  if (getBboxOverlap2(mpA.bbox, multipolys[j2].bbox) === null)
-                    return [];
+                  if (getBboxOverlap2(mpA.bbox, multipolys[j2].bbox) === null) return [];
                 }
               }
             }
@@ -14166,8 +13785,7 @@
               const newEvents = sweepLine.process(evt);
               for (let i3 = 0, iMax = newEvents.length; i3 < iMax; i3++) {
                 const evt2 = newEvents[i3];
-                if (evt2.consumedBy === void 0)
-                  queue.insert(evt2);
+                if (evt2.consumedBy === void 0) queue.insert(evt2);
               }
               prevQueueSize = queue.size;
               node = queue.pop();
@@ -14351,8 +13969,7 @@
     Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
   }
   function consumed(body) {
-    if (body._noBody)
-      return;
+    if (body._noBody) return;
     if (body.bodyUsed) {
       return Promise.reject(new TypeError("Already read"));
     }
@@ -14755,16 +14372,13 @@
         var descriptor = props[i3];
         descriptor.enumerable = descriptor.enumerable || false;
         descriptor.configurable = true;
-        if ("value" in descriptor)
-          descriptor.writable = true;
+        if ("value" in descriptor) descriptor.writable = true;
         Object.defineProperty(target, descriptor.key, descriptor);
       }
     }
     function _createClass(Constructor, protoProps, staticProps) {
-      if (protoProps)
-        _defineProperties(Constructor.prototype, protoProps);
-      if (staticProps)
-        _defineProperties(Constructor, staticProps);
+      if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) _defineProperties(Constructor, staticProps);
       Object.defineProperty(Constructor, "prototype", {
         writable: false
       });
@@ -14784,8 +14398,7 @@
       Object.defineProperty(subClass, "prototype", {
         writable: false
       });
-      if (superClass)
-        _setPrototypeOf(subClass, superClass);
+      if (superClass) _setPrototypeOf(subClass, superClass);
     }
     function _getPrototypeOf(o2) {
       _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf2(o3) {
@@ -14801,12 +14414,9 @@
       return _setPrototypeOf(o2, p2);
     }
     function _isNativeReflectConstruct() {
-      if (typeof Reflect === "undefined" || !Reflect.construct)
-        return false;
-      if (Reflect.construct.sham)
-        return false;
-      if (typeof Proxy === "function")
-        return true;
+      if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+      if (Reflect.construct.sham) return false;
+      if (typeof Proxy === "function") return true;
       try {
         Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
         }));
@@ -14845,8 +14455,7 @@
     function _superPropBase(object, property) {
       while (!Object.prototype.hasOwnProperty.call(object, property)) {
         object = _getPrototypeOf(object);
-        if (object === null)
-          break;
+        if (object === null) break;
       }
       return object;
     }
@@ -14856,8 +14465,7 @@
       } else {
         _get = function _get2(target, property, receiver) {
           var base = _superPropBase(target, property);
-          if (!base)
-            return;
+          if (!base) return;
           var desc = Object.getOwnPropertyDescriptor(base, property);
           if (desc.get) {
             return desc.get.call(arguments.length < 3 ? target : receiver);
@@ -15658,8 +15266,7 @@
       return key;
     }
     function reverseValue(key, value, includeAbsolute, allTags) {
-      if (ignoreKey.test(key))
-        return value;
+      if (ignoreKey.test(key)) return value;
       if (turn_lanes.test(key)) {
         return value;
       } else if (key === "incline" && numeric.test(value)) {
@@ -15670,8 +15277,7 @@
         return onewayReplacements[value] || value;
       } else if (includeAbsolute && directionKey.test(key)) {
         return value.split(";").map((value2) => {
-          if (compassReplacements[value2])
-            return compassReplacements[value2];
+          if (compassReplacements[value2]) return compassReplacements[value2];
           var degrees3 = Number(value2);
           if (isFinite(degrees3)) {
             if (degrees3 < 180) {
@@ -15698,8 +15304,7 @@
     function reverseNodeTags(graph, nodeIDs) {
       for (var i3 = 0; i3 < nodeIDs.length; i3++) {
         var node = graph.hasEntity(nodeIDs[i3]);
-        if (!node || !Object.keys(node.tags).length)
-          continue;
+        if (!node || !Object.keys(node.tags).length) continue;
         var tags = {};
         for (var key in node.tags) {
           tags[reverseKey(key)] = reverseValue(key, node.tags[key], node.id === entityID, node.tags);
@@ -15734,8 +15339,7 @@
     };
     action.disabled = function(graph) {
       var entity = graph.hasEntity(entityID);
-      if (!entity || entity.type === "way")
-        return false;
+      if (!entity || entity.type === "way") return false;
       for (var key in entity.tags) {
         var value = entity.tags[key];
         if (reverseKey(key) !== key || reverseValue(key, value, true, entity.tags) !== value) {
@@ -15774,28 +15378,22 @@
     }
     function left(a2, x2, lo = 0, hi = a2.length) {
       if (lo < hi) {
-        if (compare1(x2, x2) !== 0)
-          return hi;
+        if (compare1(x2, x2) !== 0) return hi;
         do {
           const mid = lo + hi >>> 1;
-          if (compare2(a2[mid], x2) < 0)
-            lo = mid + 1;
-          else
-            hi = mid;
+          if (compare2(a2[mid], x2) < 0) lo = mid + 1;
+          else hi = mid;
         } while (lo < hi);
       }
       return lo;
     }
     function right(a2, x2, lo = 0, hi = a2.length) {
       if (lo < hi) {
-        if (compare1(x2, x2) !== 0)
-          return hi;
+        if (compare1(x2, x2) !== 0) return hi;
         do {
           const mid = lo + hi >>> 1;
-          if (compare2(a2[mid], x2) <= 0)
-            lo = mid + 1;
-          else
-            hi = mid;
+          if (compare2(a2[mid], x2) <= 0) lo = mid + 1;
+          else hi = mid;
         } while (lo < hi);
       }
       return lo;
@@ -15849,8 +15447,7 @@
       let i3 = 0;
       for (let j2 = 0; j2 < this._n && j2 < 32; j2++) {
         const y2 = p2[j2], hi = x2 + y2, lo = Math.abs(x2) < Math.abs(y2) ? x2 - (hi - y2) : y2 - (hi - x2);
-        if (lo)
-          p2[i3++] = lo;
+        if (lo) p2[i3++] = lo;
         x2 = hi;
       }
       p2[i3] = x2;
@@ -15867,14 +15464,12 @@
           y2 = p2[--n3];
           hi = x2 + y2;
           lo = y2 - (hi - x2);
-          if (lo)
-            break;
+          if (lo) break;
         }
         if (n3 > 0 && (lo < 0 && p2[n3 - 1] < 0 || lo > 0 && p2[n3 - 1] > 0)) {
           y2 = lo * 2;
           x2 = hi + y2;
-          if (y2 == x2 - hi)
-            hi = x2;
+          if (y2 == x2 - hi) hi = x2;
         }
       }
       return hi;
@@ -15883,14 +15478,11 @@
 
   // node_modules/d3-array/src/sort.js
   function compareDefined(compare2 = ascending) {
-    if (compare2 === ascending)
-      return ascendingDefined;
-    if (typeof compare2 !== "function")
-      throw new TypeError("compare is not a function");
+    if (compare2 === ascending) return ascendingDefined;
+    if (typeof compare2 !== "function") throw new TypeError("compare is not a function");
     return (a2, b2) => {
       const x2 = compare2(a2, b2);
-      if (x2 || x2 === 0)
-        return x2;
+      if (x2 || x2 === 0) return x2;
       return (compare2(b2, b2) === 0) - (compare2(a2, a2) === 0);
     };
   }
@@ -15905,34 +15497,24 @@
   function ticks(start2, stop, count) {
     var reverse, i3 = -1, n3, ticks2, step;
     stop = +stop, start2 = +start2, count = +count;
-    if (start2 === stop && count > 0)
-      return [start2];
-    if (reverse = stop < start2)
-      n3 = start2, start2 = stop, stop = n3;
-    if ((step = tickIncrement(start2, stop, count)) === 0 || !isFinite(step))
-      return [];
+    if (start2 === stop && count > 0) return [start2];
+    if (reverse = stop < start2) n3 = start2, start2 = stop, stop = n3;
+    if ((step = tickIncrement(start2, stop, count)) === 0 || !isFinite(step)) return [];
     if (step > 0) {
       let r0 = Math.round(start2 / step), r1 = Math.round(stop / step);
-      if (r0 * step < start2)
-        ++r0;
-      if (r1 * step > stop)
-        --r1;
+      if (r0 * step < start2) ++r0;
+      if (r1 * step > stop) --r1;
       ticks2 = new Array(n3 = r1 - r0 + 1);
-      while (++i3 < n3)
-        ticks2[i3] = (r0 + i3) * step;
+      while (++i3 < n3) ticks2[i3] = (r0 + i3) * step;
     } else {
       step = -step;
       let r0 = Math.round(start2 * step), r1 = Math.round(stop * step);
-      if (r0 / step < start2)
-        ++r0;
-      if (r1 / step > stop)
-        --r1;
+      if (r0 / step < start2) ++r0;
+      if (r1 / step > stop) --r1;
       ticks2 = new Array(n3 = r1 - r0 + 1);
-      while (++i3 < n3)
-        ticks2[i3] = (r0 + i3) / step;
+      while (++i3 < n3) ticks2[i3] = (r0 + i3) / step;
     }
-    if (reverse)
-      ticks2.reverse();
+    if (reverse) ticks2.reverse();
     return ticks2;
   }
   function tickIncrement(start2, stop, count) {
@@ -15941,12 +15523,9 @@
   }
   function tickStep(start2, stop, count) {
     var step0 = Math.abs(stop - start2) / Math.max(0, count), step1 = Math.pow(10, Math.floor(Math.log(step0) / Math.LN10)), error = step0 / step1;
-    if (error >= e10)
-      step1 *= 10;
-    else if (error >= e5)
-      step1 *= 5;
-    else if (error >= e2)
-      step1 *= 2;
+    if (error >= e10) step1 *= 10;
+    else if (error >= e5) step1 *= 5;
+    else if (error >= e2) step1 *= 2;
     return stop < start2 ? -step1 : step1;
   }
 
@@ -16008,23 +15587,16 @@
       let i3 = left;
       let j2 = right;
       swap(array2, left, k2);
-      if (compare2(array2[right], t2) > 0)
-        swap(array2, left, right);
+      if (compare2(array2[right], t2) > 0) swap(array2, left, right);
       while (i3 < j2) {
         swap(array2, i3, j2), ++i3, --j2;
-        while (compare2(array2[i3], t2) < 0)
-          ++i3;
-        while (compare2(array2[j2], t2) > 0)
-          --j2;
+        while (compare2(array2[i3], t2) < 0) ++i3;
+        while (compare2(array2[j2], t2) > 0) --j2;
       }
-      if (compare2(array2[left], t2) === 0)
-        swap(array2, left, j2);
-      else
-        ++j2, swap(array2, j2, right);
-      if (j2 <= k2)
-        left = j2 + 1;
-      if (k2 <= j2)
-        right = j2 - 1;
+      if (compare2(array2[left], t2) === 0) swap(array2, left, j2);
+      else ++j2, swap(array2, j2, right);
+      if (j2 <= k2) left = j2 + 1;
+      if (k2 <= j2) right = j2 - 1;
     }
     return array2;
   }
@@ -16037,12 +15609,9 @@
   // node_modules/d3-array/src/quantile.js
   function quantile(values, p2, valueof) {
     values = Float64Array.from(numbers(values, valueof));
-    if (!(n3 = values.length))
-      return;
-    if ((p2 = +p2) <= 0 || n3 < 2)
-      return min(values);
-    if (p2 >= 1)
-      return max(values);
+    if (!(n3 = values.length)) return;
+    if ((p2 = +p2) <= 0 || n3 < 2) return min(values);
+    if (p2 >= 1) return max(values);
     var n3, i3 = (n3 - 1) * p2, i0 = Math.floor(i3), value0 = max(quickselect(values, i0).subarray(0, i0 + 1)), value1 = min(values.subarray(i0 + 1));
     return value0 + (value1 - value0) * (i3 - i0);
   }
@@ -16068,8 +15637,7 @@
     let previous;
     let first = false;
     for (const value of values) {
-      if (first)
-        pairs2.push(pairof(previous, value));
+      if (first) pairs2.push(pairof(previous, value));
       previous = value;
       first = true;
     }
@@ -16133,8 +15701,7 @@
     },
     FeatureCollection: function(object, stream) {
       var features = object.features, i3 = -1, n3 = features.length;
-      while (++i3 < n3)
-        streamGeometry(features[i3].geometry, stream);
+      while (++i3 < n3) streamGeometry(features[i3].geometry, stream);
     }
   };
   var streamGeometryType = {
@@ -16147,43 +15714,37 @@
     },
     MultiPoint: function(object, stream) {
       var coordinates = object.coordinates, i3 = -1, n3 = coordinates.length;
-      while (++i3 < n3)
-        object = coordinates[i3], stream.point(object[0], object[1], object[2]);
+      while (++i3 < n3) object = coordinates[i3], stream.point(object[0], object[1], object[2]);
     },
     LineString: function(object, stream) {
       streamLine(object.coordinates, stream, 0);
     },
     MultiLineString: function(object, stream) {
       var coordinates = object.coordinates, i3 = -1, n3 = coordinates.length;
-      while (++i3 < n3)
-        streamLine(coordinates[i3], stream, 0);
+      while (++i3 < n3) streamLine(coordinates[i3], stream, 0);
     },
     Polygon: function(object, stream) {
       streamPolygon(object.coordinates, stream);
     },
     MultiPolygon: function(object, stream) {
       var coordinates = object.coordinates, i3 = -1, n3 = coordinates.length;
-      while (++i3 < n3)
-        streamPolygon(coordinates[i3], stream);
+      while (++i3 < n3) streamPolygon(coordinates[i3], stream);
     },
     GeometryCollection: function(object, stream) {
       var geometries = object.geometries, i3 = -1, n3 = geometries.length;
-      while (++i3 < n3)
-        streamGeometry(geometries[i3], stream);
+      while (++i3 < n3) streamGeometry(geometries[i3], stream);
     }
   };
   function streamLine(coordinates, stream, closed) {
     var i3 = -1, n3 = coordinates.length - closed, coordinate;
     stream.lineStart();
-    while (++i3 < n3)
-      coordinate = coordinates[i3], stream.point(coordinate[0], coordinate[1], coordinate[2]);
+    while (++i3 < n3) coordinate = coordinates[i3], stream.point(coordinate[0], coordinate[1], coordinate[2]);
     stream.lineEnd();
   }
   function streamPolygon(coordinates, stream) {
     var i3 = -1, n3 = coordinates.length;
     stream.polygonStart();
-    while (++i3 < n3)
-      streamLine(coordinates[i3], stream, 1);
+    while (++i3 < n3) streamLine(coordinates[i3], stream, 1);
     stream.polygonEnd();
   }
   function stream_default(object, stream) {
@@ -16298,12 +15859,9 @@
       boundsStream.point = boundsPoint;
       boundsStream.lineStart = boundsLineStart;
       boundsStream.lineEnd = boundsLineEnd;
-      if (areaRingSum < 0)
-        lambda02 = -(lambda1 = 180), phi0 = -(phi1 = 90);
-      else if (deltaSum > epsilon)
-        phi1 = 90;
-      else if (deltaSum < -epsilon)
-        phi0 = -90;
+      if (areaRingSum < 0) lambda02 = -(lambda1 = 180), phi0 = -(phi1 = 90);
+      else if (deltaSum > epsilon) phi1 = 90;
+      else if (deltaSum < -epsilon) phi0 = -90;
       range2[0] = lambda02, range2[1] = lambda1;
     },
     sphere: function() {
@@ -16312,10 +15870,8 @@
   };
   function boundsPoint(lambda, phi) {
     ranges.push(range2 = [lambda02 = lambda, lambda1 = lambda]);
-    if (phi < phi0)
-      phi0 = phi;
-    if (phi > phi1)
-      phi1 = phi;
+    if (phi < phi0) phi0 = phi;
+    if (phi > phi1) phi1 = phi;
   }
   function linePoint(lambda, phi) {
     var p2 = cartesian([lambda * radians, phi * radians]);
@@ -16326,49 +15882,37 @@
       var delta = lambda - lambda2, sign2 = delta > 0 ? 1 : -1, lambdai = inflection[0] * degrees * sign2, phii, antimeridian = abs(delta) > 180;
       if (antimeridian ^ (sign2 * lambda2 < lambdai && lambdai < sign2 * lambda)) {
         phii = inflection[1] * degrees;
-        if (phii > phi1)
-          phi1 = phii;
+        if (phii > phi1) phi1 = phii;
       } else if (lambdai = (lambdai + 360) % 360 - 180, antimeridian ^ (sign2 * lambda2 < lambdai && lambdai < sign2 * lambda)) {
         phii = -inflection[1] * degrees;
-        if (phii < phi0)
-          phi0 = phii;
+        if (phii < phi0) phi0 = phii;
       } else {
-        if (phi < phi0)
-          phi0 = phi;
-        if (phi > phi1)
-          phi1 = phi;
+        if (phi < phi0) phi0 = phi;
+        if (phi > phi1) phi1 = phi;
       }
       if (antimeridian) {
         if (lambda < lambda2) {
-          if (angle(lambda02, lambda) > angle(lambda02, lambda1))
-            lambda1 = lambda;
+          if (angle(lambda02, lambda) > angle(lambda02, lambda1)) lambda1 = lambda;
         } else {
-          if (angle(lambda, lambda1) > angle(lambda02, lambda1))
-            lambda02 = lambda;
+          if (angle(lambda, lambda1) > angle(lambda02, lambda1)) lambda02 = lambda;
         }
       } else {
         if (lambda1 >= lambda02) {
-          if (lambda < lambda02)
-            lambda02 = lambda;
-          if (lambda > lambda1)
-            lambda1 = lambda;
+          if (lambda < lambda02) lambda02 = lambda;
+          if (lambda > lambda1) lambda1 = lambda;
         } else {
           if (lambda > lambda2) {
-            if (angle(lambda02, lambda) > angle(lambda02, lambda1))
-              lambda1 = lambda;
+            if (angle(lambda02, lambda) > angle(lambda02, lambda1)) lambda1 = lambda;
           } else {
-            if (angle(lambda, lambda1) > angle(lambda02, lambda1))
-              lambda02 = lambda;
+            if (angle(lambda, lambda1) > angle(lambda02, lambda1)) lambda02 = lambda;
           }
         }
       }
     } else {
       ranges.push(range2 = [lambda02 = lambda, lambda1 = lambda]);
     }
-    if (phi < phi0)
-      phi0 = phi;
-    if (phi > phi1)
-      phi1 = phi;
+    if (phi < phi0) phi0 = phi;
+    if (phi > phi1) phi1 = phi;
     p0 = p2, lambda2 = lambda;
   }
   function boundsLineStart() {
@@ -16395,8 +15939,7 @@
   function boundsRingEnd() {
     boundsRingPoint(lambda002, phi002);
     areaStream.lineEnd();
-    if (abs(deltaSum) > epsilon)
-      lambda02 = -(lambda1 = 180);
+    if (abs(deltaSum) > epsilon) lambda02 = -(lambda1 = 180);
     range2[0] = lambda02, range2[1] = lambda1;
     p0 = null;
   }
@@ -16419,18 +15962,15 @@
       for (i3 = 1, a2 = ranges[0], merged = [a2]; i3 < n3; ++i3) {
         b2 = ranges[i3];
         if (rangeContains(a2, b2[0]) || rangeContains(a2, b2[1])) {
-          if (angle(a2[0], b2[1]) > angle(a2[0], a2[1]))
-            a2[1] = b2[1];
-          if (angle(b2[0], a2[1]) > angle(a2[0], a2[1]))
-            a2[0] = b2[0];
+          if (angle(a2[0], b2[1]) > angle(a2[0], a2[1])) a2[1] = b2[1];
+          if (angle(b2[0], a2[1]) > angle(a2[0], a2[1])) a2[0] = b2[0];
         } else {
           merged.push(a2 = b2);
         }
       }
       for (deltaMax = -Infinity, n3 = merged.length - 1, i3 = 0, a2 = merged[n3]; i3 <= n3; a2 = b2, ++i3) {
         b2 = merged[i3];
-        if ((delta = angle(a2[1], b2[0])) > deltaMax)
-          deltaMax = delta, lambda02 = b2[0], lambda1 = a2[1];
+        if ((delta = angle(a2[1], b2[0])) > deltaMax) deltaMax = delta, lambda02 = b2[0], lambda1 = a2[1];
       }
     }
     ranges = range2 = null;
@@ -16442,10 +15982,9 @@
     function compose(x2, y2) {
       return x2 = a2(x2, y2), b2(x2[0], x2[1]);
     }
-    if (a2.invert && b2.invert)
-      compose.invert = function(x2, y2) {
-        return x2 = b2.invert(x2, y2), x2 && a2.invert(x2[0], x2[1]);
-      };
+    if (a2.invert && b2.invert) compose.invert = function(x2, y2) {
+      return x2 = b2.invert(x2, y2), x2 && a2.invert(x2[0], x2[1]);
+    };
     return compose;
   }
 
@@ -16500,8 +16039,7 @@
 
   // node_modules/d3-geo/src/circle.js
   function circleStream(stream, radius, delta, direction, t0, t1) {
-    if (!delta)
-      return;
+    if (!delta) return;
     var cosRadius = cos(radius), sinRadius = sin(radius), step = direction * delta;
     if (t0 == null) {
       t0 = radius + direction * tau;
@@ -16509,8 +16047,7 @@
     } else {
       t0 = circleRadius(cosRadius, t0);
       t1 = circleRadius(cosRadius, t1);
-      if (direction > 0 ? t0 < t1 : t0 > t1)
-        t0 += direction * tau;
+      if (direction > 0 ? t0 < t1 : t0 > t1) t0 += direction * tau;
     }
     for (var point2, t2 = t0; direction > 0 ? t2 > t1 : t2 < t1; t2 -= step) {
       point2 = spherical([cosRadius, -sinRadius * cos(t2), -sinRadius * sin(t2)]);
@@ -16536,8 +16073,7 @@
       },
       lineEnd: noop,
       rejoin: function() {
-        if (lines.length > 1)
-          lines.push(lines.pop().concat(lines.shift()));
+        if (lines.length > 1) lines.push(lines.pop().concat(lines.shift()));
       },
       result: function() {
         var result = lines;
@@ -16565,14 +16101,12 @@
   function rejoin_default(segments, compareIntersection2, startInside, interpolate, stream) {
     var subject = [], clip = [], i3, n3;
     segments.forEach(function(segment) {
-      if ((n4 = segment.length - 1) <= 0)
-        return;
+      if ((n4 = segment.length - 1) <= 0) return;
       var n4, p02 = segment[0], p1 = segment[n4], x2;
       if (pointEqual_default(p02, p1)) {
         if (!p02[2] && !p1[2]) {
           stream.lineStart();
-          for (i3 = 0; i3 < n4; ++i3)
-            stream.point((p02 = segment[i3])[0], p02[1]);
+          for (i3 = 0; i3 < n4; ++i3) stream.point((p02 = segment[i3])[0], p02[1]);
           stream.lineEnd();
           return;
         }
@@ -16583,8 +16117,7 @@
       subject.push(x2 = new Intersection(p1, segment, null, false));
       clip.push(x2.o = new Intersection(p1, null, x2, true));
     });
-    if (!subject.length)
-      return;
+    if (!subject.length) return;
     clip.sort(compareIntersection2);
     link(subject);
     link(clip);
@@ -16594,17 +16127,14 @@
     var start2 = subject[0], points, point2;
     while (1) {
       var current = start2, isSubject = true;
-      while (current.v)
-        if ((current = current.n) === start2)
-          return;
+      while (current.v) if ((current = current.n) === start2) return;
       points = current.z;
       stream.lineStart();
       do {
         current.v = current.o.v = true;
         if (current.e) {
           if (isSubject) {
-            for (i3 = 0, n3 = points.length; i3 < n3; ++i3)
-              stream.point((point2 = points[i3])[0], point2[1]);
+            for (i3 = 0, n3 = points.length; i3 < n3; ++i3) stream.point((point2 = points[i3])[0], point2[1]);
           } else {
             interpolate(current.x, current.n.x, 1, stream);
           }
@@ -16612,8 +16142,7 @@
         } else {
           if (isSubject) {
             points = current.p.z;
-            for (i3 = points.length - 1; i3 >= 0; --i3)
-              stream.point((point2 = points[i3])[0], point2[1]);
+            for (i3 = points.length - 1; i3 >= 0; --i3) stream.point((point2 = points[i3])[0], point2[1]);
           } else {
             interpolate(current.x, current.p.x, -1, stream);
           }
@@ -16627,8 +16156,7 @@
     }
   }
   function link(array2) {
-    if (!(n3 = array2.length))
-      return;
+    if (!(n3 = array2.length)) return;
     var n3, i3 = 0, a2 = array2[0], b2;
     while (++i3 < n3) {
       a2.n = b2 = array2[i3];
@@ -16646,13 +16174,10 @@
   function polygonContains_default(polygon2, point2) {
     var lambda = longitude(point2), phi = point2[1], sinPhi = sin(phi), normal = [sin(lambda), -cos(lambda), 0], angle2 = 0, winding = 0;
     var sum = new Adder();
-    if (sinPhi === 1)
-      phi = halfPi + epsilon;
-    else if (sinPhi === -1)
-      phi = -halfPi - epsilon;
+    if (sinPhi === 1) phi = halfPi + epsilon;
+    else if (sinPhi === -1) phi = -halfPi - epsilon;
     for (var i3 = 0, n3 = polygon2.length; i3 < n3; ++i3) {
-      if (!(m2 = (ring = polygon2[i3]).length))
-        continue;
+      if (!(m2 = (ring = polygon2[i3]).length)) continue;
       var ring, m2, point0 = ring[m2 - 1], lambda04 = longitude(point0), phi02 = point0[1] / 2 + quarterPi, sinPhi03 = sin(phi02), cosPhi03 = cos(phi02);
       for (var j2 = 0; j2 < m2; ++j2, lambda04 = lambda12, sinPhi03 = sinPhi1, cosPhi03 = cosPhi1, point0 = point1) {
         var point1 = ring[j2], lambda12 = longitude(point1), phi12 = point1[1] / 2 + quarterPi, sinPhi1 = sin(phi12), cosPhi1 = cos(phi12), delta = lambda12 - lambda04, sign2 = delta >= 0 ? 1 : -1, absDelta = sign2 * delta, antimeridian = absDelta > pi, k2 = sinPhi03 * sinPhi1;
@@ -16695,18 +16220,15 @@
           segments = merge(segments);
           var startInside = polygonContains_default(polygon2, start2);
           if (segments.length) {
-            if (!polygonStarted)
-              sink.polygonStart(), polygonStarted = true;
+            if (!polygonStarted) sink.polygonStart(), polygonStarted = true;
             rejoin_default(segments, compareIntersection, startInside, interpolate, sink);
           } else if (startInside) {
-            if (!polygonStarted)
-              sink.polygonStart(), polygonStarted = true;
+            if (!polygonStarted) sink.polygonStart(), polygonStarted = true;
             sink.lineStart();
             interpolate(null, null, 1, sink);
             sink.lineEnd();
           }
-          if (polygonStarted)
-            sink.polygonEnd(), polygonStarted = false;
+          if (polygonStarted) sink.polygonEnd(), polygonStarted = false;
           segments = polygon2 = null;
         },
         sphere: function() {
@@ -16718,8 +16240,7 @@
         }
       };
       function point2(lambda, phi) {
-        if (pointVisible(lambda, phi))
-          sink.point(lambda, phi);
+        if (pointVisible(lambda, phi)) sink.point(lambda, phi);
       }
       function pointLine(lambda, phi) {
         line.point(lambda, phi);
@@ -16747,22 +16268,18 @@
         ring.pop();
         polygon2.push(ring);
         ring = null;
-        if (!n3)
-          return;
+        if (!n3) return;
         if (clean2 & 1) {
           segment = ringSegments[0];
           if ((m2 = segment.length - 1) > 0) {
-            if (!polygonStarted)
-              sink.polygonStart(), polygonStarted = true;
+            if (!polygonStarted) sink.polygonStart(), polygonStarted = true;
             sink.lineStart();
-            for (i3 = 0; i3 < m2; ++i3)
-              sink.point((point3 = segment[i3])[0], point3[1]);
+            for (i3 = 0; i3 < m2; ++i3) sink.point((point3 = segment[i3])[0], point3[1]);
             sink.lineEnd();
           }
           return;
         }
-        if (n3 > 1 && clean2 & 2)
-          ringSegments.push(ringSegments.pop().concat(ringSegments.shift()));
+        if (n3 > 1 && clean2 & 2) ringSegments.push(ringSegments.pop().concat(ringSegments.shift()));
         segments.push(ringSegments.filter(validSegment));
       }
       return clip;
@@ -16802,10 +16319,8 @@
           stream.point(lambda12, phi02);
           clean2 = 0;
         } else if (sign0 !== sign1 && delta >= pi) {
-          if (abs(lambda04 - sign0) < epsilon)
-            lambda04 -= sign0 * epsilon;
-          if (abs(lambda12 - sign1) < epsilon)
-            lambda12 -= sign1 * epsilon;
+          if (abs(lambda04 - sign0) < epsilon) lambda04 -= sign0 * epsilon;
+          if (abs(lambda12 - sign1) < epsilon) lambda12 -= sign1 * epsilon;
           phi02 = clipAntimeridianIntersect(lambda04, phi02, lambda12, phi12);
           stream.point(sign0, phi02);
           stream.lineEnd();
@@ -16871,8 +16386,7 @@
         },
         point: function(lambda, phi) {
           var point1 = [lambda, phi], point2, v2 = visible(lambda, phi), c2 = smallRadius ? v2 ? 0 : code(lambda, phi) : v2 ? code(lambda + (lambda < 0 ? pi : -pi), phi) : 0;
-          if (!point0 && (v00 = v0 = v2))
-            stream.lineStart();
+          if (!point0 && (v00 = v0 = v2)) stream.lineStart();
           if (v2 !== v0) {
             point2 = intersect2(point0, point1);
             if (!point2 || pointEqual_default(point0, point2) || pointEqual_default(point1, point2))
@@ -16913,8 +16427,7 @@
           point0 = point1, v0 = v2, c0 = c2;
         },
         lineEnd: function() {
-          if (v0)
-            stream.lineEnd();
+          if (v0) stream.lineEnd();
           point0 = null;
         },
         // Rejoin first and last segments if there were intersections and the first
@@ -16927,24 +16440,19 @@
     function intersect2(a2, b2, two) {
       var pa = cartesian(a2), pb = cartesian(b2);
       var n1 = [1, 0, 0], n22 = cartesianCross(pa, pb), n2n2 = cartesianDot(n22, n22), n1n2 = n22[0], determinant = n2n2 - n1n2 * n1n2;
-      if (!determinant)
-        return !two && a2;
+      if (!determinant) return !two && a2;
       var c1 = cr * n2n2 / determinant, c2 = -cr * n1n2 / determinant, n1xn2 = cartesianCross(n1, n22), A2 = cartesianScale(n1, c1), B2 = cartesianScale(n22, c2);
       cartesianAddInPlace(A2, B2);
       var u2 = n1xn2, w2 = cartesianDot(A2, u2), uu = cartesianDot(u2, u2), t2 = w2 * w2 - uu * (cartesianDot(A2, A2) - 1);
-      if (t2 < 0)
-        return;
+      if (t2 < 0) return;
       var t3 = sqrt(t2), q2 = cartesianScale(u2, (-w2 - t3) / uu);
       cartesianAddInPlace(q2, A2);
       q2 = spherical(q2);
-      if (!two)
-        return q2;
+      if (!two) return q2;
       var lambda04 = a2[0], lambda12 = b2[0], phi02 = a2[1], phi12 = b2[1], z2;
-      if (lambda12 < lambda04)
-        z2 = lambda04, lambda04 = lambda12, lambda12 = z2;
+      if (lambda12 < lambda04) z2 = lambda04, lambda04 = lambda12, lambda12 = z2;
       var delta2 = lambda12 - lambda04, polar = abs(delta2 - pi) < epsilon, meridian = polar || delta2 < epsilon;
-      if (!polar && phi12 < phi02)
-        z2 = phi02, phi02 = phi12, phi12 = z2;
+      if (!polar && phi12 < phi02) z2 = phi02, phi02 = phi12, phi12 = z2;
       if (meridian ? polar ? phi02 + phi12 > 0 ^ q2[1] < (abs(q2[0] - lambda04) < epsilon ? phi02 : phi12) : phi02 <= q2[1] && q2[1] <= phi12 : delta2 > pi ^ (lambda04 <= q2[0] && q2[0] <= lambda12)) {
         var q1 = cartesianScale(u2, (-w2 + t3) / uu);
         cartesianAddInPlace(q1, A2);
@@ -16953,14 +16461,10 @@
     }
     function code(lambda, phi) {
       var r2 = smallRadius ? radius : pi - radius, code2 = 0;
-      if (lambda < -r2)
-        code2 |= 1;
-      else if (lambda > r2)
-        code2 |= 2;
-      if (phi < -r2)
-        code2 |= 4;
-      else if (phi > r2)
-        code2 |= 8;
+      if (lambda < -r2) code2 |= 1;
+      else if (lambda > r2) code2 |= 2;
+      if (phi < -r2) code2 |= 4;
+      else if (phi > r2) code2 |= 8;
       return code2;
     }
     return clip_default(visible, clipLine, interpolate, smallRadius ? [0, -radius] : [-pi, radius - pi]);
@@ -16970,69 +16474,47 @@
   function line_default(a2, b2, x05, y05, x12, y12) {
     var ax = a2[0], ay = a2[1], bx = b2[0], by = b2[1], t0 = 0, t1 = 1, dx = bx - ax, dy = by - ay, r2;
     r2 = x05 - ax;
-    if (!dx && r2 > 0)
-      return;
+    if (!dx && r2 > 0) return;
     r2 /= dx;
     if (dx < 0) {
-      if (r2 < t0)
-        return;
-      if (r2 < t1)
-        t1 = r2;
+      if (r2 < t0) return;
+      if (r2 < t1) t1 = r2;
     } else if (dx > 0) {
-      if (r2 > t1)
-        return;
-      if (r2 > t0)
-        t0 = r2;
+      if (r2 > t1) return;
+      if (r2 > t0) t0 = r2;
     }
     r2 = x12 - ax;
-    if (!dx && r2 < 0)
-      return;
+    if (!dx && r2 < 0) return;
     r2 /= dx;
     if (dx < 0) {
-      if (r2 > t1)
-        return;
-      if (r2 > t0)
-        t0 = r2;
+      if (r2 > t1) return;
+      if (r2 > t0) t0 = r2;
     } else if (dx > 0) {
-      if (r2 < t0)
-        return;
-      if (r2 < t1)
-        t1 = r2;
+      if (r2 < t0) return;
+      if (r2 < t1) t1 = r2;
     }
     r2 = y05 - ay;
-    if (!dy && r2 > 0)
-      return;
+    if (!dy && r2 > 0) return;
     r2 /= dy;
     if (dy < 0) {
-      if (r2 < t0)
-        return;
-      if (r2 < t1)
-        t1 = r2;
+      if (r2 < t0) return;
+      if (r2 < t1) t1 = r2;
     } else if (dy > 0) {
-      if (r2 > t1)
-        return;
-      if (r2 > t0)
-        t0 = r2;
+      if (r2 > t1) return;
+      if (r2 > t0) t0 = r2;
     }
     r2 = y12 - ay;
-    if (!dy && r2 < 0)
-      return;
+    if (!dy && r2 < 0) return;
     r2 /= dy;
     if (dy < 0) {
-      if (r2 > t1)
-        return;
-      if (r2 > t0)
-        t0 = r2;
+      if (r2 > t1) return;
+      if (r2 > t0) t0 = r2;
     } else if (dy > 0) {
-      if (r2 < t0)
-        return;
-      if (r2 < t1)
-        t1 = r2;
+      if (r2 < t0) return;
+      if (r2 < t1) t1 = r2;
     }
-    if (t0 > 0)
-      a2[0] = ax + t0 * dx, a2[1] = ay + t0 * dy;
-    if (t1 < 1)
-      b2[0] = ax + t1 * dx, b2[1] = ay + t1 * dy;
+    if (t0 > 0) a2[0] = ax + t0 * dx, a2[1] = ay + t0 * dy;
+    if (t1 < 1) b2[0] = ax + t1 * dx, b2[1] = ay + t1 * dy;
     return true;
   }
 
@@ -17073,8 +16555,7 @@
         polygonEnd
       };
       function point2(x2, y2) {
-        if (visible(x2, y2))
-          activeStream.point(x2, y2);
+        if (visible(x2, y2)) activeStream.point(x2, y2);
       }
       function polygonInside() {
         var winding = 0;
@@ -17082,11 +16563,9 @@
           for (var ring2 = polygon2[i3], j2 = 1, m2 = ring2.length, point3 = ring2[0], a0, a1, b0 = point3[0], b1 = point3[1]; j2 < m2; ++j2) {
             a0 = b0, a1 = b1, point3 = ring2[j2], b0 = point3[0], b1 = point3[1];
             if (a1 <= y12) {
-              if (b1 > y12 && (b0 - a0) * (y12 - a1) > (b1 - a1) * (x05 - a0))
-                ++winding;
+              if (b1 > y12 && (b0 - a0) * (y12 - a1) > (b1 - a1) * (x05 - a0)) ++winding;
             } else {
-              if (b1 <= y12 && (b0 - a0) * (y12 - a1) < (b1 - a1) * (x05 - a0))
-                --winding;
+              if (b1 <= y12 && (b0 - a0) * (y12 - a1) < (b1 - a1) * (x05 - a0)) --winding;
             }
           }
         }
@@ -17113,8 +16592,7 @@
       }
       function lineStart() {
         clipStream.point = linePoint2;
-        if (polygon2)
-          polygon2.push(ring = []);
+        if (polygon2) polygon2.push(ring = []);
         first = true;
         v_ = false;
         x_ = y_ = NaN;
@@ -17122,18 +16600,15 @@
       function lineEnd() {
         if (segments) {
           linePoint2(x__, y__);
-          if (v__ && v_)
-            bufferStream.rejoin();
+          if (v__ && v_) bufferStream.rejoin();
           segments.push(bufferStream.result());
         }
         clipStream.point = point2;
-        if (v_)
-          activeStream.lineEnd();
+        if (v_) activeStream.lineEnd();
       }
       function linePoint2(x2, y2) {
         var v2 = visible(x2, y2);
-        if (polygon2)
-          ring.push([x2, y2]);
+        if (polygon2) ring.push([x2, y2]);
         if (first) {
           x__ = x2, y__ = y2, v__ = v2;
           first = false;
@@ -17142,8 +16617,7 @@
             activeStream.point(x2, y2);
           }
         } else {
-          if (v2 && v_)
-            activeStream.point(x2, y2);
+          if (v2 && v_) activeStream.point(x2, y2);
           else {
             var a2 = [x_ = Math.max(clipMin, Math.min(clipMax, x_)), y_ = Math.max(clipMin, Math.min(clipMax, y_))], b2 = [x2 = Math.max(clipMin, Math.min(clipMax, x2)), y2 = Math.max(clipMin, Math.min(clipMax, y2))];
             if (line_default(a2, b2, x05, y05, x12, y12)) {
@@ -17152,8 +16626,7 @@
                 activeStream.point(a2[0], a2[1]);
               }
               activeStream.point(b2[0], b2[1]);
-              if (!v2)
-                activeStream.lineEnd();
+              if (!v2) activeStream.lineEnd();
               clean2 = false;
             } else if (v2) {
               activeStream.lineStart();
@@ -17268,14 +16741,10 @@
     }
   };
   function boundsPoint2(x2, y2) {
-    if (x2 < x02)
-      x02 = x2;
-    if (x2 > x1)
-      x1 = x2;
-    if (y2 < y02)
-      y02 = y2;
-    if (y2 > y1)
-      y1 = y2;
+    if (x2 < x02) x02 = x2;
+    if (x2 > x1) x1 = x2;
+    if (y2 < y02) y02 = y2;
+    if (y2 > y1) y1 = y2;
   }
   var bounds_default2 = boundsStream2;
 
@@ -17376,8 +16845,7 @@
       this._point = 0;
     },
     lineEnd: function() {
-      if (this._line === 0)
-        this._context.closePath();
+      if (this._line === 0) this._context.closePath();
       this._point = NaN;
     },
     point: function(x2, y2) {
@@ -17414,8 +16882,7 @@
       lengthStream2.point = lengthPointFirst2;
     },
     lineEnd: function() {
-      if (lengthRing)
-        lengthPoint2(x003, y003);
+      if (lengthRing) lengthPoint2(x003, y003);
       lengthStream2.point = noop;
     },
     polygonStart: function() {
@@ -17449,8 +16916,7 @@
     _radius: 4.5,
     _circle: circle(4.5),
     pointRadius: function(_2) {
-      if ((_2 = +_2) !== this._radius)
-        this._radius = _2, this._circle = null;
+      if ((_2 = +_2) !== this._radius) this._radius = _2, this._circle = null;
       return this;
     },
     polygonStart: function() {
@@ -17463,8 +16929,7 @@
       this._point = 0;
     },
     lineEnd: function() {
-      if (this._line === 0)
-        this._string.push("Z");
+      if (this._line === 0) this._string.push("Z");
       this._point = NaN;
     },
     point: function(x2, y2) {
@@ -17479,8 +16944,7 @@
           break;
         }
         default: {
-          if (this._circle == null)
-            this._circle = circle(this._radius);
+          if (this._circle == null) this._circle = circle(this._radius);
           this._string.push("M", x2, ",", y2, this._circle);
           break;
         }
@@ -17505,8 +16969,7 @@
     var pointRadius = 4.5, projectionStream, contextStream;
     function path(object) {
       if (object) {
-        if (typeof pointRadius === "function")
-          contextStream.pointRadius(+pointRadius.apply(this, arguments));
+        if (typeof pointRadius === "function") contextStream.pointRadius(+pointRadius.apply(this, arguments));
         stream_default(object, projectionStream(contextStream));
       }
       return contextStream.result();
@@ -17531,16 +16994,13 @@
       return arguments.length ? (projectionStream = _2 == null ? (projection2 = null, identity_default) : (projection2 = _2).stream, path) : projection2;
     };
     path.context = function(_2) {
-      if (!arguments.length)
-        return context;
+      if (!arguments.length) return context;
       contextStream = _2 == null ? (context = null, new PathString()) : new PathContext(context = _2);
-      if (typeof pointRadius !== "function")
-        contextStream.pointRadius(pointRadius);
+      if (typeof pointRadius !== "function") contextStream.pointRadius(pointRadius);
       return path;
     };
     path.pointRadius = function(_2) {
-      if (!arguments.length)
-        return pointRadius;
+      if (!arguments.length) return pointRadius;
       pointRadius = typeof _2 === "function" ? _2 : (contextStream.pointRadius(+_2), +_2);
       return path;
     };
@@ -17556,8 +17016,7 @@
   function transformer(methods2) {
     return function(stream) {
       var s2 = new TransformStream();
-      for (var key in methods2)
-        s2[key] = methods2[key];
+      for (var key in methods2) s2[key] = methods2[key];
       s2.stream = stream;
       return s2;
     };
@@ -17590,12 +17049,10 @@
   function fit(projection2, fitBounds, object) {
     var clip = projection2.clipExtent && projection2.clipExtent();
     projection2.scale(150).translate([0, 0]);
-    if (clip != null)
-      projection2.clipExtent(null);
+    if (clip != null) projection2.clipExtent(null);
     stream_default(object, projection2.stream(bounds_default2));
     fitBounds(bounds_default2.result());
-    if (clip != null)
-      projection2.clipExtent(clip);
+    if (clip != null) projection2.clipExtent(clip);
     return projection2;
   }
   function fitExtent(projection2, extent, object) {
@@ -17723,8 +17180,7 @@
     return transform2;
   }
   function scaleTranslateRotate(k2, dx, dy, sx, sy, alpha) {
-    if (!alpha)
-      return scaleTranslate(k2, dx, dy, sx, sy);
+    if (!alpha) return scaleTranslate(k2, dx, dy, sx, sy);
     var cosAlpha = cos(alpha), sinAlpha = sin(alpha), a2 = cosAlpha * k2, b2 = sinAlpha * k2, ai = cosAlpha / k2, bi = sinAlpha / k2, ci = (sinAlpha * dy - cosAlpha * dx) / k2, fi = (sinAlpha * dx + cosAlpha * dy) / k2;
     function transform2(x2, y2) {
       x2 *= sx;
@@ -18003,8 +17459,7 @@
       return this[0][0] === obj[0][0] && this[0][1] === obj[0][1] && this[1][0] === obj[1][0] && this[1][1] === obj[1][1];
     },
     extend: function(obj) {
-      if (!(obj instanceof geoExtent))
-        obj = new geoExtent(obj);
+      if (!(obj instanceof geoExtent)) obj = new geoExtent(obj);
       return geoExtent(
         [Math.min(obj[0][0], this[0][0]), Math.min(obj[0][1], this[0][1])],
         [Math.max(obj[1][0], this[1][0]), Math.max(obj[1][1], this[1][1])]
@@ -18038,26 +17493,22 @@
       ];
     },
     contains: function(obj) {
-      if (!(obj instanceof geoExtent))
-        obj = new geoExtent(obj);
+      if (!(obj instanceof geoExtent)) obj = new geoExtent(obj);
       return obj[0][0] >= this[0][0] && obj[0][1] >= this[0][1] && obj[1][0] <= this[1][0] && obj[1][1] <= this[1][1];
     },
     intersects: function(obj) {
-      if (!(obj instanceof geoExtent))
-        obj = new geoExtent(obj);
+      if (!(obj instanceof geoExtent)) obj = new geoExtent(obj);
       return obj[0][0] <= this[1][0] && obj[0][1] <= this[1][1] && obj[1][0] >= this[0][0] && obj[1][1] >= this[0][1];
     },
     intersection: function(obj) {
-      if (!this.intersects(obj))
-        return new geoExtent();
+      if (!this.intersects(obj)) return new geoExtent();
       return new geoExtent(
         [Math.max(obj[0][0], this[0][0]), Math.max(obj[0][1], this[0][1])],
         [Math.min(obj[1][0], this[1][0]), Math.min(obj[1][1], this[1][1])]
       );
     },
     percentContainedIn: function(obj) {
-      if (!(obj instanceof geoExtent))
-        obj = new geoExtent(obj);
+      if (!(obj instanceof geoExtent)) obj = new geoExtent(obj);
       var a1 = this.intersection(obj).area();
       var a2 = this.area();
       if (a1 === Infinity || a2 === Infinity) {
@@ -18130,27 +17581,21 @@
     const n3 = points.length, indexes = [0, 1];
     let size = 2, i3;
     for (i3 = 2; i3 < n3; ++i3) {
-      while (size > 1 && cross_default(points[indexes[size - 2]], points[indexes[size - 1]], points[i3]) <= 0)
-        --size;
+      while (size > 1 && cross_default(points[indexes[size - 2]], points[indexes[size - 1]], points[i3]) <= 0) --size;
       indexes[size++] = i3;
     }
     return indexes.slice(0, size);
   }
   function hull_default(points) {
-    if ((n3 = points.length) < 3)
-      return null;
+    if ((n3 = points.length) < 3) return null;
     var i3, n3, sortedPoints = new Array(n3), flippedPoints = new Array(n3);
-    for (i3 = 0; i3 < n3; ++i3)
-      sortedPoints[i3] = [+points[i3][0], +points[i3][1], i3];
+    for (i3 = 0; i3 < n3; ++i3) sortedPoints[i3] = [+points[i3][0], +points[i3][1], i3];
     sortedPoints.sort(lexicographicOrder);
-    for (i3 = 0; i3 < n3; ++i3)
-      flippedPoints[i3] = [sortedPoints[i3][0], -sortedPoints[i3][1]];
+    for (i3 = 0; i3 < n3; ++i3) flippedPoints[i3] = [sortedPoints[i3][0], -sortedPoints[i3][1]];
     var upperIndexes = computeUpperHullIndexes(sortedPoints), lowerIndexes = computeUpperHullIndexes(flippedPoints);
     var skipLeft = lowerIndexes[0] === upperIndexes[0], skipRight = lowerIndexes[lowerIndexes.length - 1] === upperIndexes[upperIndexes.length - 1], hull = [];
-    for (i3 = upperIndexes.length - 1; i3 >= 0; --i3)
-      hull.push(points[sortedPoints[upperIndexes[i3]][2]]);
-    for (i3 = +skipLeft; i3 < lowerIndexes.length - skipRight; ++i3)
-      hull.push(points[sortedPoints[lowerIndexes[i3]][2]]);
+    for (i3 = upperIndexes.length - 1; i3 >= 0; --i3) hull.push(points[sortedPoints[upperIndexes[i3]][2]]);
+    for (i3 = +skipLeft; i3 < lowerIndexes.length - skipRight; ++i3) hull.push(points[sortedPoints[lowerIndexes[i3]][2]]);
     return hull;
   }
 
@@ -18276,8 +17721,7 @@
     var idx;
     var loc;
     for (var i3 = 0; i3 < points.length - 1; i3++) {
-      if (ids[i3] === activeID || ids[i3 + 1] === activeID)
-        continue;
+      if (ids[i3] === activeID || ids[i3 + 1] === activeID) continue;
       var o2 = points[i3];
       var s2 = geoVecSubtract(points[i3 + 1], o2);
       var v2 = geoVecSubtract(point2, o2);
@@ -18422,8 +17866,7 @@
       var xj = polygon2[j2][0];
       var yj = polygon2[j2][1];
       var intersect2 = yi > y2 !== yj > y2 && x2 < (xj - xi) * (y2 - yi) / (yj - yi) + xi;
-      if (intersect2)
-        inside = !inside;
+      if (intersect2) inside = !inside;
     }
     return inside;
   }
@@ -18502,8 +17945,7 @@
   } };
   function dispatch() {
     for (var i3 = 0, n3 = arguments.length, _2 = {}, t2; i3 < n3; ++i3) {
-      if (!(t2 = arguments[i3] + "") || t2 in _2 || /[\s.]/.test(t2))
-        throw new Error("illegal type: " + t2);
+      if (!(t2 = arguments[i3] + "") || t2 in _2 || /[\s.]/.test(t2)) throw new Error("illegal type: " + t2);
       _2[t2] = [];
     }
     return new Dispatch(_2);
@@ -18514,10 +17956,8 @@
   function parseTypenames(typenames, types) {
     return typenames.trim().split(/^|\s+/).map(function(t2) {
       var name = "", i3 = t2.indexOf(".");
-      if (i3 >= 0)
-        name = t2.slice(i3 + 1), t2 = t2.slice(0, i3);
-      if (t2 && !types.hasOwnProperty(t2))
-        throw new Error("unknown type: " + t2);
+      if (i3 >= 0) name = t2.slice(i3 + 1), t2 = t2.slice(0, i3);
+      if (t2 && !types.hasOwnProperty(t2)) throw new Error("unknown type: " + t2);
       return { type: t2, name };
     });
   }
@@ -18526,42 +17966,29 @@
     on: function(typename, callback) {
       var _2 = this._, T2 = parseTypenames(typename + "", _2), t2, i3 = -1, n3 = T2.length;
       if (arguments.length < 2) {
-        while (++i3 < n3)
-          if ((t2 = (typename = T2[i3]).type) && (t2 = get(_2[t2], typename.name)))
-            return t2;
+        while (++i3 < n3) if ((t2 = (typename = T2[i3]).type) && (t2 = get(_2[t2], typename.name))) return t2;
         return;
       }
-      if (callback != null && typeof callback !== "function")
-        throw new Error("invalid callback: " + callback);
+      if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
       while (++i3 < n3) {
-        if (t2 = (typename = T2[i3]).type)
-          _2[t2] = set(_2[t2], typename.name, callback);
-        else if (callback == null)
-          for (t2 in _2)
-            _2[t2] = set(_2[t2], typename.name, null);
+        if (t2 = (typename = T2[i3]).type) _2[t2] = set(_2[t2], typename.name, callback);
+        else if (callback == null) for (t2 in _2) _2[t2] = set(_2[t2], typename.name, null);
       }
       return this;
     },
     copy: function() {
       var copy2 = {}, _2 = this._;
-      for (var t2 in _2)
-        copy2[t2] = _2[t2].slice();
+      for (var t2 in _2) copy2[t2] = _2[t2].slice();
       return new Dispatch(copy2);
     },
     call: function(type2, that) {
-      if ((n3 = arguments.length - 2) > 0)
-        for (var args = new Array(n3), i3 = 0, n3, t2; i3 < n3; ++i3)
-          args[i3] = arguments[i3 + 2];
-      if (!this._.hasOwnProperty(type2))
-        throw new Error("unknown type: " + type2);
-      for (t2 = this._[type2], i3 = 0, n3 = t2.length; i3 < n3; ++i3)
-        t2[i3].value.apply(that, args);
+      if ((n3 = arguments.length - 2) > 0) for (var args = new Array(n3), i3 = 0, n3, t2; i3 < n3; ++i3) args[i3] = arguments[i3 + 2];
+      if (!this._.hasOwnProperty(type2)) throw new Error("unknown type: " + type2);
+      for (t2 = this._[type2], i3 = 0, n3 = t2.length; i3 < n3; ++i3) t2[i3].value.apply(that, args);
     },
     apply: function(type2, that, args) {
-      if (!this._.hasOwnProperty(type2))
-        throw new Error("unknown type: " + type2);
-      for (var t2 = this._[type2], i3 = 0, n3 = t2.length; i3 < n3; ++i3)
-        t2[i3].value.apply(that, args);
+      if (!this._.hasOwnProperty(type2)) throw new Error("unknown type: " + type2);
+      for (var t2 = this._[type2], i3 = 0, n3 = t2.length; i3 < n3; ++i3) t2[i3].value.apply(that, args);
     }
   };
   function get(type2, name) {
@@ -18578,8 +18005,7 @@
         break;
       }
     }
-    if (callback != null)
-      type2.push({ name, value: callback });
+    if (callback != null) type2.push({ name, value: callback });
     return type2;
   }
   var dispatch_default = dispatch;
@@ -18597,8 +18023,7 @@
   // node_modules/d3-selection/src/namespace.js
   function namespace_default(name) {
     var prefix = name += "", i3 = prefix.indexOf(":");
-    if (i3 >= 0 && (prefix = name.slice(0, i3)) !== "xmlns")
-      name = name.slice(i3 + 1);
+    if (i3 >= 0 && (prefix = name.slice(0, i3)) !== "xmlns") name = name.slice(i3 + 1);
     return namespaces_default.hasOwnProperty(prefix) ? { space: namespaces_default[prefix], local: name } : name;
   }
 
@@ -18630,13 +18055,11 @@
 
   // node_modules/d3-selection/src/selection/select.js
   function select_default(select) {
-    if (typeof select !== "function")
-      select = selector_default(select);
+    if (typeof select !== "function") select = selector_default(select);
     for (var groups = this._groups, m2 = groups.length, subgroups = new Array(m2), j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = new Array(n3), node, subnode, i3 = 0; i3 < n3; ++i3) {
         if ((node = group[i3]) && (subnode = select.call(node, node.__data__, i3, group))) {
-          if ("__data__" in node)
-            subnode.__data__ = node.__data__;
+          if ("__data__" in node) subnode.__data__ = node.__data__;
           subgroup[i3] = subnode;
         }
       }
@@ -18666,10 +18089,8 @@
     };
   }
   function selectAll_default(select) {
-    if (typeof select === "function")
-      select = arrayAll(select);
-    else
-      select = selectorAll_default(select);
+    if (typeof select === "function") select = arrayAll(select);
+    else select = selectorAll_default(select);
     for (var groups = this._groups, m2 = groups.length, subgroups = [], parents = [], j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, node, i3 = 0; i3 < n3; ++i3) {
         if (node = group[i3]) {
@@ -18723,8 +18144,7 @@
 
   // node_modules/d3-selection/src/selection/filter.js
   function filter_default(match) {
-    if (typeof match !== "function")
-      match = matcher_default(match);
+    if (typeof match !== "function") match = matcher_default(match);
     for (var groups = this._groups, m2 = groups.length, subgroups = new Array(m2), j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = [], node, i3 = 0; i3 < n3; ++i3) {
         if ((node = group[i3]) && match.call(node, node.__data__, i3, group)) {
@@ -18823,20 +18243,16 @@
     return node.__data__;
   }
   function data_default(value, key) {
-    if (!arguments.length)
-      return Array.from(this, datum);
+    if (!arguments.length) return Array.from(this, datum);
     var bind = key ? bindKey : bindIndex, parents = this._parents, groups = this._groups;
-    if (typeof value !== "function")
-      value = constant_default(value);
+    if (typeof value !== "function") value = constant_default(value);
     for (var m2 = groups.length, update = new Array(m2), enter = new Array(m2), exit = new Array(m2), j2 = 0; j2 < m2; ++j2) {
       var parent = parents[j2], group = groups[j2], groupLength = group.length, data = arraylike(value.call(parent, parent && parent.__data__, j2, parents)), dataLength = data.length, enterGroup = enter[j2] = new Array(dataLength), updateGroup = update[j2] = new Array(dataLength), exitGroup = exit[j2] = new Array(groupLength);
       bind(parent, group, enterGroup, updateGroup, exitGroup, data, key);
       for (var i0 = 0, i1 = 0, previous, next; i0 < dataLength; ++i0) {
         if (previous = enterGroup[i0]) {
-          if (i0 >= i1)
-            i1 = i0 + 1;
-          while (!(next = updateGroup[i1]) && ++i1 < dataLength)
-            ;
+          if (i0 >= i1) i1 = i0 + 1;
+          while (!(next = updateGroup[i1]) && ++i1 < dataLength) ;
           previous._next = next || null;
         }
       }
@@ -18860,20 +18276,16 @@
     var enter = this.enter(), update = this, exit = this.exit();
     if (typeof onenter === "function") {
       enter = onenter(enter);
-      if (enter)
-        enter = enter.selection();
+      if (enter) enter = enter.selection();
     } else {
       enter = enter.append(onenter + "");
     }
     if (onupdate != null) {
       update = onupdate(update);
-      if (update)
-        update = update.selection();
+      if (update) update = update.selection();
     }
-    if (onexit == null)
-      exit.remove();
-    else
-      onexit(exit);
+    if (onexit == null) exit.remove();
+    else onexit(exit);
     return enter && update ? enter.merge(update).order() : update;
   }
 
@@ -18898,8 +18310,7 @@
     for (var groups = this._groups, j2 = -1, m2 = groups.length; ++j2 < m2; ) {
       for (var group = groups[j2], i3 = group.length - 1, next = group[i3], node; --i3 >= 0; ) {
         if (node = group[i3]) {
-          if (next && node.compareDocumentPosition(next) ^ 4)
-            next.parentNode.insertBefore(node, next);
+          if (next && node.compareDocumentPosition(next) ^ 4) next.parentNode.insertBefore(node, next);
           next = node;
         }
       }
@@ -18909,8 +18320,7 @@
 
   // node_modules/d3-selection/src/selection/sort.js
   function sort_default(compare2) {
-    if (!compare2)
-      compare2 = ascending2;
+    if (!compare2) compare2 = ascending2;
     function compareNode(a2, b2) {
       return a2 && b2 ? compare2(a2.__data__, b2.__data__) : !a2 - !b2;
     }
@@ -18946,8 +18356,7 @@
     for (var groups = this._groups, j2 = 0, m2 = groups.length; j2 < m2; ++j2) {
       for (var group = groups[j2], i3 = 0, n3 = group.length; i3 < n3; ++i3) {
         var node = group[i3];
-        if (node)
-          return node;
+        if (node) return node;
       }
     }
     return null;
@@ -18956,8 +18365,7 @@
   // node_modules/d3-selection/src/selection/size.js
   function size_default() {
     let size = 0;
-    for (const node of this)
-      ++size;
+    for (const node of this) ++size;
     return size;
   }
 
@@ -18970,8 +18378,7 @@
   function each_default(callback) {
     for (var groups = this._groups, j2 = 0, m2 = groups.length; j2 < m2; ++j2) {
       for (var group = groups[j2], i3 = 0, n3 = group.length, node; i3 < n3; ++i3) {
-        if (node = group[i3])
-          callback.call(node, node.__data__, i3, group);
+        if (node = group[i3]) callback.call(node, node.__data__, i3, group);
       }
     }
     return this;
@@ -19001,19 +18408,15 @@
   function attrFunction(name, value) {
     return function() {
       var v2 = value.apply(this, arguments);
-      if (v2 == null)
-        this.removeAttribute(name);
-      else
-        this.setAttribute(name, v2);
+      if (v2 == null) this.removeAttribute(name);
+      else this.setAttribute(name, v2);
     };
   }
   function attrFunctionNS(fullname, value) {
     return function() {
       var v2 = value.apply(this, arguments);
-      if (v2 == null)
-        this.removeAttributeNS(fullname.space, fullname.local);
-      else
-        this.setAttributeNS(fullname.space, fullname.local, v2);
+      if (v2 == null) this.removeAttributeNS(fullname.space, fullname.local);
+      else this.setAttributeNS(fullname.space, fullname.local, v2);
     };
   }
   function attr_default(name, value) {
@@ -19044,10 +18447,8 @@
   function styleFunction(name, value, priority) {
     return function() {
       var v2 = value.apply(this, arguments);
-      if (v2 == null)
-        this.style.removeProperty(name);
-      else
-        this.style.setProperty(name, v2, priority);
+      if (v2 == null) this.style.removeProperty(name);
+      else this.style.setProperty(name, v2, priority);
     };
   }
   function style_default(name, value, priority) {
@@ -19071,10 +18472,8 @@
   function propertyFunction(name, value) {
     return function() {
       var v2 = value.apply(this, arguments);
-      if (v2 == null)
-        delete this[name];
-      else
-        this[name] = v2;
+      if (v2 == null) delete this[name];
+      else this[name] = v2;
     };
   }
   function property_default(name, value) {
@@ -19113,13 +18512,11 @@
   };
   function classedAdd(node, names) {
     var list2 = classList(node), i3 = -1, n3 = names.length;
-    while (++i3 < n3)
-      list2.add(names[i3]);
+    while (++i3 < n3) list2.add(names[i3]);
   }
   function classedRemove(node, names) {
     var list2 = classList(node), i3 = -1, n3 = names.length;
-    while (++i3 < n3)
-      list2.remove(names[i3]);
+    while (++i3 < n3) list2.remove(names[i3]);
   }
   function classedTrue(names) {
     return function() {
@@ -19140,9 +18537,7 @@
     var names = classArray(name + "");
     if (arguments.length < 2) {
       var list2 = classList(this.node()), i3 = -1, n3 = names.length;
-      while (++i3 < n3)
-        if (!list2.contains(names[i3]))
-          return false;
+      while (++i3 < n3) if (!list2.contains(names[i3])) return false;
       return true;
     }
     return this.each((typeof value === "function" ? classedFunction : value ? classedTrue : classedFalse)(names, value));
@@ -19188,8 +18583,7 @@
 
   // node_modules/d3-selection/src/selection/raise.js
   function raise() {
-    if (this.nextSibling)
-      this.parentNode.appendChild(this);
+    if (this.nextSibling) this.parentNode.appendChild(this);
   }
   function raise_default() {
     return this.each(raise);
@@ -19197,8 +18591,7 @@
 
   // node_modules/d3-selection/src/selection/lower.js
   function lower() {
-    if (this.previousSibling)
-      this.parentNode.insertBefore(this, this.parentNode.firstChild);
+    if (this.previousSibling) this.parentNode.insertBefore(this, this.parentNode.firstChild);
   }
   function lower_default() {
     return this.each(lower);
@@ -19226,8 +18619,7 @@
   // node_modules/d3-selection/src/selection/remove.js
   function remove() {
     var parent = this.parentNode;
-    if (parent)
-      parent.removeChild(this);
+    if (parent) parent.removeChild(this);
   }
   function remove_default() {
     return this.each(remove);
@@ -19260,16 +18652,14 @@
   function parseTypenames2(typenames) {
     return typenames.trim().split(/^|\s+/).map(function(t2) {
       var name = "", i3 = t2.indexOf(".");
-      if (i3 >= 0)
-        name = t2.slice(i3 + 1), t2 = t2.slice(0, i3);
+      if (i3 >= 0) name = t2.slice(i3 + 1), t2 = t2.slice(0, i3);
       return { type: t2, name };
     });
   }
   function onRemove(typename) {
     return function() {
       var on = this.__on;
-      if (!on)
-        return;
+      if (!on) return;
       for (var j2 = 0, i3 = -1, m2 = on.length, o2; j2 < m2; ++j2) {
         if (o2 = on[j2], (!typename.type || o2.type === typename.type) && o2.name === typename.name) {
           this.removeEventListener(o2.type, o2.listener, o2.options);
@@ -19277,49 +18667,42 @@
           on[++i3] = o2;
         }
       }
-      if (++i3)
-        on.length = i3;
-      else
-        delete this.__on;
+      if (++i3) on.length = i3;
+      else delete this.__on;
     };
   }
   function onAdd(typename, value, options2) {
     return function() {
       var on = this.__on, o2, listener = contextListener(value);
-      if (on)
-        for (var j2 = 0, m2 = on.length; j2 < m2; ++j2) {
-          if ((o2 = on[j2]).type === typename.type && o2.name === typename.name) {
-            this.removeEventListener(o2.type, o2.listener, o2.options);
-            this.addEventListener(o2.type, o2.listener = listener, o2.options = options2);
-            o2.value = value;
-            return;
-          }
+      if (on) for (var j2 = 0, m2 = on.length; j2 < m2; ++j2) {
+        if ((o2 = on[j2]).type === typename.type && o2.name === typename.name) {
+          this.removeEventListener(o2.type, o2.listener, o2.options);
+          this.addEventListener(o2.type, o2.listener = listener, o2.options = options2);
+          o2.value = value;
+          return;
         }
+      }
       this.addEventListener(typename.type, listener, options2);
       o2 = { type: typename.type, name: typename.name, value, listener, options: options2 };
-      if (!on)
-        this.__on = [o2];
-      else
-        on.push(o2);
+      if (!on) this.__on = [o2];
+      else on.push(o2);
     };
   }
   function on_default(typename, value, options2) {
     var typenames = parseTypenames2(typename + ""), i3, n3 = typenames.length, t2;
     if (arguments.length < 2) {
       var on = this.node().__on;
-      if (on)
-        for (var j2 = 0, m2 = on.length, o2; j2 < m2; ++j2) {
-          for (i3 = 0, o2 = on[j2]; i3 < n3; ++i3) {
-            if ((t2 = typenames[i3]).type === o2.type && t2.name === o2.name) {
-              return o2.value;
-            }
+      if (on) for (var j2 = 0, m2 = on.length, o2; j2 < m2; ++j2) {
+        for (i3 = 0, o2 = on[j2]; i3 < n3; ++i3) {
+          if ((t2 = typenames[i3]).type === o2.type && t2.name === o2.name) {
+            return o2.value;
           }
         }
+      }
       return;
     }
     on = value ? onAdd : onRemove;
-    for (i3 = 0; i3 < n3; ++i3)
-      this.each(on(typenames[i3], value, options2));
+    for (i3 = 0; i3 < n3; ++i3) this.each(on(typenames[i3], value, options2));
     return this;
   }
 
@@ -19330,10 +18713,8 @@
       event = new event(type2, params);
     } else {
       event = window2.document.createEvent("Event");
-      if (params)
-        event.initEvent(type2, params.bubbles, params.cancelable), event.detail = params.detail;
-      else
-        event.initEvent(type2, false, false);
+      if (params) event.initEvent(type2, params.bubbles, params.cancelable), event.detail = params.detail;
+      else event.initEvent(type2, false, false);
     }
     node.dispatchEvent(event);
   }
@@ -19355,8 +18736,7 @@
   function* iterator_default() {
     for (var groups = this._groups, j2 = 0, m2 = groups.length; j2 < m2; ++j2) {
       for (var group = groups[j2], i3 = 0, n3 = group.length, node; i3 < n3; ++i3) {
-        if (node = group[i3])
-          yield node;
+        if (node = group[i3]) yield node;
       }
     }
   }
@@ -19421,16 +18801,14 @@
   // node_modules/d3-selection/src/sourceEvent.js
   function sourceEvent_default(event) {
     let sourceEvent;
-    while (sourceEvent = event.sourceEvent)
-      event = sourceEvent;
+    while (sourceEvent = event.sourceEvent) event = sourceEvent;
     return event;
   }
 
   // node_modules/d3-selection/src/pointer.js
   function pointer_default(event, node) {
     event = sourceEvent_default(event);
-    if (node === void 0)
-      node = event.currentTarget;
+    if (node === void 0) node = event.currentTarget;
     if (node) {
       var svg2 = node.ownerSVGElement || node;
       if (svg2.createSVGPoint) {
@@ -19543,11 +18921,9 @@
       selection2.on("mousedown.drag", mousedowned).filter(touchable).on("touchstart.drag", touchstarted).on("touchmove.drag", touchmoved, nonpassive).on("touchend.drag touchcancel.drag", touchended).style("touch-action", "none").style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
     }
     function mousedowned(event, d2) {
-      if (touchending || !filter2.call(this, event, d2))
-        return;
+      if (touchending || !filter2.call(this, event, d2)) return;
       var gesture = beforestart(this, container.call(this, event, d2), event, d2, "mouse");
-      if (!gesture)
-        return;
+      if (!gesture) return;
       select_default2(event.view).on("mousemove.drag", mousemoved, nonpassivecapture).on("mouseup.drag", mouseupped, nonpassivecapture);
       nodrag_default(event.view);
       nopropagation(event);
@@ -19571,8 +18947,7 @@
       gestures.mouse("end", event);
     }
     function touchstarted(event, d2) {
-      if (!filter2.call(this, event, d2))
-        return;
+      if (!filter2.call(this, event, d2)) return;
       var touches = event.changedTouches, c2 = container.call(this, event, d2), n3 = touches.length, i3, gesture;
       for (i3 = 0; i3 < n3; ++i3) {
         if (gesture = beforestart(this, c2, event, d2, touches[i3].identifier, touches[i3])) {
@@ -19592,8 +18967,7 @@
     }
     function touchended(event) {
       var touches = event.changedTouches, n3 = touches.length, i3, gesture;
-      if (touchending)
-        clearTimeout(touchending);
+      if (touchending) clearTimeout(touchending);
       touchending = setTimeout(function() {
         touchending = null;
       }, 500);
@@ -19616,8 +18990,7 @@
         dx: 0,
         dy: 0,
         dispatch: dispatch14
-      }), d2)) == null)
-        return;
+      }), d2)) == null) return;
       dx = s2.x - p2[0] || 0;
       dy = s2.y - p2[1] || 0;
       return function gesture(type2, event2, touch2) {
@@ -19680,8 +19053,7 @@
   }
   function extend(parent, definition) {
     var prototype = Object.create(parent.prototype);
-    for (var key in definition)
-      prototype[key] = definition[key];
+    for (var key in definition) prototype[key] = definition[key];
     return prototype;
   }
 
@@ -19886,15 +19258,12 @@
     return new Rgb(n3 >> 16 & 255, n3 >> 8 & 255, n3 & 255, 1);
   }
   function rgba(r2, g3, b2, a2) {
-    if (a2 <= 0)
-      r2 = g3 = b2 = NaN;
+    if (a2 <= 0) r2 = g3 = b2 = NaN;
     return new Rgb(r2, g3, b2, a2);
   }
   function rgbConvert(o2) {
-    if (!(o2 instanceof Color))
-      o2 = color(o2);
-    if (!o2)
-      return new Rgb();
+    if (!(o2 instanceof Color)) o2 = color(o2);
+    if (!o2) return new Rgb();
     o2 = o2.rgb();
     return new Rgb(o2.r, o2.g, o2.b, o2.opacity);
   }
@@ -19953,32 +19322,22 @@
     return (value < 16 ? "0" : "") + value.toString(16);
   }
   function hsla(h2, s2, l2, a2) {
-    if (a2 <= 0)
-      h2 = s2 = l2 = NaN;
-    else if (l2 <= 0 || l2 >= 1)
-      h2 = s2 = NaN;
-    else if (s2 <= 0)
-      h2 = NaN;
+    if (a2 <= 0) h2 = s2 = l2 = NaN;
+    else if (l2 <= 0 || l2 >= 1) h2 = s2 = NaN;
+    else if (s2 <= 0) h2 = NaN;
     return new Hsl(h2, s2, l2, a2);
   }
   function hslConvert(o2) {
-    if (o2 instanceof Hsl)
-      return new Hsl(o2.h, o2.s, o2.l, o2.opacity);
-    if (!(o2 instanceof Color))
-      o2 = color(o2);
-    if (!o2)
-      return new Hsl();
-    if (o2 instanceof Hsl)
-      return o2;
+    if (o2 instanceof Hsl) return new Hsl(o2.h, o2.s, o2.l, o2.opacity);
+    if (!(o2 instanceof Color)) o2 = color(o2);
+    if (!o2) return new Hsl();
+    if (o2 instanceof Hsl) return o2;
     o2 = o2.rgb();
     var r2 = o2.r / 255, g3 = o2.g / 255, b2 = o2.b / 255, min3 = Math.min(r2, g3, b2), max3 = Math.max(r2, g3, b2), h2 = NaN, s2 = max3 - min3, l2 = (max3 + min3) / 2;
     if (s2) {
-      if (r2 === max3)
-        h2 = (g3 - b2) / s2 + (g3 < b2) * 6;
-      else if (g3 === max3)
-        h2 = (b2 - r2) / s2 + 2;
-      else
-        h2 = (r2 - g3) / s2 + 4;
+      if (r2 === max3) h2 = (g3 - b2) / s2 + (g3 < b2) * 6;
+      else if (g3 === max3) h2 = (b2 - r2) / s2 + 2;
+      else h2 = (r2 - g3) / s2 + 4;
       s2 /= l2 < 0.5 ? max3 + min3 : 2 - max3 - min3;
       h2 *= 60;
     } else {
@@ -20123,12 +19482,10 @@
 
   // node_modules/d3-interpolate/src/numberArray.js
   function numberArray_default(a2, b2) {
-    if (!b2)
-      b2 = [];
+    if (!b2) b2 = [];
     var n3 = a2 ? Math.min(b2.length, a2.length) : 0, c2 = b2.slice(), i3;
     return function(t2) {
-      for (i3 = 0; i3 < n3; ++i3)
-        c2[i3] = a2[i3] * (1 - t2) + b2[i3] * t2;
+      for (i3 = 0; i3 < n3; ++i3) c2[i3] = a2[i3] * (1 - t2) + b2[i3] * t2;
       return c2;
     };
   }
@@ -20139,13 +19496,10 @@
   // node_modules/d3-interpolate/src/array.js
   function genericArray(a2, b2) {
     var nb = b2 ? b2.length : 0, na = a2 ? Math.min(nb, a2.length) : 0, x2 = new Array(na), c2 = new Array(nb), i3;
-    for (i3 = 0; i3 < na; ++i3)
-      x2[i3] = value_default(a2[i3], b2[i3]);
-    for (; i3 < nb; ++i3)
-      c2[i3] = b2[i3];
+    for (i3 = 0; i3 < na; ++i3) x2[i3] = value_default(a2[i3], b2[i3]);
+    for (; i3 < nb; ++i3) c2[i3] = b2[i3];
     return function(t2) {
-      for (i3 = 0; i3 < na; ++i3)
-        c2[i3] = x2[i3](t2);
+      for (i3 = 0; i3 < na; ++i3) c2[i3] = x2[i3](t2);
       return c2;
     };
   }
@@ -20168,10 +19522,8 @@
   // node_modules/d3-interpolate/src/object.js
   function object_default(a2, b2) {
     var i3 = {}, c2 = {}, k2;
-    if (a2 === null || typeof a2 !== "object")
-      a2 = {};
-    if (b2 === null || typeof b2 !== "object")
-      b2 = {};
+    if (a2 === null || typeof a2 !== "object") a2 = {};
+    if (b2 === null || typeof b2 !== "object") b2 = {};
     for (k2 in b2) {
       if (k2 in a2) {
         i3[k2] = value_default(a2[k2], b2[k2]);
@@ -20180,8 +19532,7 @@
       }
     }
     return function(t2) {
-      for (k2 in i3)
-        c2[k2] = i3[k2](t2);
+      for (k2 in i3) c2[k2] = i3[k2](t2);
       return c2;
     };
   }
@@ -20205,16 +19556,12 @@
     while ((am = reA.exec(a2)) && (bm = reB.exec(b2))) {
       if ((bs = bm.index) > bi) {
         bs = b2.slice(bi, bs);
-        if (s2[i3])
-          s2[i3] += bs;
-        else
-          s2[++i3] = bs;
+        if (s2[i3]) s2[i3] += bs;
+        else s2[++i3] = bs;
       }
       if ((am = am[0]) === (bm = bm[0])) {
-        if (s2[i3])
-          s2[i3] += bm;
-        else
-          s2[++i3] = bm;
+        if (s2[i3]) s2[i3] += bm;
+        else s2[++i3] = bm;
       } else {
         s2[++i3] = null;
         q2.push({ i: i3, x: number_default(am, bm) });
@@ -20223,14 +19570,11 @@
     }
     if (bi < b2.length) {
       bs = b2.slice(bi);
-      if (s2[i3])
-        s2[i3] += bs;
-      else
-        s2[++i3] = bs;
+      if (s2[i3]) s2[i3] += bs;
+      else s2[++i3] = bs;
     }
     return s2.length < 2 ? q2[0] ? one(q2[0].x) : zero2(b2) : (b2 = q2.length, function(t2) {
-      for (var i4 = 0, o2; i4 < b2; ++i4)
-        s2[(o2 = q2[i4]).i] = o2.x(t2);
+      for (var i4 = 0, o2; i4 < b2; ++i4) s2[(o2 = q2[i4]).i] = o2.x(t2);
       return s2.join("");
     });
   }
@@ -20260,14 +19604,10 @@
   };
   function decompose_default(a2, b2, c2, d2, e3, f2) {
     var scaleX, scaleY, skewX;
-    if (scaleX = Math.sqrt(a2 * a2 + b2 * b2))
-      a2 /= scaleX, b2 /= scaleX;
-    if (skewX = a2 * c2 + b2 * d2)
-      c2 -= a2 * skewX, d2 -= b2 * skewX;
-    if (scaleY = Math.sqrt(c2 * c2 + d2 * d2))
-      c2 /= scaleY, d2 /= scaleY, skewX /= scaleY;
-    if (a2 * d2 < b2 * c2)
-      a2 = -a2, b2 = -b2, skewX = -skewX, scaleX = -scaleX;
+    if (scaleX = Math.sqrt(a2 * a2 + b2 * b2)) a2 /= scaleX, b2 /= scaleX;
+    if (skewX = a2 * c2 + b2 * d2) c2 -= a2 * skewX, d2 -= b2 * skewX;
+    if (scaleY = Math.sqrt(c2 * c2 + d2 * d2)) c2 /= scaleY, d2 /= scaleY, skewX /= scaleY;
+    if (a2 * d2 < b2 * c2) a2 = -a2, b2 = -b2, skewX = -skewX, scaleX = -scaleX;
     return {
       translateX: e3,
       translateY: f2,
@@ -20285,13 +19625,10 @@
     return m2.isIdentity ? identity : decompose_default(m2.a, m2.b, m2.c, m2.d, m2.e, m2.f);
   }
   function parseSvg(value) {
-    if (value == null)
-      return identity;
-    if (!svgNode)
-      svgNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    if (value == null) return identity;
+    if (!svgNode) svgNode = document.createElementNS("http://www.w3.org/2000/svg", "g");
     svgNode.setAttribute("transform", value);
-    if (!(value = svgNode.transform.baseVal.consolidate()))
-      return identity;
+    if (!(value = svgNode.transform.baseVal.consolidate())) return identity;
     value = value.matrix;
     return decompose_default(value.a, value.b, value.c, value.d, value.e, value.f);
   }
@@ -20311,10 +19648,8 @@
     }
     function rotate(a2, b2, s2, q2) {
       if (a2 !== b2) {
-        if (a2 - b2 > 180)
-          b2 += 360;
-        else if (b2 - a2 > 180)
-          a2 += 360;
+        if (a2 - b2 > 180) b2 += 360;
+        else if (b2 - a2 > 180) a2 += 360;
         q2.push({ i: s2.push(pop(s2) + "rotate(", null, degParen) - 2, x: number_default(a2, b2) });
       } else if (b2) {
         s2.push(pop(s2) + "rotate(" + b2 + degParen);
@@ -20345,8 +19680,7 @@
       a2 = b2 = null;
       return function(t2) {
         var i3 = -1, n3 = q2.length, o2;
-        while (++i3 < n3)
-          s2[(o2 = q2[i3]).i] = o2.x(t2);
+        while (++i3 < n3) s2[(o2 = q2[i3]).i] = o2.x(t2);
         return s2.join("");
       };
     };
@@ -20402,8 +19736,7 @@
   // node_modules/d3-interpolate/src/quantize.js
   function quantize_default(interpolator, n3) {
     var samples = new Array(n3);
-    for (var i3 = 0; i3 < n3; ++i3)
-      samples[i3] = interpolator(i3 / (n3 - 1));
+    for (var i3 = 0; i3 < n3; ++i3) samples[i3] = interpolator(i3 / (n3 - 1));
     return samples;
   }
 
@@ -20433,14 +19766,11 @@
   Timer.prototype = timer.prototype = {
     constructor: Timer,
     restart: function(callback, delay, time) {
-      if (typeof callback !== "function")
-        throw new TypeError("callback is not a function");
+      if (typeof callback !== "function") throw new TypeError("callback is not a function");
       time = (time == null ? now() : +time) + (delay == null ? 0 : +delay);
       if (!this._next && taskTail !== this) {
-        if (taskTail)
-          taskTail._next = this;
-        else
-          taskHead = this;
+        if (taskTail) taskTail._next = this;
+        else taskHead = this;
         taskTail = this;
       }
       this._call = callback;
@@ -20465,8 +19795,7 @@
     ++frame;
     var t2 = taskHead, e3;
     while (t2) {
-      if ((e3 = clockNow - t2._time) >= 0)
-        t2._call.call(void 0, e3);
+      if ((e3 = clockNow - t2._time) >= 0) t2._call.call(void 0, e3);
       t2 = t2._next;
     }
     --frame;
@@ -20484,15 +19813,13 @@
   }
   function poke() {
     var now3 = clock.now(), delay = now3 - clockLast;
-    if (delay > pokeDelay)
-      clockSkew -= delay, clockLast = now3;
+    if (delay > pokeDelay) clockSkew -= delay, clockLast = now3;
   }
   function nap() {
     var t0, t1 = taskHead, t2, time = Infinity;
     while (t1) {
       if (t1._call) {
-        if (time > t1._time)
-          time = t1._time;
+        if (time > t1._time) time = t1._time;
         t0 = t1, t1 = t1._next;
       } else {
         t2 = t1._next, t1._next = null;
@@ -20503,19 +19830,14 @@
     sleep(time);
   }
   function sleep(time) {
-    if (frame)
-      return;
-    if (timeout)
-      timeout = clearTimeout(timeout);
+    if (frame) return;
+    if (timeout) timeout = clearTimeout(timeout);
     var delay = time - clockNow;
     if (delay > 24) {
-      if (time < Infinity)
-        timeout = setTimeout(wake, time - clock.now() - clockSkew);
-      if (interval)
-        interval = clearInterval(interval);
+      if (time < Infinity) timeout = setTimeout(wake, time - clock.now() - clockSkew);
+      if (interval) interval = clearInterval(interval);
     } else {
-      if (!interval)
-        clockLast = clock.now(), interval = setInterval(poke, pokeDelay);
+      if (!interval) clockLast = clock.now(), interval = setInterval(poke, pokeDelay);
       frame = 1, setFrame(wake);
     }
   }
@@ -20543,10 +19865,8 @@
   var ENDED = 6;
   function schedule_default(node, name, id2, index, group, timing) {
     var schedules = node.__transition;
-    if (!schedules)
-      node.__transition = {};
-    else if (id2 in schedules)
-      return;
+    if (!schedules) node.__transition = {};
+    else if (id2 in schedules) return;
     create(node, id2, {
       name,
       index,
@@ -20565,20 +19885,17 @@
   }
   function init(node, id2) {
     var schedule = get2(node, id2);
-    if (schedule.state > CREATED)
-      throw new Error("too late; already scheduled");
+    if (schedule.state > CREATED) throw new Error("too late; already scheduled");
     return schedule;
   }
   function set2(node, id2) {
     var schedule = get2(node, id2);
-    if (schedule.state > STARTED)
-      throw new Error("too late; already running");
+    if (schedule.state > STARTED) throw new Error("too late; already running");
     return schedule;
   }
   function get2(node, id2) {
     var schedule = node.__transition;
-    if (!schedule || !(schedule = schedule[id2]))
-      throw new Error("transition not found");
+    if (!schedule || !(schedule = schedule[id2])) throw new Error("transition not found");
     return schedule;
   }
   function create(node, id2, self2) {
@@ -20588,19 +19905,15 @@
     function schedule(elapsed) {
       self2.state = SCHEDULED;
       self2.timer.restart(start2, self2.delay, self2.time);
-      if (self2.delay <= elapsed)
-        start2(elapsed - self2.delay);
+      if (self2.delay <= elapsed) start2(elapsed - self2.delay);
     }
     function start2(elapsed) {
       var i3, j2, n3, o2;
-      if (self2.state !== SCHEDULED)
-        return stop();
+      if (self2.state !== SCHEDULED) return stop();
       for (i3 in schedules) {
         o2 = schedules[i3];
-        if (o2.name !== self2.name)
-          continue;
-        if (o2.state === STARTED)
-          return timeout_default(start2);
+        if (o2.name !== self2.name) continue;
+        if (o2.state === STARTED) return timeout_default(start2);
         if (o2.state === RUNNING) {
           o2.state = ENDED;
           o2.timer.stop();
@@ -20622,8 +19935,7 @@
       });
       self2.state = STARTING;
       self2.on.call("start", node, node.__data__, self2.index, self2.group);
-      if (self2.state !== STARTING)
-        return;
+      if (self2.state !== STARTING) return;
       self2.state = STARTED;
       tween = new Array(n3 = self2.tween.length);
       for (i3 = 0, j2 = -1; i3 < n3; ++i3) {
@@ -20647,8 +19959,7 @@
       self2.state = ENDED;
       self2.timer.stop();
       delete schedules[id2];
-      for (var i3 in schedules)
-        return;
+      for (var i3 in schedules) return;
       delete node.__transition;
     }
   }
@@ -20656,8 +19967,7 @@
   // node_modules/d3-transition/src/interrupt.js
   function interrupt_default(node, name) {
     var schedules = node.__transition, schedule, active, empty2 = true, i3;
-    if (!schedules)
-      return;
+    if (!schedules) return;
     name = name == null ? null : name + "";
     for (i3 in schedules) {
       if ((schedule = schedules[i3]).name !== name) {
@@ -20670,8 +19980,7 @@
       schedule.on.call(active ? "interrupt" : "cancel", node, node.__data__, schedule.index, schedule.group);
       delete schedules[i3];
     }
-    if (empty2)
-      delete node.__transition;
+    if (empty2) delete node.__transition;
   }
 
   // node_modules/d3-transition/src/selection/interrupt.js
@@ -20701,8 +20010,7 @@
   }
   function tweenFunction(id2, name, value) {
     var tween0, tween1;
-    if (typeof value !== "function")
-      throw new Error();
+    if (typeof value !== "function") throw new Error();
     return function() {
       var schedule = set2(this, id2), tween = schedule.tween;
       if (tween !== tween0) {
@@ -20713,8 +20021,7 @@
             break;
           }
         }
-        if (i3 === n3)
-          tween1.push(t2);
+        if (i3 === n3) tween1.push(t2);
       }
       schedule.tween = tween1;
     };
@@ -20779,8 +20086,7 @@
     var string00, string10, interpolate0;
     return function() {
       var string0, value1 = value(this), string1;
-      if (value1 == null)
-        return void this.removeAttribute(name);
+      if (value1 == null) return void this.removeAttribute(name);
       string0 = this.getAttribute(name);
       string1 = value1 + "";
       return string0 === string1 ? null : string0 === string00 && string1 === string10 ? interpolate0 : (string10 = string1, interpolate0 = interpolate(string00 = string0, value1));
@@ -20790,8 +20096,7 @@
     var string00, string10, interpolate0;
     return function() {
       var string0, value1 = value(this), string1;
-      if (value1 == null)
-        return void this.removeAttributeNS(fullname.space, fullname.local);
+      if (value1 == null) return void this.removeAttributeNS(fullname.space, fullname.local);
       string0 = this.getAttributeNS(fullname.space, fullname.local);
       string1 = value1 + "";
       return string0 === string1 ? null : string0 === string00 && string1 === string10 ? interpolate0 : (string10 = string1, interpolate0 = interpolate(string00 = string0, value1));
@@ -20817,8 +20122,7 @@
     var t0, i0;
     function tween() {
       var i3 = value.apply(this, arguments);
-      if (i3 !== i0)
-        t0 = (i0 = i3) && attrInterpolateNS(fullname, i3);
+      if (i3 !== i0) t0 = (i0 = i3) && attrInterpolateNS(fullname, i3);
       return t0;
     }
     tween._value = value;
@@ -20828,8 +20132,7 @@
     var t0, i0;
     function tween() {
       var i3 = value.apply(this, arguments);
-      if (i3 !== i0)
-        t0 = (i0 = i3) && attrInterpolate(name, i3);
+      if (i3 !== i0) t0 = (i0 = i3) && attrInterpolate(name, i3);
       return t0;
     }
     tween._value = value;
@@ -20837,12 +20140,9 @@
   }
   function attrTween_default(name, value) {
     var key = "attr." + name;
-    if (arguments.length < 2)
-      return (key = this.tween(key)) && key._value;
-    if (value == null)
-      return this.tween(key, null);
-    if (typeof value !== "function")
-      throw new Error();
+    if (arguments.length < 2) return (key = this.tween(key)) && key._value;
+    if (value == null) return this.tween(key, null);
+    if (typeof value !== "function") throw new Error();
     var fullname = namespace_default(name);
     return this.tween(key, (fullname.local ? attrTweenNS : attrTween)(fullname, value));
   }
@@ -20881,8 +20181,7 @@
 
   // node_modules/d3-transition/src/transition/ease.js
   function easeConstant(id2, value) {
-    if (typeof value !== "function")
-      throw new Error();
+    if (typeof value !== "function") throw new Error();
     return function() {
       set2(this, id2).ease = value;
     };
@@ -20896,21 +20195,18 @@
   function easeVarying(id2, value) {
     return function() {
       var v2 = value.apply(this, arguments);
-      if (typeof v2 !== "function")
-        throw new Error();
+      if (typeof v2 !== "function") throw new Error();
       set2(this, id2).ease = v2;
     };
   }
   function easeVarying_default(value) {
-    if (typeof value !== "function")
-      throw new Error();
+    if (typeof value !== "function") throw new Error();
     return this.each(easeVarying(this._id, value));
   }
 
   // node_modules/d3-transition/src/transition/filter.js
   function filter_default2(match) {
-    if (typeof match !== "function")
-      match = matcher_default(match);
+    if (typeof match !== "function") match = matcher_default(match);
     for (var groups = this._groups, m2 = groups.length, subgroups = new Array(m2), j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = [], node, i3 = 0; i3 < n3; ++i3) {
         if ((node = group[i3]) && match.call(node, node.__data__, i3, group)) {
@@ -20923,8 +20219,7 @@
 
   // node_modules/d3-transition/src/transition/merge.js
   function merge_default2(transition2) {
-    if (transition2._id !== this._id)
-      throw new Error();
+    if (transition2._id !== this._id) throw new Error();
     for (var groups0 = this._groups, groups1 = transition2._groups, m0 = groups0.length, m1 = groups1.length, m2 = Math.min(m0, m1), merges = new Array(m0), j2 = 0; j2 < m2; ++j2) {
       for (var group0 = groups0[j2], group1 = groups1[j2], n3 = group0.length, merge2 = merges[j2] = new Array(n3), node, i3 = 0; i3 < n3; ++i3) {
         if (node = group0[i3] || group1[i3]) {
@@ -20942,8 +20237,7 @@
   function start(name) {
     return (name + "").trim().split(/^|\s+/).every(function(t2) {
       var i3 = t2.indexOf(".");
-      if (i3 >= 0)
-        t2 = t2.slice(0, i3);
+      if (i3 >= 0) t2 = t2.slice(0, i3);
       return !t2 || t2 === "start";
     });
   }
@@ -20951,8 +20245,7 @@
     var on0, on1, sit = start(name) ? init : set2;
     return function() {
       var schedule = sit(this, id2), on = schedule.on;
-      if (on !== on0)
-        (on1 = (on0 = on).copy()).on(name, listener);
+      if (on !== on0) (on1 = (on0 = on).copy()).on(name, listener);
       schedule.on = on1;
     };
   }
@@ -20965,11 +20258,8 @@
   function removeFunction(id2) {
     return function() {
       var parent = this.parentNode;
-      for (var i3 in this.__transition)
-        if (+i3 !== id2)
-          return;
-      if (parent)
-        parent.removeChild(this);
+      for (var i3 in this.__transition) if (+i3 !== id2) return;
+      if (parent) parent.removeChild(this);
     };
   }
   function remove_default2() {
@@ -20979,13 +20269,11 @@
   // node_modules/d3-transition/src/transition/select.js
   function select_default3(select) {
     var name = this._name, id2 = this._id;
-    if (typeof select !== "function")
-      select = selector_default(select);
+    if (typeof select !== "function") select = selector_default(select);
     for (var groups = this._groups, m2 = groups.length, subgroups = new Array(m2), j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, subgroup = subgroups[j2] = new Array(n3), node, subnode, i3 = 0; i3 < n3; ++i3) {
         if ((node = group[i3]) && (subnode = select.call(node, node.__data__, i3, group))) {
-          if ("__data__" in node)
-            subnode.__data__ = node.__data__;
+          if ("__data__" in node) subnode.__data__ = node.__data__;
           subgroup[i3] = subnode;
           schedule_default(subgroup[i3], name, id2, i3, subgroup, get2(node, id2));
         }
@@ -20997,8 +20285,7 @@
   // node_modules/d3-transition/src/transition/selectAll.js
   function selectAll_default3(select) {
     var name = this._name, id2 = this._id;
-    if (typeof select !== "function")
-      select = selectorAll_default(select);
+    if (typeof select !== "function") select = selectorAll_default(select);
     for (var groups = this._groups, m2 = groups.length, subgroups = [], parents = [], j2 = 0; j2 < m2; ++j2) {
       for (var group = groups[j2], n3 = group.length, node, i3 = 0; i3 < n3; ++i3) {
         if (node = group[i3]) {
@@ -21045,8 +20332,7 @@
     var string00, string10, interpolate0;
     return function() {
       var string0 = styleValue(this, name), value1 = value(this), string1 = value1 + "";
-      if (value1 == null)
-        string1 = value1 = (this.style.removeProperty(name), styleValue(this, name));
+      if (value1 == null) string1 = value1 = (this.style.removeProperty(name), styleValue(this, name));
       return string0 === string1 ? null : string0 === string00 && string1 === string10 ? interpolate0 : (string10 = string1, interpolate0 = interpolate(string00 = string0, value1));
     };
   }
@@ -21054,8 +20340,7 @@
     var on0, on1, listener0, key = "style." + name, event = "end." + key, remove2;
     return function() {
       var schedule = set2(this, id2), on = schedule.on, listener = schedule.value[key] == null ? remove2 || (remove2 = styleRemove2(name)) : void 0;
-      if (on !== on0 || listener0 !== listener)
-        (on1 = (on0 = on).copy()).on(event, listener0 = listener);
+      if (on !== on0 || listener0 !== listener) (on1 = (on0 = on).copy()).on(event, listener0 = listener);
       schedule.on = on1;
     };
   }
@@ -21074,8 +20359,7 @@
     var t2, i0;
     function tween() {
       var i3 = value.apply(this, arguments);
-      if (i3 !== i0)
-        t2 = (i0 = i3) && styleInterpolate(name, i3, priority);
+      if (i3 !== i0) t2 = (i0 = i3) && styleInterpolate(name, i3, priority);
       return t2;
     }
     tween._value = value;
@@ -21083,12 +20367,9 @@
   }
   function styleTween_default(name, value, priority) {
     var key = "style." + (name += "");
-    if (arguments.length < 2)
-      return (key = this.tween(key)) && key._value;
-    if (value == null)
-      return this.tween(key, null);
-    if (typeof value !== "function")
-      throw new Error();
+    if (arguments.length < 2) return (key = this.tween(key)) && key._value;
+    if (value == null) return this.tween(key, null);
+    if (typeof value !== "function") throw new Error();
     return this.tween(key, styleTween(name, value, priority == null ? "" : priority));
   }
 
@@ -21118,8 +20399,7 @@
     var t0, i0;
     function tween() {
       var i3 = value.apply(this, arguments);
-      if (i3 !== i0)
-        t0 = (i0 = i3) && textInterpolate(i3);
+      if (i3 !== i0) t0 = (i0 = i3) && textInterpolate(i3);
       return t0;
     }
     tween._value = value;
@@ -21127,12 +20407,9 @@
   }
   function textTween_default(value) {
     var key = "text";
-    if (arguments.length < 1)
-      return (key = this.tween(key)) && key._value;
-    if (value == null)
-      return this.tween(key, null);
-    if (typeof value !== "function")
-      throw new Error();
+    if (arguments.length < 1) return (key = this.tween(key)) && key._value;
+    if (value == null) return this.tween(key, null);
+    if (typeof value !== "function") throw new Error();
     return this.tween(key, textTween(value));
   }
 
@@ -21160,8 +20437,7 @@
     var on0, on1, that = this, id2 = that._id, size = that.size();
     return new Promise(function(resolve, reject) {
       var cancel = { value: reject }, end = { value: function() {
-        if (--size === 0)
-          resolve();
+        if (--size === 0) resolve();
       } };
       that.each(function() {
         var schedule = set2(this, id2), on = schedule.on;
@@ -21173,8 +20449,7 @@
         }
         schedule.on = on1;
       });
-      if (size === 0)
-        resolve();
+      if (size === 0) resolve();
     });
   }
 
@@ -21336,9 +20611,7 @@
   var identity2 = new Transform(1, 0, 0);
   transform.prototype = Transform.prototype;
   function transform(node) {
-    while (!node.__zoom)
-      if (!(node = node.parentNode))
-        return identity2;
+    while (!node.__zoom) if (!(node = node.parentNode)) return identity2;
     return node.__zoom;
   }
 
@@ -21447,8 +20720,7 @@
       }).tween("zoom", function() {
         var that = this, args = arguments, g3 = gesture(that, args).event(event), e3 = extent.apply(that, args), p2 = point2 == null ? centroid(e3) : typeof point2 === "function" ? point2.apply(that, args) : point2, w2 = Math.max(e3[1][0] - e3[0][0], e3[1][1] - e3[0][1]), a2 = that.__zoom, b2 = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i3 = interpolate(a2.invert(p2).concat(w2 / a2.k), b2.invert(p2).concat(w2 / b2.k));
         return function(t2) {
-          if (t2 === 1)
-            t2 = b2;
+          if (t2 === 1) t2 = b2;
           else {
             var l2 = i3(t2), k2 = w2 / l2[2];
             t2 = new Transform(k2, p2[0] - l2[0] * k2, p2[1] - l2[1] * k2);
@@ -21470,8 +20742,7 @@
     }
     Gesture.prototype = {
       event: function(event) {
-        if (event)
-          this.sourceEvent = event;
+        if (event) this.sourceEvent = event;
         return this;
       },
       start: function() {
@@ -21482,12 +20753,9 @@
         return this;
       },
       zoom: function(key, transform2) {
-        if (this.mouse && key !== "mouse")
-          this.mouse[1] = transform2.invert(this.mouse[0]);
-        if (this.touch0 && key !== "touch")
-          this.touch0[1] = transform2.invert(this.touch0[0]);
-        if (this.touch1 && key !== "touch")
-          this.touch1[1] = transform2.invert(this.touch1[0]);
+        if (this.mouse && key !== "mouse") this.mouse[1] = transform2.invert(this.mouse[0]);
+        if (this.touch0 && key !== "touch") this.touch0[1] = transform2.invert(this.touch0[0]);
+        if (this.touch1 && key !== "touch") this.touch1[1] = transform2.invert(this.touch1[0]);
         this.that.__zoom = transform2;
         this.emit("zoom");
         return this;
@@ -21516,16 +20784,14 @@
       }
     };
     function wheeled(event, ...args) {
-      if (!filter2.apply(this, arguments))
-        return;
+      if (!filter2.apply(this, arguments)) return;
       var g3 = gesture(this, args).event(event), t2 = this.__zoom, k2 = Math.max(scaleExtent[0], Math.min(scaleExtent[1], t2.k * Math.pow(2, wheelDelta.apply(this, arguments)))), p2 = pointer_default(event);
       if (g3.wheel) {
         if (g3.mouse[0][0] !== p2[0] || g3.mouse[0][1] !== p2[1]) {
           g3.mouse[1] = t2.invert(g3.mouse[0] = p2);
         }
         clearTimeout(g3.wheel);
-      } else if (t2.k === k2)
-        return;
+      } else if (t2.k === k2) return;
       else {
         g3.mouse = [p2, t2.invert(p2)];
         interrupt_default(this);
@@ -21540,8 +20806,7 @@
       }
     }
     function mousedowned(event, ...args) {
-      if (touchending || !filter2.apply(this, arguments))
-        return;
+      if (touchending || !filter2.apply(this, arguments)) return;
       var currentTarget = event.currentTarget, g3 = gesture(this, args, true).event(event), v2 = select_default2(event.view).on("mousemove.zoom", mousemoved, true).on("mouseup.zoom", mouseupped, true), p2 = pointer_default(event, currentTarget), x05 = event.clientX, y05 = event.clientY;
       nodrag_default(event.view);
       nopropagation2(event);
@@ -21564,50 +20829,39 @@
       }
     }
     function dblclicked(event, ...args) {
-      if (!filter2.apply(this, arguments))
-        return;
+      if (!filter2.apply(this, arguments)) return;
       var t0 = this.__zoom, p02 = pointer_default(event.changedTouches ? event.changedTouches[0] : event, this), p1 = t0.invert(p02), k1 = t0.k * (event.shiftKey ? 0.5 : 2), t1 = constrain(translate(scale(t0, k1), p02, p1), extent.apply(this, args), translateExtent);
       noevent_default2(event);
-      if (duration > 0)
-        select_default2(this).transition().duration(duration).call(schedule, t1, p02, event);
-      else
-        select_default2(this).call(zoom.transform, t1, p02, event);
+      if (duration > 0) select_default2(this).transition().duration(duration).call(schedule, t1, p02, event);
+      else select_default2(this).call(zoom.transform, t1, p02, event);
     }
     function touchstarted(event, ...args) {
-      if (!filter2.apply(this, arguments))
-        return;
+      if (!filter2.apply(this, arguments)) return;
       var touches = event.touches, n3 = touches.length, g3 = gesture(this, args, event.changedTouches.length === n3).event(event), started, i3, t2, p2;
       nopropagation2(event);
       for (i3 = 0; i3 < n3; ++i3) {
         t2 = touches[i3], p2 = pointer_default(t2, this);
         p2 = [p2, this.__zoom.invert(p2), t2.identifier];
-        if (!g3.touch0)
-          g3.touch0 = p2, started = true, g3.taps = 1 + !!touchstarting;
-        else if (!g3.touch1 && g3.touch0[2] !== p2[2])
-          g3.touch1 = p2, g3.taps = 0;
+        if (!g3.touch0) g3.touch0 = p2, started = true, g3.taps = 1 + !!touchstarting;
+        else if (!g3.touch1 && g3.touch0[2] !== p2[2]) g3.touch1 = p2, g3.taps = 0;
       }
-      if (touchstarting)
-        touchstarting = clearTimeout(touchstarting);
+      if (touchstarting) touchstarting = clearTimeout(touchstarting);
       if (started) {
-        if (g3.taps < 2)
-          touchfirst = p2[0], touchstarting = setTimeout(function() {
-            touchstarting = null;
-          }, touchDelay);
+        if (g3.taps < 2) touchfirst = p2[0], touchstarting = setTimeout(function() {
+          touchstarting = null;
+        }, touchDelay);
         interrupt_default(this);
         g3.start();
       }
     }
     function touchmoved(event, ...args) {
-      if (!this.__zooming)
-        return;
+      if (!this.__zooming) return;
       var g3 = gesture(this, args).event(event), touches = event.changedTouches, n3 = touches.length, i3, t2, p2, l2;
       noevent_default2(event);
       for (i3 = 0; i3 < n3; ++i3) {
         t2 = touches[i3], p2 = pointer_default(t2, this);
-        if (g3.touch0 && g3.touch0[2] === t2.identifier)
-          g3.touch0[0] = p2;
-        else if (g3.touch1 && g3.touch1[2] === t2.identifier)
-          g3.touch1[0] = p2;
+        if (g3.touch0 && g3.touch0[2] === t2.identifier) g3.touch0[0] = p2;
+        else if (g3.touch1 && g3.touch1[2] === t2.identifier) g3.touch1[0] = p2;
       }
       t2 = g3.that.__zoom;
       if (g3.touch1) {
@@ -21615,41 +20869,32 @@
         t2 = scale(t2, Math.sqrt(dp / dl));
         p2 = [(p02[0] + p1[0]) / 2, (p02[1] + p1[1]) / 2];
         l2 = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
-      } else if (g3.touch0)
-        p2 = g3.touch0[0], l2 = g3.touch0[1];
-      else
-        return;
+      } else if (g3.touch0) p2 = g3.touch0[0], l2 = g3.touch0[1];
+      else return;
       g3.zoom("touch", constrain(translate(t2, p2, l2), g3.extent, translateExtent));
     }
     function touchended(event, ...args) {
-      if (!this.__zooming)
-        return;
+      if (!this.__zooming) return;
       var g3 = gesture(this, args).event(event), touches = event.changedTouches, n3 = touches.length, i3, t2;
       nopropagation2(event);
-      if (touchending)
-        clearTimeout(touchending);
+      if (touchending) clearTimeout(touchending);
       touchending = setTimeout(function() {
         touchending = null;
       }, touchDelay);
       for (i3 = 0; i3 < n3; ++i3) {
         t2 = touches[i3];
-        if (g3.touch0 && g3.touch0[2] === t2.identifier)
-          delete g3.touch0;
-        else if (g3.touch1 && g3.touch1[2] === t2.identifier)
-          delete g3.touch1;
+        if (g3.touch0 && g3.touch0[2] === t2.identifier) delete g3.touch0;
+        else if (g3.touch1 && g3.touch1[2] === t2.identifier) delete g3.touch1;
       }
-      if (g3.touch1 && !g3.touch0)
-        g3.touch0 = g3.touch1, delete g3.touch1;
-      if (g3.touch0)
-        g3.touch0[1] = this.__zoom.invert(g3.touch0[0]);
+      if (g3.touch1 && !g3.touch0) g3.touch0 = g3.touch1, delete g3.touch1;
+      if (g3.touch0) g3.touch0[1] = this.__zoom.invert(g3.touch0[0]);
       else {
         g3.end();
         if (g3.taps === 2) {
           t2 = pointer_default(t2, this);
           if (Math.hypot(touchfirst[0] - t2[0], touchfirst[1] - t2[1]) < tapDistance) {
             var p2 = select_default2(this).on("dblclick.zoom");
-            if (p2)
-              p2.apply(this, arguments);
+            if (p2) p2.apply(this, arguments);
           }
         }
       }
@@ -21710,27 +20955,23 @@
       return point2 && [point2[0] * 180 / Math.PI, point2[1] * 180 / Math.PI];
     };
     projection2.scale = function(_2) {
-      if (!arguments.length)
-        return k2;
+      if (!arguments.length) return k2;
       k2 = +_2;
       return projection2;
     };
     projection2.translate = function(_2) {
-      if (!arguments.length)
-        return [x2, y2];
+      if (!arguments.length) return [x2, y2];
       x2 = +_2[0];
       y2 = +_2[1];
       return projection2;
     };
     projection2.clipExtent = function(_2) {
-      if (!arguments.length)
-        return clipExtent;
+      if (!arguments.length) return clipExtent;
       clipExtent = _2;
       return projection2;
     };
     projection2.transform = function(obj) {
-      if (!arguments.length)
-        return identity2.translate(x2, y2).scale(k2);
+      if (!arguments.length) return identity2.translate(x2, y2).scale(k2);
       x2 = +obj.x;
       y2 = +obj.y;
       k2 = +obj.k;
@@ -21778,8 +21019,7 @@
       var origin = coords[i3];
       var b2 = coords[(i3 + 1) % coords.length];
       var dotp = geoOrthoFilterDotProduct(geoOrthoNormalizedDotProduct(a2, b2, origin), epsilon3, lowerThreshold, upperThreshold);
-      if (dotp === null)
-        continue;
+      if (dotp === null) continue;
       score = score + 2 * Math.min(Math.abs(dotp - 1), Math.min(Math.abs(dotp), Math.abs(dotp + 1)));
     }
     return score;
@@ -21794,15 +21034,11 @@
       var b2 = coords[(i3 + 1) % coords.length];
       var normalizedDotP = geoOrthoNormalizedDotProduct(a2, b2, origin);
       var angle2 = Math.acos(Math.abs(normalizedDotP)) * 180 / Math.PI;
-      if (angle2 > 45)
-        angle2 = 90 - angle2;
-      if (angle2 >= lessThan)
-        continue;
-      if (angle2 > max3)
-        max3 = angle2;
+      if (angle2 > 45) angle2 = 90 - angle2;
+      if (angle2 >= lessThan) continue;
+      if (angle2 > max3) max3 = angle2;
     }
-    if (max3 === -Infinity)
-      return null;
+    if (max3 === -Infinity) return null;
     return max3;
   }
   function geoOrthoCanOrthogonalize(coords, isClosed, epsilon3, threshold, allowStraightAngles) {
@@ -21816,10 +21052,8 @@
       var origin = coords[i3];
       var b2 = coords[(i3 + 1) % coords.length];
       var dotp = geoOrthoFilterDotProduct(geoOrthoNormalizedDotProduct(a2, b2, origin), epsilon3, lowerThreshold, upperThreshold, allowStraightAngles);
-      if (dotp === null)
-        continue;
-      if (Math.abs(dotp) > 0)
-        return 1;
+      if (dotp === null) continue;
+      if (Math.abs(dotp) > 0) return 1;
       score = 0;
     }
     return score;
@@ -21853,8 +21087,7 @@
   };
   function osmRemoveLifecyclePrefix(key) {
     const keySegments = key.split(":");
-    if (keySegments.length === 1)
-      return key;
+    if (keySegments.length === 1) return key;
     if (keySegments[0] in osmLifecyclePrefixes) {
       return key.slice(keySegments[0].length + 1);
     }
@@ -21889,10 +21122,8 @@
     }
   };
   function osmTagSuggestingArea(tags) {
-    if (tags.area === "yes")
-      return { area: "yes" };
-    if (tags.area === "no")
-      return null;
+    if (tags.area === "yes") return { area: "yes" };
+    if (tags.area === "no") return null;
     var returnTags = {};
     for (var realKey in tags) {
       const key = osmRemoveLifecyclePrefix(realKey);
@@ -21928,8 +21159,7 @@
       if (osmVertexTags[key] && (osmVertexTags[key]["*"] || osmVertexTags[key][nodeTags[key]])) {
         geometries.vertex = true;
       }
-      if (geometries.point && geometries.vertex)
-        break;
+      if (geometries.point && geometries.vertex) break;
     }
     return geometries;
   }
@@ -22101,14 +21331,11 @@
 
   // modules/util/array.js
   function utilArrayIdentical(a2, b2) {
-    if (a2 === b2)
-      return true;
+    if (a2 === b2) return true;
     var i3 = a2.length;
-    if (i3 !== b2.length)
-      return false;
+    if (i3 !== b2.length) return false;
     while (i3--) {
-      if (a2[i3] !== b2[i3])
-        return false;
+      if (a2[i3] !== b2[i3]) return false;
     }
     return true;
   }
@@ -22135,8 +21362,7 @@
     return Array.from(new Set(a2));
   }
   function utilArrayChunk(a2, chunkSize) {
-    if (!chunkSize || chunkSize < 0)
-      return [a2.slice()];
+    if (!chunkSize || chunkSize < 0) return [a2.slice()];
     var result = new Array(Math.ceil(a2.length / chunkSize));
     return Array.from(result, function(item, i3) {
       return a2.slice(i3 * chunkSize, i3 * chunkSize + chunkSize);
@@ -22225,12 +21451,9 @@
   var _listeners = {};
   function corePreferences(k2, v2) {
     try {
-      if (v2 === void 0)
-        return _storage.getItem(k2);
-      else if (v2 === null)
-        _storage.removeItem(k2);
-      else
-        _storage.setItem(k2, v2);
+      if (v2 === void 0) return _storage.getItem(k2);
+      else if (v2 === null) _storage.removeItem(k2);
+      else _storage.setItem(k2, v2);
       if (_listeners[k2]) {
         _listeners[k2].forEach((handler) => handler(v2));
       }
@@ -22479,8 +21702,7 @@
           if (!response.ok || !response.json) {
             throw new Error(response.status + " " + response.statusText);
           }
-          if (response.status === 204 || response.status === 205)
-            return;
+          if (response.status === 204 || response.status === 205) return;
           return response.json();
         }).then((result) => {
           delete _inflight4[url];
@@ -22497,28 +21719,24 @@
       return prom;
     }
     _this.fileMap = function(val) {
-      if (!arguments.length)
-        return _fileMap;
+      if (!arguments.length) return _fileMap;
       _fileMap = val;
       return _this;
     };
     let _assetPath = "";
     _this.assetPath = function(val) {
-      if (!arguments.length)
-        return _assetPath;
+      if (!arguments.length) return _assetPath;
       _assetPath = val;
       return _this;
     };
     let _assetMap = {};
     _this.assetMap = function(val) {
-      if (!arguments.length)
-        return _assetMap;
+      if (!arguments.length) return _assetMap;
       _assetMap = val;
       return _this;
     };
     _this.asset = (val) => {
-      if (/^http(s)?:\/\//i.test(val))
-        return val;
+      if (/^http(s)?:\/\//i.test(val)) return val;
       const filename = _assetPath + val;
       return _assetMap[filename] || filename;
     };
@@ -23320,13 +22538,13 @@
     return features;
   }
   function aggregateFeature(id2) {
-    var _a2;
+    var _a3;
     const features = featuresIn(id2, false);
     if (features.length === 0)
       return null;
     let aggregateCoordinates = [];
     for (const feature22 of features) {
-      if (((_a2 = feature22.geometry) == null ? void 0 : _a2.type) === "MultiPolygon" && feature22.geometry.coordinates) {
+      if (((_a3 = feature22.geometry) == null ? void 0 : _a3.type) === "MultiPolygon" && feature22.geometry.coordinates) {
         aggregateCoordinates = aggregateCoordinates.concat(feature22.geometry.coordinates);
       }
     }
@@ -23403,8 +22621,7 @@
     }, ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz", alphabetHasNormalDecimalDigits = true;
     function BigNumber2(v2, b2) {
       var alphabet, c2, caseChanged, e3, i3, isNum, len, str, x2 = this;
-      if (!(x2 instanceof BigNumber2))
-        return new BigNumber2(v2, b2);
+      if (!(x2 instanceof BigNumber2)) return new BigNumber2(v2, b2);
       if (b2 == null) {
         if (v2 && v2._isBigNumber === true) {
           x2.s = v2.s;
@@ -23421,8 +22638,7 @@
         if ((isNum = typeof v2 == "number") && v2 * 0 == 0) {
           x2.s = 1 / v2 < 0 ? (v2 = -v2, -1) : 1;
           if (v2 === ~~v2) {
-            for (e3 = 0, i3 = v2; i3 >= 10; i3 /= 10, e3++)
-              ;
+            for (e3 = 0, i3 = v2; i3 >= 10; i3 /= 10, e3++) ;
             if (e3 > MAX_EXP) {
               x2.c = x2.e = null;
             } else {
@@ -23433,15 +22649,12 @@
           }
           str = String(v2);
         } else {
-          if (!isNumeric.test(str = String(v2)))
-            return parseNumeric2(x2, str, isNum);
+          if (!isNumeric.test(str = String(v2))) return parseNumeric2(x2, str, isNum);
           x2.s = str.charCodeAt(0) == 45 ? (str = str.slice(1), -1) : 1;
         }
-        if ((e3 = str.indexOf(".")) > -1)
-          str = str.replace(".", "");
+        if ((e3 = str.indexOf(".")) > -1) str = str.replace(".", "");
         if ((i3 = str.search(/e/i)) > 0) {
-          if (e3 < 0)
-            e3 = i3;
+          if (e3 < 0) e3 = i3;
           e3 += +str.slice(i3 + 1);
           str = str.substring(0, i3);
         } else if (e3 < 0) {
@@ -23455,8 +22668,7 @@
         }
         str = String(v2);
         if (isNum = typeof v2 == "number") {
-          if (v2 * 0 != 0)
-            return parseNumeric2(x2, str, isNum, b2);
+          if (v2 * 0 != 0) return parseNumeric2(x2, str, isNum, b2);
           x2.s = 1 / v2 < 0 ? (str = str.slice(1), -1) : 1;
           if (BigNumber2.DEBUG && str.replace(/^0\.0*|\./, "").length > 15) {
             throw Error(tooManyDigits + v2);
@@ -23486,15 +22698,11 @@
         }
         isNum = false;
         str = convertBase(str, b2, 10, x2.s);
-        if ((e3 = str.indexOf(".")) > -1)
-          str = str.replace(".", "");
-        else
-          e3 = str.length;
+        if ((e3 = str.indexOf(".")) > -1) str = str.replace(".", "");
+        else e3 = str.length;
       }
-      for (i3 = 0; str.charCodeAt(i3) === 48; i3++)
-        ;
-      for (len = str.length; str.charCodeAt(--len) === 48; )
-        ;
+      for (i3 = 0; str.charCodeAt(i3) === 48; i3++) ;
+      for (len = str.length; str.charCodeAt(--len) === 48; ) ;
       if (str = str.slice(i3, ++len)) {
         len -= i3;
         if (isNum && BigNumber2.DEBUG && len > 15 && (v2 > MAX_SAFE_INTEGER || v2 !== mathfloor(v2))) {
@@ -23508,11 +22716,9 @@
           x2.e = e3;
           x2.c = [];
           i3 = (e3 + 1) % LOG_BASE;
-          if (e3 < 0)
-            i3 += LOG_BASE;
+          if (e3 < 0) i3 += LOG_BASE;
           if (i3 < len) {
-            if (i3)
-              x2.c.push(+str.slice(0, i3));
+            if (i3) x2.c.push(+str.slice(0, i3));
             for (len -= LOG_BASE; i3 < len; ) {
               x2.c.push(+str.slice(i3, i3 += LOG_BASE));
             }
@@ -23520,8 +22726,7 @@
           } else {
             i3 -= len;
           }
-          for (; i3--; str += "0")
-            ;
+          for (; i3--; str += "0") ;
           x2.c.push(+str);
         }
       } else {
@@ -23610,10 +22815,8 @@
           }
           if (obj.hasOwnProperty(p2 = "FORMAT")) {
             v2 = obj[p2];
-            if (typeof v2 == "object")
-              FORMAT = v2;
-            else
-              throw Error(bignumberError + p2 + " not an object: " + v2);
+            if (typeof v2 == "object") FORMAT = v2;
+            else throw Error(bignumberError + p2 + " not an object: " + v2);
           }
           if (obj.hasOwnProperty(p2 = "ALPHABET")) {
             v2 = obj[p2];
@@ -23641,35 +22844,28 @@
       };
     };
     BigNumber2.isBigNumber = function(v2) {
-      if (!v2 || v2._isBigNumber !== true)
-        return false;
-      if (!BigNumber2.DEBUG)
-        return true;
+      if (!v2 || v2._isBigNumber !== true) return false;
+      if (!BigNumber2.DEBUG) return true;
       var i3, n3, c2 = v2.c, e3 = v2.e, s2 = v2.s;
-      out:
-        if ({}.toString.call(c2) == "[object Array]") {
-          if ((s2 === 1 || s2 === -1) && e3 >= -MAX && e3 <= MAX && e3 === mathfloor(e3)) {
-            if (c2[0] === 0) {
-              if (e3 === 0 && c2.length === 1)
-                return true;
-              break out;
-            }
-            i3 = (e3 + 1) % LOG_BASE;
-            if (i3 < 1)
-              i3 += LOG_BASE;
-            if (String(c2[0]).length == i3) {
-              for (i3 = 0; i3 < c2.length; i3++) {
-                n3 = c2[i3];
-                if (n3 < 0 || n3 >= BASE || n3 !== mathfloor(n3))
-                  break out;
-              }
-              if (n3 !== 0)
-                return true;
-            }
+      out: if ({}.toString.call(c2) == "[object Array]") {
+        if ((s2 === 1 || s2 === -1) && e3 >= -MAX && e3 <= MAX && e3 === mathfloor(e3)) {
+          if (c2[0] === 0) {
+            if (e3 === 0 && c2.length === 1) return true;
+            break out;
           }
-        } else if (c2 === null && e3 === null && (s2 === null || s2 === 1 || s2 === -1)) {
-          return true;
+          i3 = (e3 + 1) % LOG_BASE;
+          if (i3 < 1) i3 += LOG_BASE;
+          if (String(c2[0]).length == i3) {
+            for (i3 = 0; i3 < c2.length; i3++) {
+              n3 = c2[i3];
+              if (n3 < 0 || n3 >= BASE || n3 !== mathfloor(n3)) break out;
+            }
+            if (n3 !== 0) return true;
+          }
         }
+      } else if (c2 === null && e3 === null && (s2 === null || s2 === 1 || s2 === -1)) {
+        return true;
+      }
       throw Error(bignumberError + "Invalid BigNumber: " + v2);
     };
     BigNumber2.maximum = BigNumber2.max = function() {
@@ -23687,10 +22883,8 @@
       };
       return function(dp) {
         var a2, b2, e3, k2, v2, i3 = 0, c2 = [], rand = new BigNumber2(ONE);
-        if (dp == null)
-          dp = DECIMAL_PLACES;
-        else
-          intCheck(dp, 0, MAX);
+        if (dp == null) dp = DECIMAL_PLACES;
+        else intCheck(dp, 0, MAX);
         k2 = mathceil(dp / LOG_BASE);
         if (CRYPTO) {
           if (crypto.getRandomValues) {
@@ -23727,8 +22921,7 @@
         if (!CRYPTO) {
           for (; i3 < k2; ) {
             v2 = random53bitInt();
-            if (v2 < 9e15)
-              c2[i3++] = v2 % 1e14;
+            if (v2 < 9e15) c2[i3++] = v2 % 1e14;
           }
         }
         k2 = c2[--i3];
@@ -23737,17 +22930,13 @@
           v2 = POWS_TEN[LOG_BASE - dp];
           c2[i3] = mathfloor(k2 / v2) * v2;
         }
-        for (; c2[i3] === 0; c2.pop(), i3--)
-          ;
+        for (; c2[i3] === 0; c2.pop(), i3--) ;
         if (i3 < 0) {
           c2 = [e3 = 0];
         } else {
-          for (e3 = -1; c2[0] === 0; c2.splice(0, 1), e3 -= LOG_BASE)
-            ;
-          for (i3 = 1, v2 = c2[0]; v2 >= 10; v2 /= 10, i3++)
-            ;
-          if (i3 < LOG_BASE)
-            e3 -= LOG_BASE - i3;
+          for (e3 = -1; c2[0] === 0; c2.splice(0, 1), e3 -= LOG_BASE) ;
+          for (i3 = 1, v2 = c2[0]; v2 >= 10; v2 /= 10, i3++) ;
+          if (i3 < LOG_BASE) e3 -= LOG_BASE - i3;
         }
         rand.e = e3;
         rand.c = c2;
@@ -23756,8 +22945,7 @@
     }();
     BigNumber2.sum = function() {
       var i3 = 1, args = arguments, sum = new BigNumber2(args[0]);
-      for (; i3 < args.length; )
-        sum = sum.plus(args[i3++]);
+      for (; i3 < args.length; ) sum = sum.plus(args[i3++]);
       return sum;
     };
     convertBase = /* @__PURE__ */ function() {
@@ -23765,13 +22953,11 @@
       function toBaseOut(str, baseIn, baseOut, alphabet) {
         var j2, arr = [0], arrL, i3 = 0, len = str.length;
         for (; i3 < len; ) {
-          for (arrL = arr.length; arrL--; arr[arrL] *= baseIn)
-            ;
+          for (arrL = arr.length; arrL--; arr[arrL] *= baseIn) ;
           arr[0] += alphabet.indexOf(str.charAt(i3++));
           for (j2 = 0; j2 < arr.length; j2++) {
             if (arr[j2] > baseOut - 1) {
-              if (arr[j2 + 1] == null)
-                arr[j2 + 1] = 0;
+              if (arr[j2 + 1] == null) arr[j2 + 1] = 0;
               arr[j2 + 1] += arr[j2] / baseOut | 0;
               arr[j2] %= baseOut;
             }
@@ -23798,10 +22984,8 @@
         }
         xc = toBaseOut(str, baseIn, baseOut, callerIsToString ? (alphabet = ALPHABET, decimal) : (alphabet = decimal, ALPHABET));
         e3 = k2 = xc.length;
-        for (; xc[--k2] == 0; xc.pop())
-          ;
-        if (!xc[0])
-          return alphabet.charAt(0);
+        for (; xc[--k2] == 0; xc.pop()) ;
+        if (!xc[0]) return alphabet.charAt(0);
         if (i3 < 0) {
           --e3;
         } else {
@@ -23831,10 +23015,8 @@
               }
             }
           }
-          for (k2 = xc.length; !xc[--k2]; )
-            ;
-          for (i3 = 0, str = ""; i3 <= k2; str += alphabet.charAt(xc[i3++]))
-            ;
+          for (k2 = xc.length; !xc[--k2]; ) ;
+          for (i3 = 0, str = ""; i3 <= k2; str += alphabet.charAt(xc[i3++])) ;
           str = toFixedPoint(str, e3, alphabet.charAt(0));
         }
         return str;
@@ -23851,8 +23033,7 @@
           carry = (temp / base | 0) + (m2 / SQRT_BASE | 0) + khi * xhi;
           x2[i3] = temp % base;
         }
-        if (carry)
-          x2 = [carry].concat(x2);
+        if (carry) x2 = [carry].concat(x2);
         return x2;
       }
       function compare2(a2, b2, aL, bL) {
@@ -23876,8 +23057,7 @@
           i3 = a2[aL] < b2[aL] ? 1 : 0;
           a2[aL] = i3 * base + a2[aL] - b2[aL];
         }
-        for (; !a2[0] && a2.length > 1; a2.splice(0, 1))
-          ;
+        for (; !a2[0] && a2.length > 1; a2.splice(0, 1)) ;
       }
       return function(x2, y2, dp, rm, base) {
         var cmp, e3, i3, more, n3, prod, prodL, q2, qc, rem, remL, rem0, xi, xL, yc0, yL, yz, s2 = x2.s == y2.s ? 1 : -1, xc = x2.c, yc = y2.c;
@@ -23899,10 +23079,8 @@
           e3 = bitFloor(x2.e / LOG_BASE) - bitFloor(y2.e / LOG_BASE);
           s2 = s2 / LOG_BASE | 0;
         }
-        for (i3 = 0; yc[i3] == (xc[i3] || 0); i3++)
-          ;
-        if (yc[i3] > (xc[i3] || 0))
-          e3--;
+        for (i3 = 0; yc[i3] == (xc[i3] || 0); i3++) ;
+        if (yc[i3] > (xc[i3] || 0)) e3--;
         if (s2 < 0) {
           qc.push(1);
           more = true;
@@ -23921,24 +23099,20 @@
           xi = yL;
           rem = xc.slice(0, yL);
           remL = rem.length;
-          for (; remL < yL; rem[remL++] = 0)
-            ;
+          for (; remL < yL; rem[remL++] = 0) ;
           yz = yc.slice();
           yz = [0].concat(yz);
           yc0 = yc[0];
-          if (yc[1] >= base / 2)
-            yc0++;
+          if (yc[1] >= base / 2) yc0++;
           do {
             n3 = 0;
             cmp = compare2(yc, rem, yL, remL);
             if (cmp < 0) {
               rem0 = rem[0];
-              if (yL != remL)
-                rem0 = rem0 * base + (rem[1] || 0);
+              if (yL != remL) rem0 = rem0 * base + (rem[1] || 0);
               n3 = mathfloor(rem0 / yc0);
               if (n3 > 1) {
-                if (n3 >= base)
-                  n3 = base - 1;
+                if (n3 >= base) n3 = base - 1;
                 prod = multiply(yc, n3, base);
                 prodL = prod.length;
                 remL = rem.length;
@@ -23955,8 +23129,7 @@
                 prod = yc.slice();
                 prodL = prod.length;
               }
-              if (prodL < remL)
-                prod = [0].concat(prod);
+              if (prodL < remL) prod = [0].concat(prod);
               subtract(rem, prod, remL, base);
               remL = rem.length;
               if (cmp == -1) {
@@ -23979,12 +23152,10 @@
             }
           } while ((xi++ < xL || rem[0] != null) && s2--);
           more = rem[0] != null;
-          if (!qc[0])
-            qc.splice(0, 1);
+          if (!qc[0]) qc.splice(0, 1);
         }
         if (base == BASE) {
-          for (i3 = 1, s2 = qc[0]; s2 >= 10; s2 /= 10, i3++)
-            ;
+          for (i3 = 1, s2 = qc[0]; s2 >= 10; s2 /= 10, i3++) ;
           round(q2, dp + (q2.e = i3 + e3 * LOG_BASE - 1) + 1, rm, more);
         } else {
           q2.e = e3;
@@ -23995,12 +23166,9 @@
     }();
     function format2(n3, i3, rm, id2) {
       var c0, e3, ne2, len, str;
-      if (rm == null)
-        rm = ROUNDING_MODE;
-      else
-        intCheck(rm, 0, 8);
-      if (!n3.c)
-        return n3.toString();
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
+      if (!n3.c) return n3.toString();
       c0 = n3.c[0];
       ne2 = n3.e;
       if (i3 == null) {
@@ -24012,23 +23180,18 @@
         str = coeffToString(n3.c);
         len = str.length;
         if (id2 == 1 || id2 == 2 && (i3 <= e3 || e3 <= TO_EXP_NEG)) {
-          for (; len < i3; str += "0", len++)
-            ;
+          for (; len < i3; str += "0", len++) ;
           str = toExponential(str, e3);
         } else {
           i3 -= ne2;
           str = toFixedPoint(str, e3, "0");
           if (e3 + 1 > len) {
-            if (--i3 > 0)
-              for (str += "."; i3--; str += "0")
-                ;
+            if (--i3 > 0) for (str += "."; i3--; str += "0") ;
           } else {
             i3 += e3 - len;
             if (i3 > 0) {
-              if (e3 + 1 == len)
-                str += ".";
-              for (; i3--; str += "0")
-                ;
+              if (e3 + 1 == len) str += ".";
+              for (; i3--; str += "0") ;
             }
           }
         }
@@ -24047,10 +23210,8 @@
     }
     function normalise(n3, c2, e3) {
       var i3 = 1, j2 = c2.length;
-      for (; !c2[--j2]; c2.pop())
-        ;
-      for (j2 = c2[0]; j2 >= 10; j2 /= 10, i3++)
-        ;
+      for (; !c2[--j2]; c2.pop()) ;
+      for (j2 = c2[0]; j2 >= 10; j2 /= 10, i3++) ;
       if ((e3 = i3 + e3 * LOG_BASE - 1) > MAX_EXP) {
         n3.c = n3.e = null;
       } else if (e3 < MIN_EXP) {
@@ -24077,8 +23238,7 @@
               base = b2;
               s2 = s2.replace(dotAfter, "$1").replace(dotBefore, "0.$1");
             }
-            if (str != s2)
-              return new BigNumber2(s2, base);
+            if (str != s2) return new BigNumber2(s2, base);
           }
           if (BigNumber2.DEBUG) {
             throw Error(bignumberError + "Not a" + (b2 ? " base " + b2 : "") + " number: " + str);
@@ -24092,8 +23252,7 @@
       var d2, i3, j2, k2, n3, ni, rd, xc = x2.c, pows10 = POWS_TEN;
       if (xc) {
         out: {
-          for (d2 = 1, k2 = xc[0]; k2 >= 10; k2 /= 10, d2++)
-            ;
+          for (d2 = 1, k2 = xc[0]; k2 >= 10; k2 /= 10, d2++) ;
           i3 = sd - d2;
           if (i3 < 0) {
             i3 += LOG_BASE;
@@ -24104,8 +23263,7 @@
             ni = mathceil((i3 + 1) / LOG_BASE);
             if (ni >= xc.length) {
               if (r2) {
-                for (; xc.length <= ni; xc.push(0))
-                  ;
+                for (; xc.length <= ni; xc.push(0)) ;
                 n3 = rd = 0;
                 d2 = 1;
                 i3 %= LOG_BASE;
@@ -24115,8 +23273,7 @@
               }
             } else {
               n3 = k2 = xc[ni];
-              for (d2 = 1; k2 >= 10; k2 /= 10, d2++)
-                ;
+              for (d2 = 1; k2 >= 10; k2 /= 10, d2++) ;
               i3 %= LOG_BASE;
               j2 = i3 - LOG_BASE + d2;
               rd = j2 < 0 ? 0 : mathfloor(n3 / pows10[d2 - j2 - 1] % 10);
@@ -24151,28 +23308,23 @@
           if (r2) {
             for (; ; ) {
               if (ni == 0) {
-                for (i3 = 1, j2 = xc[0]; j2 >= 10; j2 /= 10, i3++)
-                  ;
+                for (i3 = 1, j2 = xc[0]; j2 >= 10; j2 /= 10, i3++) ;
                 j2 = xc[0] += k2;
-                for (k2 = 1; j2 >= 10; j2 /= 10, k2++)
-                  ;
+                for (k2 = 1; j2 >= 10; j2 /= 10, k2++) ;
                 if (i3 != k2) {
                   x2.e++;
-                  if (xc[0] == BASE)
-                    xc[0] = 1;
+                  if (xc[0] == BASE) xc[0] = 1;
                 }
                 break;
               } else {
                 xc[ni] += k2;
-                if (xc[ni] != BASE)
-                  break;
+                if (xc[ni] != BASE) break;
                 xc[ni--] = 0;
                 k2 = 1;
               }
             }
           }
-          for (i3 = xc.length; xc[--i3] === 0; xc.pop())
-            ;
+          for (i3 = xc.length; xc[--i3] === 0; xc.pop()) ;
         }
         if (x2.e > MAX_EXP) {
           x2.c = x2.e = null;
@@ -24184,16 +23336,14 @@
     }
     function valueOf(n3) {
       var str, e3 = n3.e;
-      if (e3 === null)
-        return n3.toString();
+      if (e3 === null) return n3.toString();
       str = coeffToString(n3.c);
       str = e3 <= TO_EXP_NEG || e3 >= TO_EXP_POS ? toExponential(str, e3) : toFixedPoint(str, e3, "0");
       return n3.s < 0 ? "-" + str : str;
     }
     P2.absoluteValue = P2.abs = function() {
       var x2 = new BigNumber2(this);
-      if (x2.s < 0)
-        x2.s = 1;
+      if (x2.s < 0) x2.s = 1;
       return x2;
     };
     P2.comparedTo = function(y2, b2) {
@@ -24203,20 +23353,14 @@
       var c2, n3, v2, x2 = this;
       if (dp != null) {
         intCheck(dp, 0, MAX);
-        if (rm == null)
-          rm = ROUNDING_MODE;
-        else
-          intCheck(rm, 0, 8);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
         return round(new BigNumber2(x2), dp + x2.e + 1, rm);
       }
-      if (!(c2 = x2.c))
-        return null;
+      if (!(c2 = x2.c)) return null;
       n3 = ((v2 = c2.length - 1) - bitFloor(this.e / LOG_BASE)) * LOG_BASE;
-      if (v2 = c2[v2])
-        for (; v2 % 10 == 0; v2 /= 10, n3--)
-          ;
-      if (n3 < 0)
-        n3 = 0;
+      if (v2 = c2[v2]) for (; v2 % 10 == 0; v2 /= 10, n3--) ;
+      if (n3 < 0) n3 = 0;
       return n3;
     };
     P2.dividedBy = P2.div = function(y2, b2) {
@@ -24231,8 +23375,7 @@
       if (n3.c && !n3.isInteger()) {
         throw Error(bignumberError + "Exponent not an integer: " + valueOf(n3));
       }
-      if (m2 != null)
-        m2 = new BigNumber2(m2);
+      if (m2 != null) m2 = new BigNumber2(m2);
       nIsBig = n3.e > 14;
       if (!x2.c || !x2.c[0] || x2.c[0] == 1 && !x2.e && x2.c.length == 1 || !n3.c || !n3.c[0]) {
         y2 = new BigNumber2(Math.pow(+valueOf(x2), nIsBig ? n3.s * (2 - isOdd(n3)) : +valueOf(n3)));
@@ -24240,23 +23383,19 @@
       }
       nIsNeg = n3.s < 0;
       if (m2) {
-        if (m2.c ? !m2.c[0] : !m2.s)
-          return new BigNumber2(NaN);
+        if (m2.c ? !m2.c[0] : !m2.s) return new BigNumber2(NaN);
         isModExp = !nIsNeg && x2.isInteger() && m2.isInteger();
-        if (isModExp)
-          x2 = x2.mod(m2);
+        if (isModExp) x2 = x2.mod(m2);
       } else if (n3.e > 9 && (x2.e > 0 || x2.e < -1 || (x2.e == 0 ? x2.c[0] > 1 || nIsBig && x2.c[1] >= 24e7 : x2.c[0] < 8e13 || nIsBig && x2.c[0] <= 9999975e7))) {
         k2 = x2.s < 0 && isOdd(n3) ? -0 : 0;
-        if (x2.e > -1)
-          k2 = 1 / k2;
+        if (x2.e > -1) k2 = 1 / k2;
         return new BigNumber2(nIsNeg ? 1 / k2 : k2);
       } else if (POW_PRECISION) {
         k2 = mathceil(POW_PRECISION / LOG_BASE + 2);
       }
       if (nIsBig) {
         half = new BigNumber2(0.5);
-        if (nIsNeg)
-          n3.s = 1;
+        if (nIsNeg) n3.s = 1;
         nIsOdd = isOdd(n3);
       } else {
         i3 = Math.abs(+valueOf(n3));
@@ -24266,19 +23405,16 @@
       for (; ; ) {
         if (nIsOdd) {
           y2 = y2.times(x2);
-          if (!y2.c)
-            break;
+          if (!y2.c) break;
           if (k2) {
-            if (y2.c.length > k2)
-              y2.c.length = k2;
+            if (y2.c.length > k2) y2.c.length = k2;
           } else if (isModExp) {
             y2 = y2.mod(m2);
           }
         }
         if (i3) {
           i3 = mathfloor(i3 / 2);
-          if (i3 === 0)
-            break;
+          if (i3 === 0) break;
           nIsOdd = i3 % 2;
         } else {
           n3 = n3.times(half);
@@ -24287,31 +23423,25 @@
             nIsOdd = isOdd(n3);
           } else {
             i3 = +valueOf(n3);
-            if (i3 === 0)
-              break;
+            if (i3 === 0) break;
             nIsOdd = i3 % 2;
           }
         }
         x2 = x2.times(x2);
         if (k2) {
-          if (x2.c && x2.c.length > k2)
-            x2.c.length = k2;
+          if (x2.c && x2.c.length > k2) x2.c.length = k2;
         } else if (isModExp) {
           x2 = x2.mod(m2);
         }
       }
-      if (isModExp)
-        return y2;
-      if (nIsNeg)
-        y2 = ONE.div(y2);
+      if (isModExp) return y2;
+      if (nIsNeg) y2 = ONE.div(y2);
       return m2 ? y2.mod(m2) : k2 ? round(y2, POW_PRECISION, ROUNDING_MODE, more) : y2;
     };
     P2.integerValue = function(rm) {
       var n3 = new BigNumber2(this);
-      if (rm == null)
-        rm = ROUNDING_MODE;
-      else
-        intCheck(rm, 0, 8);
+      if (rm == null) rm = ROUNDING_MODE;
+      else intCheck(rm, 0, 8);
       return round(n3, n3.e + 1, rm);
     };
     P2.isEqualTo = P2.eq = function(y2, b2) {
@@ -24351,16 +23481,14 @@
       var i3, j2, t2, xLTy, x2 = this, a2 = x2.s;
       y2 = new BigNumber2(y2, b2);
       b2 = y2.s;
-      if (!a2 || !b2)
-        return new BigNumber2(NaN);
+      if (!a2 || !b2) return new BigNumber2(NaN);
       if (a2 != b2) {
         y2.s = -b2;
         return x2.plus(y2);
       }
       var xe2 = x2.e / LOG_BASE, ye2 = y2.e / LOG_BASE, xc = x2.c, yc = y2.c;
       if (!xe2 || !ye2) {
-        if (!xc || !yc)
-          return xc ? (y2.s = -b2, y2) : new BigNumber2(yc ? x2 : NaN);
+        if (!xc || !yc) return xc ? (y2.s = -b2, y2) : new BigNumber2(yc ? x2 : NaN);
         if (!xc[0] || !yc[0]) {
           return yc[0] ? (y2.s = -b2, y2) : new BigNumber2(xc[0] ? x2 : (
             // IEEE 754 (2008) 6.3: n - n = -0 when rounding to -Infinity
@@ -24380,8 +23508,7 @@
           t2 = yc;
         }
         t2.reverse();
-        for (b2 = a2; b2--; t2.push(0))
-          ;
+        for (b2 = a2; b2--; t2.push(0)) ;
         t2.reverse();
       } else {
         j2 = (xLTy = (a2 = xc.length) < (b2 = yc.length)) ? a2 : b2;
@@ -24399,21 +23526,17 @@
         y2.s = -y2.s;
       }
       b2 = (j2 = yc.length) - (i3 = xc.length);
-      if (b2 > 0)
-        for (; b2--; xc[i3++] = 0)
-          ;
+      if (b2 > 0) for (; b2--; xc[i3++] = 0) ;
       b2 = BASE - 1;
       for (; j2 > a2; ) {
         if (xc[--j2] < yc[j2]) {
-          for (i3 = j2; i3 && !xc[--i3]; xc[i3] = b2)
-            ;
+          for (i3 = j2; i3 && !xc[--i3]; xc[i3] = b2) ;
           --xc[i3];
           xc[j2] += BASE;
         }
         xc[j2] -= yc[j2];
       }
-      for (; xc[0] == 0; xc.splice(0, 1), --ye2)
-        ;
+      for (; xc[0] == 0; xc.splice(0, 1), --ye2) ;
       if (!xc[0]) {
         y2.s = ROUNDING_MODE == 3 ? -1 : 1;
         y2.c = [y2.e = 0];
@@ -24439,8 +23562,7 @@
         q2 = div(x2, y2, 0, MODULO_MODE);
       }
       y2 = x2.minus(q2.times(y2));
-      if (!y2.c[0] && MODULO_MODE == 1)
-        y2.s = x2.s;
+      if (!y2.c[0] && MODULO_MODE == 1) y2.s = x2.s;
       return y2;
     };
     P2.multipliedBy = P2.times = function(y2, b2) {
@@ -24471,8 +23593,7 @@
         xcL = ycL;
         ycL = i3;
       }
-      for (i3 = xcL + ycL, zc = []; i3--; zc.push(0))
-        ;
+      for (i3 = xcL + ycL, zc = []; i3--; zc.push(0)) ;
       base = BASE;
       sqrtBase = SQRT_BASE;
       for (i3 = ycL; --i3 >= 0; ) {
@@ -24505,18 +23626,15 @@
       var t2, x2 = this, a2 = x2.s;
       y2 = new BigNumber2(y2, b2);
       b2 = y2.s;
-      if (!a2 || !b2)
-        return new BigNumber2(NaN);
+      if (!a2 || !b2) return new BigNumber2(NaN);
       if (a2 != b2) {
         y2.s = -b2;
         return x2.minus(y2);
       }
       var xe2 = x2.e / LOG_BASE, ye2 = y2.e / LOG_BASE, xc = x2.c, yc = y2.c;
       if (!xe2 || !ye2) {
-        if (!xc || !yc)
-          return new BigNumber2(a2 / 0);
-        if (!xc[0] || !yc[0])
-          return yc[0] ? y2 : new BigNumber2(xc[0] ? x2 : a2 * 0);
+        if (!xc || !yc) return new BigNumber2(a2 / 0);
+        if (!xc[0] || !yc[0]) return yc[0] ? y2 : new BigNumber2(xc[0] ? x2 : a2 * 0);
       }
       xe2 = bitFloor(xe2);
       ye2 = bitFloor(ye2);
@@ -24530,8 +23648,7 @@
           t2 = xc;
         }
         t2.reverse();
-        for (; a2--; t2.push(0))
-          ;
+        for (; a2--; t2.push(0)) ;
         t2.reverse();
       }
       a2 = xc.length;
@@ -24556,24 +23673,18 @@
       var c2, n3, v2, x2 = this;
       if (sd != null && sd !== !!sd) {
         intCheck(sd, 1, MAX);
-        if (rm == null)
-          rm = ROUNDING_MODE;
-        else
-          intCheck(rm, 0, 8);
+        if (rm == null) rm = ROUNDING_MODE;
+        else intCheck(rm, 0, 8);
         return round(new BigNumber2(x2), sd, rm);
       }
-      if (!(c2 = x2.c))
-        return null;
+      if (!(c2 = x2.c)) return null;
       v2 = c2.length - 1;
       n3 = v2 * LOG_BASE + 1;
       if (v2 = c2[v2]) {
-        for (; v2 % 10 == 0; v2 /= 10, n3--)
-          ;
-        for (v2 = c2[0]; v2 >= 10; v2 /= 10, n3++)
-          ;
+        for (; v2 % 10 == 0; v2 /= 10, n3--) ;
+        for (v2 = c2[0]; v2 >= 10; v2 /= 10, n3++) ;
       }
-      if (sd && x2.e + 1 > n3)
-        n3 = x2.e + 1;
+      if (sd && x2.e + 1 > n3) n3 = x2.e + 1;
       return n3;
     };
     P2.shiftedBy = function(k2) {
@@ -24588,8 +23699,7 @@
       s2 = Math.sqrt(+valueOf(x2));
       if (s2 == 0 || s2 == 1 / 0) {
         n3 = coeffToString(c2);
-        if ((n3.length + e3) % 2 == 0)
-          n3 += "0";
+        if ((n3.length + e3) % 2 == 0) n3 += "0";
         s2 = Math.sqrt(+n3);
         e3 = bitFloor((e3 + 1) / 2) - (e3 < 0 || e3 % 2);
         if (s2 == 1 / 0) {
@@ -24605,14 +23715,12 @@
       if (r2.c[0]) {
         e3 = r2.e;
         s2 = e3 + dp;
-        if (s2 < 3)
-          s2 = 0;
+        if (s2 < 3) s2 = 0;
         for (; ; ) {
           t2 = r2;
           r2 = half.times(t2.plus(div(x2, t2, dp, 1)));
           if (coeffToString(t2.c).slice(0, s2) === (n3 = coeffToString(r2.c)).slice(0, s2)) {
-            if (r2.e < e3)
-              --s2;
+            if (r2.e < e3) --s2;
             n3 = n3.slice(s2 - 3, s2 + 1);
             if (n3 == "9999" || !rep && n3 == "4999") {
               if (!rep) {
@@ -24678,12 +23786,9 @@
         if (g1 > 0 && len > 0) {
           i3 = len % g1 || g1;
           intPart = intDigits.substr(0, i3);
-          for (; i3 < len; i3 += g1)
-            intPart += groupSeparator + intDigits.substr(i3, g1);
-          if (g22 > 0)
-            intPart += groupSeparator + intDigits.slice(i3);
-          if (isNeg)
-            intPart = "-" + intPart;
+          for (; i3 < len; i3 += g1) intPart += groupSeparator + intDigits.substr(i3, g1);
+          if (g22 > 0) intPart += groupSeparator + intDigits.slice(i3);
+          if (isNeg) intPart = "-" + intPart;
         }
         str = fractionPart ? intPart + (format3.decimalSeparator || "") + ((g22 = +format3.fractionGroupSize) ? fractionPart.replace(
           new RegExp("\\d{" + g22 + "}\\B", "g"),
@@ -24700,8 +23805,7 @@
           throw Error(bignumberError + "Argument " + (n3.isInteger() ? "out of range: " : "not an integer: ") + valueOf(n3));
         }
       }
-      if (!xc)
-        return new BigNumber2(x2);
+      if (!xc) return new BigNumber2(x2);
       d2 = new BigNumber2(ONE);
       n1 = d0 = new BigNumber2(ONE);
       d1 = n0 = new BigNumber2(ONE);
@@ -24716,8 +23820,7 @@
       for (; ; ) {
         q2 = div(n3, d2, 0, 1);
         d22 = d0.plus(q2.times(d1));
-        if (d22.comparedTo(md) == 1)
-          break;
+        if (d22.comparedTo(md) == 1) break;
         d0 = d1;
         d1 = d22;
         n1 = n0.plus(q2.times(d22 = n1));
@@ -24740,8 +23843,7 @@
       return +valueOf(this);
     };
     P2.toPrecision = function(sd, rm) {
-      if (sd != null)
-        intCheck(sd, 1, MAX);
+      if (sd != null) intCheck(sd, 1, MAX);
       return format2(this, sd, rm, 2);
     };
     P2.toString = function(b2) {
@@ -24749,8 +23851,7 @@
       if (e3 === null) {
         if (s2) {
           str = "Infinity";
-          if (s2 < 0)
-            str = "-" + str;
+          if (s2 < 0) str = "-" + str;
         } else {
           str = "NaN";
         }
@@ -24764,8 +23865,7 @@
           intCheck(b2, 2, ALPHABET.length, "Base");
           str = convertBase(toFixedPoint(coeffToString(n3.c), e3, "0"), 10, b2, s2, true);
         }
-        if (s2 < 0 && n3.c[0])
-          str = "-" + str;
+        if (s2 < 0 && n3.c[0]) str = "-" + str;
       }
       return str;
     };
@@ -24775,8 +23875,7 @@
     P2._isBigNumber = true;
     P2[Symbol.toStringTag] = "BigNumber";
     P2[Symbol.for("nodejs.util.inspect.custom")] = P2.valueOf;
-    if (configObject != null)
-      BigNumber2.set(configObject);
+    if (configObject != null) BigNumber2.set(configObject);
     return BigNumber2;
   }
   function bitFloor(n3) {
@@ -24788,34 +23887,25 @@
     for (; i3 < j2; ) {
       s2 = a2[i3++] + "";
       z2 = LOG_BASE - s2.length;
-      for (; z2--; s2 = "0" + s2)
-        ;
+      for (; z2--; s2 = "0" + s2) ;
       r2 += s2;
     }
-    for (j2 = r2.length; r2.charCodeAt(--j2) === 48; )
-      ;
+    for (j2 = r2.length; r2.charCodeAt(--j2) === 48; ) ;
     return r2.slice(0, j2 + 1 || 1);
   }
   function compare(x2, y2) {
     var a2, b2, xc = x2.c, yc = y2.c, i3 = x2.s, j2 = y2.s, k2 = x2.e, l2 = y2.e;
-    if (!i3 || !j2)
-      return null;
+    if (!i3 || !j2) return null;
     a2 = xc && !xc[0];
     b2 = yc && !yc[0];
-    if (a2 || b2)
-      return a2 ? b2 ? 0 : -j2 : i3;
-    if (i3 != j2)
-      return i3;
+    if (a2 || b2) return a2 ? b2 ? 0 : -j2 : i3;
+    if (i3 != j2) return i3;
     a2 = i3 < 0;
     b2 = k2 == l2;
-    if (!xc || !yc)
-      return b2 ? 0 : !xc ^ a2 ? 1 : -1;
-    if (!b2)
-      return k2 > l2 ^ a2 ? 1 : -1;
+    if (!xc || !yc) return b2 ? 0 : !xc ^ a2 ? 1 : -1;
+    if (!b2) return k2 > l2 ^ a2 ? 1 : -1;
     j2 = (k2 = xc.length) < (l2 = yc.length) ? k2 : l2;
-    for (i3 = 0; i3 < j2; i3++)
-      if (xc[i3] != yc[i3])
-        return xc[i3] > yc[i3] ^ a2 ? 1 : -1;
+    for (i3 = 0; i3 < j2; i3++) if (xc[i3] != yc[i3]) return xc[i3] > yc[i3] ^ a2 ? 1 : -1;
     return k2 == l2 ? 0 : k2 > l2 ^ a2 ? 1 : -1;
   }
   function intCheck(n3, min3, max3, name) {
@@ -24833,14 +23923,12 @@
   function toFixedPoint(str, e3, z2) {
     var len, zs;
     if (e3 < 0) {
-      for (zs = z2 + "."; ++e3; zs += z2)
-        ;
+      for (zs = z2 + "."; ++e3; zs += z2) ;
       str = zs + str;
     } else {
       len = str.length;
       if (++e3 > len) {
-        for (zs = z2, e3 -= len; --e3; zs += z2)
-          ;
+        for (zs = z2, e3 -= len; --e3; zs += z2) ;
         str += zs;
       } else if (e3 < len) {
         str = str.slice(0, e3) + "." + str.slice(e3);
@@ -24863,6 +23951,19 @@
   var SplayTreeSetNode = class extends SplayTreeNode {
     constructor(key) {
       super(key);
+    }
+  };
+  var SplayTreeMapNode = class _SplayTreeMapNode extends SplayTreeNode {
+    constructor(key, value) {
+      super(key);
+      __publicField(this, "value");
+      this.value = value;
+    }
+    replaceValue(value) {
+      const node = new _SplayTreeMapNode(this.key, value);
+      node.left = this.left;
+      node.right = this.right;
+      return node;
     }
   };
   var SplayTree = class {
@@ -25062,14 +24163,205 @@
       };
     }
   };
-  var _a;
-  var _SplayTreeSet = class _SplayTreeSet extends SplayTree {
+  var _a, _b;
+  var SplayTreeMap = class extends SplayTree {
     constructor(compare2, isValidKey) {
       super();
       __publicField(this, "root", null);
       __publicField(this, "compare");
       __publicField(this, "validKey");
-      __publicField(this, _a, "[object Set]");
+      __publicField(this, _a, "[object Map]");
+      this.compare = compare2 != null ? compare2 : this.defaultCompare();
+      this.validKey = isValidKey != null ? isValidKey : (a2) => a2 != null && a2 != void 0;
+    }
+    delete(key) {
+      if (!this.validKey(key))
+        return false;
+      return this._delete(key) != null;
+    }
+    forEach(f2) {
+      const nodes = new SplayTreeMapEntryIterableIterator(this.wrap());
+      let result;
+      while (result = nodes.next(), !result.done) {
+        f2(result.value[1], result.value[0], this);
+      }
+    }
+    get(key) {
+      if (!this.validKey(key))
+        return void 0;
+      if (this.root != null) {
+        const comp = this.splay(key);
+        if (comp == 0) {
+          return this.root.value;
+        }
+      }
+      return void 0;
+    }
+    hasValue(value) {
+      const initialSplayCount = this.splayCount;
+      const visit = (node) => {
+        while (node != null) {
+          if (node.value == value)
+            return true;
+          if (initialSplayCount != this.splayCount) {
+            throw "Concurrent modification during iteration.";
+          }
+          if (node.right != null && visit(node.right)) {
+            return true;
+          }
+          node = node.left;
+        }
+        return false;
+      };
+      return visit(this.root);
+    }
+    set(key, value) {
+      const comp = this.splay(key);
+      if (comp == 0) {
+        this.root = this.root.replaceValue(value);
+        this.splayCount += 1;
+        return this;
+      }
+      this.addNewRoot(new SplayTreeMapNode(key, value), comp);
+      return this;
+    }
+    setAll(other) {
+      other.forEach((value, key) => {
+        this.set(key, value);
+      });
+    }
+    setIfAbsent(key, ifAbsent) {
+      let comp = this.splay(key);
+      if (comp == 0) {
+        return this.root.value;
+      }
+      const modificationCount = this.modificationCount;
+      const splayCount = this.splayCount;
+      const value = ifAbsent();
+      if (modificationCount != this.modificationCount) {
+        throw "Concurrent modification during iteration.";
+      }
+      if (splayCount != this.splayCount) {
+        comp = this.splay(key);
+      }
+      this.addNewRoot(new SplayTreeMapNode(key, value), comp);
+      return value;
+    }
+    isEmpty() {
+      return this.root == null;
+    }
+    isNotEmpty() {
+      return !this.isEmpty();
+    }
+    firstKey() {
+      if (this.root == null)
+        return null;
+      return this._first().key;
+    }
+    lastKey() {
+      if (this.root == null)
+        return null;
+      return this._last().key;
+    }
+    lastKeyBefore(key) {
+      if (key == null)
+        throw "Invalid arguments(s)";
+      if (this.root == null)
+        return null;
+      const comp = this.splay(key);
+      if (comp < 0)
+        return this.root.key;
+      let node = this.root.left;
+      if (node == null)
+        return null;
+      let nodeRight = node.right;
+      while (nodeRight != null) {
+        node = nodeRight;
+        nodeRight = node.right;
+      }
+      return node.key;
+    }
+    firstKeyAfter(key) {
+      if (key == null)
+        throw "Invalid arguments(s)";
+      if (this.root == null)
+        return null;
+      const comp = this.splay(key);
+      if (comp > 0)
+        return this.root.key;
+      let node = this.root.right;
+      if (node == null)
+        return null;
+      let nodeLeft = node.left;
+      while (nodeLeft != null) {
+        node = nodeLeft;
+        nodeLeft = node.left;
+      }
+      return node.key;
+    }
+    update(key, update, ifAbsent) {
+      let comp = this.splay(key);
+      if (comp == 0) {
+        const modificationCount = this.modificationCount;
+        const splayCount = this.splayCount;
+        const newValue = update(this.root.value);
+        if (modificationCount != this.modificationCount) {
+          throw "Concurrent modification during iteration.";
+        }
+        if (splayCount != this.splayCount) {
+          this.splay(key);
+        }
+        this.root = this.root.replaceValue(newValue);
+        this.splayCount += 1;
+        return newValue;
+      }
+      if (ifAbsent != null) {
+        const modificationCount = this.modificationCount;
+        const splayCount = this.splayCount;
+        const newValue = ifAbsent();
+        if (modificationCount != this.modificationCount) {
+          throw "Concurrent modification during iteration.";
+        }
+        if (splayCount != this.splayCount) {
+          comp = this.splay(key);
+        }
+        this.addNewRoot(new SplayTreeMapNode(key, newValue), comp);
+        return newValue;
+      }
+      throw "Invalid argument (key): Key not in map.";
+    }
+    updateAll(update) {
+      const root3 = this.root;
+      if (root3 == null)
+        return;
+      const iterator = new SplayTreeMapEntryIterableIterator(this.wrap());
+      let node;
+      while (node = iterator.next(), !node.done) {
+        const newValue = update(...node.value);
+        iterator.replaceValue(newValue);
+      }
+    }
+    keys() {
+      return new SplayTreeKeyIterableIterator(this.wrap());
+    }
+    values() {
+      return new SplayTreeValueIterableIterator(this.wrap());
+    }
+    entries() {
+      return this[Symbol.iterator]();
+    }
+    [(_b = Symbol.iterator, _a = Symbol.toStringTag, _b)]() {
+      return new SplayTreeMapEntryIterableIterator(this.wrap());
+    }
+  };
+  var _a2, _b2;
+  var SplayTreeSet = class _SplayTreeSet extends SplayTree {
+    constructor(compare2, isValidKey) {
+      super();
+      __publicField(this, "root", null);
+      __publicField(this, "compare");
+      __publicField(this, "validKey");
+      __publicField(this, _a2, "[object Set]");
       this.compare = compare2 != null ? compare2 : this.defaultCompare();
       this.validKey = isValidKey != null ? isValidKey : (v2) => v2 != null && v2 != void 0;
     }
@@ -25256,12 +24548,10 @@
     values() {
       return this[Symbol.iterator]();
     }
-    [Symbol.iterator]() {
+    [(_b2 = Symbol.iterator, _a2 = Symbol.toStringTag, _b2)]() {
       return new SplayTreeKeyIterableIterator(this.wrap());
     }
   };
-  _a = Symbol.toStringTag;
-  var SplayTreeSet = _SplayTreeSet;
   var SplayTreeIterableIterator = class {
     constructor(tree) {
       __publicField(this, "tree");
@@ -25339,6 +24629,46 @@
   var SplayTreeSetEntryIterableIterator = class extends SplayTreeIterableIterator {
     getValue(node) {
       return [node.key, node.key];
+    }
+  };
+  var SplayTreeValueIterableIterator = class extends SplayTreeIterableIterator {
+    constructor(map2) {
+      super(map2);
+    }
+    getValue(node) {
+      return node.value;
+    }
+  };
+  var SplayTreeMapEntryIterableIterator = class extends SplayTreeIterableIterator {
+    constructor(map2) {
+      super(map2);
+    }
+    getValue(node) {
+      return [node.key, node.value];
+    }
+    replaceValue(value) {
+      if (this.modificationCount != this.tree.getModificationCount()) {
+        throw "Concurrent modification during iteration.";
+      }
+      if (this.splayCount != this.tree.getSplayCount()) {
+        this.rebuildPath(this.path[this.path.length - 1].key);
+      }
+      const last = this.path.pop();
+      const newLast = last.replaceValue(value);
+      if (!this.path.length) {
+        this.tree.setRoot(newLast);
+      } else {
+        const parent = this.path[this.path.length - 1];
+        if (last === parent.left) {
+          parent.left = newLast;
+        } else {
+          parent.right = newLast;
+        }
+      }
+      this.path.push(newLast);
+      const count = this.tree.getSplayCount() + 1;
+      this.tree.setSplayCount(count);
+      this.splayCount = count;
     }
   };
 
@@ -26265,7 +25595,7 @@
     }
     /* Returns the ring that encloses this one, if any */
     _calcEnclosingRing() {
-      var _a2, _b;
+      var _a3, _b3;
       let leftMostEvt = this.events[0];
       for (let i3 = 1, iMax = this.events.length; i3 < iMax; i3++) {
         const evt = this.events[i3];
@@ -26280,10 +25610,10 @@
         if (!prevPrevSeg)
           return prevSeg.ringOut;
         if (prevPrevSeg.ringOut !== prevSeg.ringOut) {
-          if (((_a2 = prevPrevSeg.ringOut) == null ? void 0 : _a2.enclosingRing()) !== prevSeg.ringOut) {
+          if (((_a3 = prevPrevSeg.ringOut) == null ? void 0 : _a3.enclosingRing()) !== prevSeg.ringOut) {
             return prevSeg.ringOut;
           } else
-            return (_b = prevSeg.ringOut) == null ? void 0 : _b.enclosingRing();
+            return (_b3 = prevSeg.ringOut) == null ? void 0 : _b3.enclosingRing();
         }
         prevSeg = prevPrevSeg.prevInResult();
         prevPrevSeg = prevSeg ? prevSeg.prevInResult() : null;
@@ -26333,7 +25663,7 @@
       return geom;
     }
     _composePolys(rings) {
-      var _a2;
+      var _a3;
       const polys = [];
       for (let i3 = 0, iMax = rings.length; i3 < iMax; i3++) {
         const ring = rings[i3];
@@ -26345,7 +25675,7 @@
           const enclosingRing = ring.enclosingRing();
           if (!(enclosingRing == null ? void 0 : enclosingRing.poly))
             polys.push(new PolyOut(enclosingRing));
-          (_a2 = enclosingRing == null ? void 0 : enclosingRing.poly) == null ? void 0 : _a2.addInterior(ring);
+          (_a3 = enclosingRing == null ? void 0 : enclosingRing.poly) == null ? void 0 : _a3.addInterior(ring);
         }
       }
       return polys;
@@ -26576,8 +25906,7 @@
           feature3.properties = feature3.properties || {};
           let props = feature3.properties;
           let id2 = feature3.id || props.id;
-          if (!id2 || !/^\S+\.geojson$/i.test(id2))
-            return;
+          if (!id2 || !/^\S+\.geojson$/i.test(id2)) return;
           id2 = id2.toLowerCase();
           feature3.id = id2;
           props.id = id2;
@@ -26654,8 +25983,7 @@
     //
     resolveLocation(location) {
       const valid = this.validateLocation(location);
-      if (!valid)
-        return null;
+      if (!valid) return null;
       const id2 = valid.id;
       if (this._cache[id2]) {
         return Object.assign(valid, { feature: this._cache[id2] });
@@ -26758,8 +26086,7 @@
     resolveLocationSet(locationSet) {
       locationSet = locationSet || {};
       const valid = this.validateLocationSet(locationSet);
-      if (!valid)
-        return null;
+      if (!valid) return null;
       const id2 = valid.id;
       if (this._cache[id2]) {
         return Object.assign(valid, { feature: this._cache[id2] });
@@ -26786,8 +26113,7 @@
     }
   };
   function _clip(features, which) {
-    if (!Array.isArray(features) || !features.length)
-      return null;
+    if (!Array.isArray(features) || !features.length) return null;
     const fn = { UNION: union, DIFFERENCE: difference }[which];
     const args = features.map((feature3) => feature3.geometry.coordinates);
     const coords = fn.apply(null, args);
@@ -26847,8 +26173,7 @@
      * @param  `obj`  Object to check, it should have `locationSet` property
      */
     _validateLocationSet(obj) {
-      if (obj.locationSetID)
-        return;
+      if (obj.locationSetID) return;
       try {
         let locationSet = obj.locationSet;
         if (!locationSet) {
@@ -26859,8 +26184,7 @@
         }
         const locationSetID = _loco.validateLocationSet(locationSet).id;
         obj.locationSetID = locationSetID;
-        if (this._knownLocationSets.has(locationSetID))
-          return;
+        if (this._knownLocationSets.has(locationSetID)) return;
         let area = 0;
         (locationSet.include || []).forEach((location) => {
           const locationID = _loco.validateLocation(location).id;
@@ -26909,8 +26233,7 @@
      */
     _resolveLocationSet(obj) {
       this._validateLocationSet(obj);
-      if (this._resolved.has(obj.locationSetID))
-        return;
+      if (this._resolved.has(obj.locationSetID)) return;
       try {
         const result = _loco.resolveLocationSet(obj.locationSet);
         const locationSetID = result.id;
@@ -26953,14 +26276,12 @@
      * @param  `fc`  FeatureCollection-like Object containing custom locations
      */
     mergeCustomGeoJSON(fc) {
-      if (!fc || fc.type !== "FeatureCollection" || !Array.isArray(fc.features))
-        return;
+      if (!fc || fc.type !== "FeatureCollection" || !Array.isArray(fc.features)) return;
       fc.features.forEach((feature3) => {
         feature3.properties = feature3.properties || {};
         let props = feature3.properties;
         let id2 = feature3.id || props.id;
-        if (!id2 || !/^\S+\.geojson$/i.test(id2))
-          return;
+        if (!id2 || !/^\S+\.geojson$/i.test(id2)) return;
         id2 = id2.toLowerCase();
         feature3.id = id2;
         props.id = id2;
@@ -26990,8 +26311,7 @@
      * @return  Promise resolved true (this function used to be slow/async, now it's faster and sync)
      */
     mergeLocationSets(objects) {
-      if (!Array.isArray(objects))
-        return Promise.reject("nothing to do");
+      if (!Array.isArray(objects)) return Promise.reject("nothing to do");
       objects.forEach((obj) => this._validateLocationSet(obj));
       this._rebuildIndex();
       return Promise.resolve(objects);
@@ -27052,8 +26372,7 @@
       const hits = this._wp(loc, true) || [];
       const thiz = this;
       hits.forEach((prop) => {
-        if (prop.id[0] !== "+")
-          return;
+        if (prop.id[0] !== "+") return;
         const locationSetID = prop.id;
         const area = thiz._knownLocationSets.get(locationSetID);
         if (area) {
@@ -27061,8 +26380,7 @@
         }
       });
       hits.forEach((prop) => {
-        if (prop.id[0] === "+")
-          return;
+        if (prop.id[0] === "+") return;
         const locationID = prop.id;
         const included = thiz._locationIncludedIn.get(locationID);
         (included || []).forEach((locationSetID) => {
@@ -27073,8 +26391,7 @@
         });
       });
       hits.forEach((prop) => {
-        if (prop.id[0] === "+")
-          return;
+        if (prop.id[0] === "+") return;
         const locationID = prop.id;
         const excluded = thiz._locationExcludedIn.get(locationID);
         (excluded || []).forEach((locationSetID) => {
@@ -28367,8 +27684,7 @@
   // modules/util/detect.js
   var _detected;
   function utilDetect(refresh2) {
-    if (_detected && !refresh2)
-      return _detected;
+    if (_detected && !refresh2) return _detected;
     _detected = {};
     const ua = navigator.userAgent;
     let m2 = null;
@@ -28397,8 +27713,7 @@
         _detected.browser = m2[1];
         _detected.version = m2[2];
         m2 = ua.match(/version\/([\.\d]+)/i);
-        if (m2 !== null)
-          _detected.version = m2[1];
+        if (m2 !== null) _detected.version = m2[1];
       }
     }
     if (!_detected.browser) {
@@ -28472,8 +27787,7 @@
   function utilCleanTags(tags) {
     var out = {};
     for (var k2 in tags) {
-      if (!k2)
-        continue;
+      if (!k2) continue;
       var v2 = tags[k2];
       if (v2 !== void 0) {
         out[k2] = cleanValue(k2, v2);
@@ -28487,8 +27801,7 @@
       function skip(k4) {
         return /^(description|note|fixme|inscription)$/.test(k4);
       }
-      if (skip(k3))
-        return v3;
+      if (skip(k3)) return v3;
       var cleaned = v3.split(";").map(function(s2) {
         return s2.trim();
       }).join(keepSpaces(k3) ? "; " : ";");
@@ -28540,24 +27853,19 @@
       var i3, binding;
       for (i3 = 0; i3 < bindings.length; i3++) {
         binding = bindings[i3];
-        if (!binding.event.modifiers.shiftKey)
-          continue;
-        if (!!binding.capture !== isCapturing)
-          continue;
+        if (!binding.event.modifiers.shiftKey) continue;
+        if (!!binding.capture !== isCapturing) continue;
         if (matches(d3_event, binding, true)) {
           binding.callback(d3_event);
           didMatch = true;
           break;
         }
       }
-      if (didMatch)
-        return;
+      if (didMatch) return;
       for (i3 = 0; i3 < bindings.length; i3++) {
         binding = bindings[i3];
-        if (binding.event.modifiers.shiftKey)
-          continue;
-        if (!!binding.capture !== isCapturing)
-          continue;
+        if (binding.event.modifiers.shiftKey) continue;
+        if (!!binding.capture !== isCapturing) continue;
         if (matches(d3_event, binding, false)) {
           binding.callback(d3_event);
           break;
@@ -28587,18 +27895,13 @@
         if (!isMatch && (tryKeyCode || binding2.event.modifiers.altKey)) {
           isMatch = event.keyCode === binding2.event.keyCode;
         }
-        if (!isMatch)
-          return false;
+        if (!isMatch) return false;
         if (!(event.ctrlKey && event.altKey)) {
-          if (event.ctrlKey !== binding2.event.modifiers.ctrlKey)
-            return false;
-          if (event.altKey !== binding2.event.modifiers.altKey)
-            return false;
+          if (event.ctrlKey !== binding2.event.modifiers.ctrlKey) return false;
+          if (event.altKey !== binding2.event.modifiers.altKey) return false;
         }
-        if (event.metaKey !== binding2.event.modifiers.metaKey)
-          return false;
-        if (testShift && event.shiftKey !== binding2.event.modifiers.shiftKey)
-          return false;
+        if (event.metaKey !== binding2.event.modifiers.metaKey) return false;
+        if (testShift && event.shiftKey !== binding2.event.modifiers.shiftKey) return false;
         return true;
       }
     }
@@ -28667,8 +27970,7 @@
         _keybindings[id2] = binding;
         var matches = arr[i3].toLowerCase().match(/(?:(?:[^+⇧⌃⌥⌘])+|[⇧⌃⌥⌘]|\+\+|^\+$)/g);
         for (var j2 = 0; j2 < matches.length; j2++) {
-          if (matches[j2] === "++")
-            matches[j2] = "+";
+          if (matches[j2] === "++") matches[j2] = "+";
           if (matches[j2] in utilKeybinding.modifierCodes) {
             var prop = utilKeybinding.modifierProperties[utilKeybinding.modifierCodes[matches[j2]]];
             binding.event.modifiers[prop] = true;
@@ -29030,18 +28332,15 @@
       document.cookie = name + "=1; expires=" + expires.toUTCString() + "; sameSite=strict";
     }
     mutex.lock = function() {
-      if (intervalID)
-        return true;
+      if (intervalID) return true;
       var cookie = document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + name + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1");
-      if (cookie)
-        return false;
+      if (cookie) return false;
       renew();
       intervalID = window.setInterval(renew, 4e3);
       return true;
     };
     mutex.unlock = function() {
-      if (!intervalID)
-        return;
+      if (!intervalID) return;
       document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; sameSite=strict";
       clearInterval(intervalID);
       intervalID = null;
@@ -29156,44 +28455,37 @@
       };
     };
     tiler9.tileSize = function(val) {
-      if (!arguments.length)
-        return _tileSize;
+      if (!arguments.length) return _tileSize;
       _tileSize = val;
       return tiler9;
     };
     tiler9.zoomExtent = function(val) {
-      if (!arguments.length)
-        return _zoomExtent;
+      if (!arguments.length) return _zoomExtent;
       _zoomExtent = val;
       return tiler9;
     };
     tiler9.size = function(val) {
-      if (!arguments.length)
-        return _size;
+      if (!arguments.length) return _size;
       _size = val;
       return tiler9;
     };
     tiler9.scale = function(val) {
-      if (!arguments.length)
-        return _scale;
+      if (!arguments.length) return _scale;
       _scale = val;
       return tiler9;
     };
     tiler9.translate = function(val) {
-      if (!arguments.length)
-        return _translate;
+      if (!arguments.length) return _translate;
       _translate = val;
       return tiler9;
     };
     tiler9.margin = function(val) {
-      if (!arguments.length)
-        return _margin;
+      if (!arguments.length) return _margin;
       _margin = +val;
       return tiler9;
     };
     tiler9.skipNullIsland = function(val) {
-      if (!arguments.length)
-        return _skipNullIsland;
+      if (!arguments.length) return _skipNullIsland;
       _skipNullIsland = val;
       return tiler9;
     };
@@ -29406,8 +28698,7 @@
     localizer.scriptNames = () => _scriptNames;
     let _preferredLocaleCodes = [];
     localizer.preferredLocaleCodes = function(codes) {
-      if (!arguments.length)
-        return _preferredLocaleCodes;
+      if (!arguments.length) return _preferredLocaleCodes;
       if (typeof codes === "string") {
         _preferredLocaleCodes = codes.split(/,|;| /gi).filter(Boolean);
       } else {
@@ -29417,8 +28708,7 @@
     };
     var _loadPromise;
     localizer.ensureLoaded = () => {
-      if (_loadPromise)
-        return _loadPromise;
+      if (_loadPromise) return _loadPromise;
       let filesToFetch = [
         "languages",
         // load the list of languages
@@ -29452,8 +28742,7 @@
           _localeCodes.slice(0, fullCoverageIndex + 1).forEach(function(code) {
             let scopeId = Object.keys(localeDirs)[i3];
             let directory = Object.values(localeDirs)[i3];
-            if (index[code])
-              loadStringsPromises.push(localizer.loadLocale(code, scopeId, directory));
+            if (index[code]) loadStringsPromises.push(localizer.loadLocale(code, scopeId, directory));
           });
         });
         return Promise.all(loadStringsPromises);
@@ -29466,19 +28755,16 @@
       let toUse = [];
       for (let i3 in requestedLocales) {
         let locale2 = requestedLocales[i3];
-        if (supportedLocales[locale2])
-          toUse.push(locale2);
+        if (supportedLocales[locale2]) toUse.push(locale2);
         if (locale2.includes("-")) {
           let langPart = locale2.split("-")[0];
-          if (supportedLocales[langPart])
-            toUse.push(langPart);
+          if (supportedLocales[langPart]) toUse.push(langPart);
         }
       }
       return utilArrayUniq(toUse);
     }
     function updateForCurrentLocale() {
-      if (!_localeCode)
-        return;
+      if (!_localeCode) return;
       _languageCode = _localeCode.split("-")[0];
       const currentData = _dataLocales[_localeCode] || _dataLocales[_languageCode];
       const hash = utilStringQs(window.location.hash);
@@ -29490,15 +28776,13 @@
         _textDirection = currentData && currentData.rtl ? "rtl" : "ltr";
       }
       let locale2 = _localeCode;
-      if (locale2.toLowerCase() === "en-us")
-        locale2 = "en";
+      if (locale2.toLowerCase() === "en-us") locale2 = "en";
       _languageNames = _localeStrings.general[locale2].languageNames || _localeStrings.general[_languageCode].languageNames;
       _scriptNames = _localeStrings.general[locale2].scriptNames || _localeStrings.general[_languageCode].scriptNames;
       _usesMetric = _localeCode.slice(-3).toLowerCase() !== "-us";
     }
     localizer.loadLocale = (locale2, scopeId, directory) => {
-      if (locale2.toLowerCase() === "en-us")
-        locale2 = "en";
+      if (locale2.toLowerCase() === "en-us") locale2 = "en";
       if (_localeStrings[scopeId] && _localeStrings[scopeId][locale2]) {
         return Promise.resolve(locale2);
       }
@@ -29508,8 +28792,7 @@
         fileMap[key] = "".concat(directory, "/").concat(locale2, ".min.json");
       }
       return _mainFileFetcher.get(key).then((d2) => {
-        if (!_localeStrings[scopeId])
-          _localeStrings[scopeId] = {};
+        if (!_localeStrings[scopeId]) _localeStrings[scopeId] = {};
         _localeStrings[scopeId][locale2] = d2[locale2];
         return locale2;
       });
@@ -29522,8 +28805,7 @@
       if (rules) {
         return rules.select(number3);
       }
-      if (number3 === 1)
-        return "one";
+      if (number3 === 1) return "one";
       return "other";
     }
     localizer.tInfo = function(origStringId, replacements, locale2) {
@@ -29537,8 +28819,7 @@
       locale2 = locale2 || _localeCode;
       let path = stringId.split(".").map((s2) => s2.replace(/<TX_DOT>/g, ".")).reverse();
       let stringsKey = locale2;
-      if (stringsKey.toLowerCase() === "en-us")
-        stringsKey = "en";
+      if (stringsKey.toLowerCase() === "en-us") stringsKey = "en";
       let result = _localeStrings && _localeStrings[scopeId] && _localeStrings[scopeId][stringsKey];
       while (result !== void 0 && path.length) {
         result = result[path.pop()];
@@ -29597,8 +28878,7 @@
         };
       }
       const missing = "Missing ".concat(locale2, " translation: ").concat(origStringId);
-      if (typeof console !== "undefined")
-        console.error(missing);
+      if (typeof console !== "undefined") console.error(missing);
       return {
         text: missing,
         locale: "en"
@@ -29639,8 +28919,7 @@
       if (_languageNames && _languageNames[code]) {
         return _languageNames[code];
       }
-      if (options2 && options2.localOnly)
-        return null;
+      if (options2 && options2.localOnly) return null;
       const langInfo = _dataLanguages[code];
       if (langInfo) {
         if (langInfo.nativeName) {
@@ -29672,11 +28951,9 @@
     };
     localizer.floatParser = (locale2) => {
       const polyfill = (string) => +string.trim();
-      if (!("Intl" in window && "NumberFormat" in Intl))
-        return polyfill;
+      if (!("Intl" in window && "NumberFormat" in Intl)) return polyfill;
       const format2 = new Intl.NumberFormat(locale2, { maximumFractionDigits: 20 });
-      if (!("formatToParts" in format2))
-        return polyfill;
+      if (!("formatToParts" in format2)) return polyfill;
       const parts = format2.formatToParts(-12345.6);
       const numerals = Array.from({ length: 10 }).map((_2, i3) => format2.format(i3));
       const index = new Map(numerals.map((d2, i3) => [d2, i3]));
@@ -29690,12 +28967,9 @@
       const getIndex = (d2) => index.get(d2);
       return (string) => {
         string = string.trim();
-        if (literal)
-          string = string.replace(literal, "");
-        if (group)
-          string = string.replace(group, "");
-        if (decimal)
-          string = string.replace(decimal, ".");
+        if (literal) string = string.replace(literal, "");
+        if (group) string = string.replace(group, "");
+        if (decimal) string = string.replace(decimal, ".");
         string = string.replace(numeral, getIndex);
         return string ? +string : NaN;
       };
@@ -29716,10 +28990,8 @@
       }
       return (string) => {
         string = string.trim();
-        if (literal)
-          string = string.replace(literal, "");
-        if (group)
-          string = string.replace(group, "");
+        if (literal) string = string.replace(literal, "");
+        if (group) string = string.replace(group, "");
         const parts = string.split(decimal || ".");
         return parts && parts[1] && parts[1].length || 0;
       };
@@ -29734,11 +29006,9 @@
     let _memo = {};
     _this.collection = collection;
     _this.item = (id2) => {
-      if (_memo[id2])
-        return _memo[id2];
+      if (_memo[id2]) return _memo[id2];
       const found = _this.collection.find((d2) => d2.id === id2);
-      if (found)
-        _memo[id2] = found;
+      if (found) _memo[id2] = found;
       return found;
     };
     _this.index = (id2) => _this.collection.findIndex((d2) => d2.id === id2);
@@ -29759,13 +29029,11 @@
     };
     _this.fallback = (geometry) => {
       let id2 = geometry;
-      if (id2 === "vertex")
-        id2 = "point";
+      if (id2 === "vertex") id2 = "point";
       return _this.item(id2);
     };
     _this.search = (value, geometry, loc) => {
-      if (!value)
-        return _this;
+      if (!value) return _this;
       value = value.toLowerCase().trim();
       function leading(a2) {
         const index = a2.indexOf(value);
@@ -29790,16 +29058,12 @@
             aCompare = findMatchingAlias([aCompare].concat(a2[aliasesProp]()));
             bCompare = findMatchingAlias([bCompare].concat(b2[aliasesProp]()));
           }
-          if (value === aCompare)
-            return -1;
-          if (value === bCompare)
-            return 1;
+          if (value === aCompare) return -1;
+          if (value === bCompare) return 1;
           let i3 = b2.originalScore - a2.originalScore;
-          if (i3 !== 0)
-            return i3;
+          if (i3 !== 0) return i3;
           i3 = aCompare.indexOf(value) - bCompare.indexOf(value);
-          if (i3 !== 0)
-            return i3;
+          if (i3 !== 0) return i3;
           return aCompare.length - bCompare.length;
         };
       }
@@ -29885,8 +29149,7 @@
     _this.searchNameStripped = () => {
       if (!_searchNameStripped) {
         _searchNameStripped = _this.searchName();
-        if (_searchNameStripped.normalize)
-          _searchNameStripped = _searchNameStripped.normalize("NFD");
+        if (_searchNameStripped.normalize) _searchNameStripped = _searchNameStripped.normalize("NFD");
         _searchNameStripped = _searchNameStripped.replace(/[\u0300-\u036f]/g, "");
       }
       return _searchNameStripped;
@@ -30062,8 +29325,7 @@
       return tagCount === 0 || tagCount === 1 && _this.tags.hasOwnProperty("area");
     };
     _this.addable = function(val) {
-      if (!arguments.length)
-        return _addable;
+      if (!arguments.length) return _addable;
       _addable = val;
       return _this;
     };
@@ -30162,8 +29424,7 @@
       }
       return utilArrayUniq(resolved);
       function inheritFields(parent, which2) {
-        if (!parent)
-          return [];
+        if (!parent) return [];
         if (which2 === "fields") {
           return parent.fields().filter(shouldInherit);
         } else if (which2 === "moreFields") {
@@ -30174,14 +29435,12 @@
       }
       function shouldInherit(f2) {
         if (f2.key && _this.tags[f2.key] !== void 0 && // inherit anyway if multiple values are allowed or just a checkbox
-        f2.type !== "multiCombo" && f2.type !== "semiCombo" && f2.type !== "manyCombo" && f2.type !== "check")
-          return false;
+        f2.type !== "multiCombo" && f2.type !== "semiCombo" && f2.type !== "manyCombo" && f2.type !== "check") return false;
         return true;
       }
     }
     function stripDiacritics(s2) {
-      if (s2.normalize)
-        s2 = s2.normalize("NFD");
+      if (s2.normalize) s2 = s2.normalize("NFD");
       s2 = s2.replace(/[\u0300-\u036f]/g, "");
       return s2;
     }
@@ -30215,8 +29474,7 @@
     let _geometryIndex = { point: {}, vertex: {}, line: {}, area: {}, relation: {} };
     let _loadPromise;
     _this.ensureLoaded = () => {
-      if (_loadPromise)
-        return _loadPromise;
+      if (_loadPromise) return _loadPromise;
       return _loadPromise = Promise.all([
         _mainFileFetcher.get("preset_categories"),
         _mainFileFetcher.get("preset_defaults"),
@@ -30242,8 +29500,7 @@
           let f2 = d2.fields[fieldID];
           if (f2) {
             f2 = presetField(fieldID, f2, _fields);
-            if (f2.locationSet)
-              newLocationSets.push(f2);
+            if (f2.locationSet) newLocationSets.push(f2);
             _fields[fieldID] = f2;
           } else {
             delete _fields[fieldID];
@@ -30256,8 +29513,7 @@
           if (p2) {
             const isAddable = !_addablePresetIDs || _addablePresetIDs.has(presetID);
             p2 = presetPreset(presetID, p2, isAddable, _fields, _presets);
-            if (p2.locationSet)
-              newLocationSets.push(p2);
+            if (p2.locationSet) newLocationSets.push(p2);
             _presets[presetID] = p2;
           } else {
             const existing = _presets[presetID];
@@ -30272,8 +29528,7 @@
           let c2 = d2.categories[categoryID];
           if (c2) {
             c2 = presetCategory(categoryID, c2, _presets);
-            if (c2.locationSet)
-              newLocationSets.push(c2);
+            if (c2.locationSet) newLocationSets.push(c2);
             _categories[categoryID] = c2;
           } else {
             delete _categories[categoryID];
@@ -30331,16 +29586,12 @@
       for (let k2 in tags) {
         let indexMatches = [];
         let valueIndex = keyIndex[k2];
-        if (!valueIndex)
-          continue;
+        if (!valueIndex) continue;
         let keyValueMatches = valueIndex[tags[k2]];
-        if (keyValueMatches)
-          indexMatches.push(...keyValueMatches);
+        if (keyValueMatches) indexMatches.push(...keyValueMatches);
         let keyStarMatches = valueIndex["*"];
-        if (keyStarMatches)
-          indexMatches.push(...keyStarMatches);
-        if (indexMatches.length === 0)
-          continue;
+        if (keyStarMatches) indexMatches.push(...keyStarMatches);
+        if (indexMatches.length === 0) continue;
         for (let i3 = 0; i3 < indexMatches.length; i3++) {
           const candidate = indexMatches[i3];
           const score = candidate.matchScore(tags);
@@ -30379,18 +29630,13 @@
       return bestMatch || _this.fallback(geometry);
     };
     _this.allowsVertex = (entity, resolver) => {
-      if (entity.type !== "node")
-        return false;
-      if (Object.keys(entity.tags).length === 0)
-        return true;
+      if (entity.type !== "node") return false;
+      if (Object.keys(entity.tags).length === 0) return true;
       return resolver.transient(entity, "vertexMatch", () => {
-        if (entity.isOnAddressLine(resolver))
-          return true;
+        if (entity.isOnAddressLine(resolver)) return true;
         const geometries = osmNodeGeometriesForTags(entity.tags);
-        if (geometries.vertex)
-          return true;
-        if (geometries.point)
-          return false;
+        if (geometries.vertex) return true;
+        if (geometries.point) return false;
         return true;
       });
     };
@@ -30408,10 +29654,8 @@
       presets.forEach((p2) => {
         const keys2 = p2.tags && Object.keys(p2.tags);
         const key = keys2 && keys2.length && keys2[0];
-        if (!key)
-          return;
-        if (ignore[key])
-          return;
+        if (!key) return;
+        if (ignore[key]) return;
         if (p2.geometry.indexOf("area") !== -1) {
           areaKeys[key] = areaKeys[key] || {};
         }
@@ -30431,12 +29675,10 @@
     };
     _this.lineTags = () => {
       return _this.collection.filter((lineTags, d2) => {
-        if (d2.suggestion || d2.replacement || d2.searchable === false)
-          return lineTags;
+        if (d2.suggestion || d2.replacement || d2.searchable === false) return lineTags;
         const keys2 = d2.tags && Object.keys(d2.tags);
         const key = keys2 && keys2.length && keys2[0];
-        if (!key)
-          return lineTags;
+        if (!key) return lineTags;
         if (d2.geometry.indexOf("line") !== -1) {
           lineTags[key] = lineTags[key] || [];
           lineTags[key].push(d2.tags);
@@ -30446,12 +29688,10 @@
     };
     _this.pointTags = () => {
       return _this.collection.reduce((pointTags, d2) => {
-        if (d2.suggestion || d2.replacement || d2.searchable === false)
-          return pointTags;
+        if (d2.suggestion || d2.replacement || d2.searchable === false) return pointTags;
         const keys2 = d2.tags && Object.keys(d2.tags);
         const key = keys2 && keys2.length && keys2[0];
-        if (!key)
-          return pointTags;
+        if (!key) return pointTags;
         if (d2.geometry.indexOf("point") !== -1) {
           pointTags[key] = pointTags[key] || {};
           pointTags[key][d2.tags[key]] = true;
@@ -30461,12 +29701,10 @@
     };
     _this.vertexTags = () => {
       return _this.collection.reduce((vertexTags, d2) => {
-        if (d2.suggestion || d2.replacement || d2.searchable === false)
-          return vertexTags;
+        if (d2.suggestion || d2.replacement || d2.searchable === false) return vertexTags;
         const keys2 = d2.tags && Object.keys(d2.tags);
         const key = keys2 && keys2.length && keys2[0];
-        if (!key)
-          return vertexTags;
+        if (!key) return vertexTags;
         if (d2.geometry.indexOf("vertex") !== -1) {
           vertexTags[key] = vertexTags[key] || {};
           vertexTags[key][d2.tags[key]] = true;
@@ -30485,8 +29723,7 @@
       if (_addablePresetIDs) {
         defaults = Array.from(_addablePresetIDs).map(function(id2) {
           var preset = _this.item(id2);
-          if (preset && preset.matchGeometry(geometry))
-            return preset;
+          if (preset && preset.matchGeometry(geometry)) return preset;
           return null;
         }).filter(Boolean);
       } else {
@@ -30502,20 +29739,16 @@
       return result;
     };
     _this.addablePresetIDs = function(val) {
-      if (!arguments.length)
-        return _addablePresetIDs;
-      if (Array.isArray(val))
-        val = new Set(val);
+      if (!arguments.length) return _addablePresetIDs;
+      if (Array.isArray(val)) val = new Set(val);
       _addablePresetIDs = val;
       if (_addablePresetIDs) {
         _this.collection.forEach((p2) => {
-          if (p2.addable)
-            p2.addable(_addablePresetIDs.has(p2.id));
+          if (p2.addable) p2.addable(_addablePresetIDs.has(p2.id));
         });
       } else {
         _this.collection.forEach((p2) => {
-          if (p2.addable)
-            p2.addable(true);
+          if (p2.addable) p2.addable(true);
         });
       }
       return _this;
@@ -30538,8 +29771,7 @@
     function ribbonItemForMinified(d2, source) {
       if (d2 && d2.pID) {
         const preset = _this.item(d2.pID);
-        if (!preset)
-          return null;
+        if (!preset) return null;
         return RibbonItem(preset, source);
       }
       return null;
@@ -30548,12 +29780,10 @@
       return ["point", "line", "area"].map((id2) => RibbonItem(_this.item(id2), "generic"));
     };
     _this.getAddable = () => {
-      if (!_addablePresetIDs)
-        return [];
+      if (!_addablePresetIDs) return [];
       return _addablePresetIDs.map((id2) => {
         const preset = _this.item(id2);
-        if (preset)
-          return RibbonItem(preset, "addable");
+        if (preset) return RibbonItem(preset, "addable");
         return null;
       }).filter(Boolean);
     };
@@ -30567,8 +29797,7 @@
       if (!_recents) {
         _recents = (JSON.parse(corePreferences("preset_recents")) || []).reduce((acc, d2) => {
           let item = ribbonItemForMinified(d2, "recent");
-          if (item && item.preset.addable())
-            acc.push(item);
+          if (item && item.preset.addable()) acc.push(item);
           return acc;
         }, []);
       }
@@ -30578,8 +29807,7 @@
       const recents = _this.getRecents();
       const beforeItem = _this.recentMatching(besidePreset);
       let toIndex = recents.indexOf(beforeItem);
-      if (after)
-        toIndex += 1;
+      if (after) toIndex += 1;
       const newItem = RibbonItem(preset, "recent");
       recents.splice(toIndex, 0, newItem);
       setRecents(recents);
@@ -30602,8 +29830,7 @@
       return null;
     };
     _this.moveItem = (items, fromIndex, toIndex) => {
-      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex >= items.length)
-        return null;
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= items.length || toIndex >= items.length) return null;
       items.splice(toIndex, 0, items.splice(fromIndex, 1)[0]);
       return items;
     };
@@ -30612,12 +29839,10 @@
       const fromIndex = recents.indexOf(item);
       const toIndex = recents.indexOf(beforeItem);
       const items = _this.moveItem(recents, fromIndex, toIndex);
-      if (items)
-        setRecents(items);
+      if (items) setRecents(items);
     };
     _this.setMostRecent = (preset) => {
-      if (preset.searchable === false)
-        return;
+      if (preset.searchable === false) return;
       let items = _this.getRecents();
       let item = _this.recentMatching(preset);
       if (item) {
@@ -30641,8 +29866,7 @@
       const favorites = _this.getFavorites();
       const beforeItem = _this.favoriteMatching(besidePreset);
       let toIndex = favorites.indexOf(beforeItem);
-      if (after)
-        toIndex += 1;
+      if (after) toIndex += 1;
       const newItem = RibbonItem(preset, "favorite");
       favorites.splice(toIndex, 0, newItem);
       setFavorites(favorites);
@@ -30677,8 +29901,7 @@
         }
         _favorites = rawFavorites.reduce((output, d2) => {
           const item = ribbonItemForMinified(d2, "favorite");
-          if (item && item.preset.addable())
-            output.push(item);
+          if (item && item.preset.addable()) output.push(item);
           return output;
         }, []);
       }
@@ -30751,8 +29974,7 @@
     return utilEntitySelector(Array.from(seen));
     function collectShallowDescendants(id2) {
       var entity = graph.hasEntity(id2);
-      if (!entity || entity.type !== "relation")
-        return;
+      if (!entity || entity.type !== "relation") return;
       entity.members.map(function(member) {
         return member.id;
       }).forEach(function(id3) {
@@ -30768,12 +29990,10 @@
     ids.forEach(collectDeepDescendants);
     return Array.from(seen);
     function collectDeepDescendants(id2) {
-      if (seen.has(id2))
-        return;
+      if (seen.has(id2)) return;
       seen.add(id2);
       var entity = graph.hasEntity(id2);
-      if (!entity || entity.type !== "relation")
-        return;
+      if (!entity || entity.type !== "relation") return;
       entity.members.map(function(member) {
         return member.id;
       }).forEach(collectDeepDescendants);
@@ -30786,17 +30006,14 @@
     ids.forEach(collectDeepDescendants);
     return utilEntitySelector(Array.from(returners));
     function collectDeepDescendants(id2) {
-      if (seen.has(id2))
-        return;
+      if (seen.has(id2)) return;
       seen.add(id2);
       if (!idsSet.has(id2)) {
         returners.add(id2);
       }
       var entity = graph.hasEntity(id2);
-      if (!entity || entity.type !== "relation")
-        return;
-      if (skipMultipolgonMembers && entity.isMultipolygon())
-        return;
+      if (!entity || entity.type !== "relation") return;
+      if (skipMultipolgonMembers && entity.isMultipolygon()) return;
       entity.members.map(function(member) {
         return member.id;
       }).forEach(collectDeepDescendants);
@@ -30811,12 +30028,10 @@
     ids.forEach(collectNodes);
     return Array.from(nodes);
     function collectNodes(id2) {
-      if (seen.has(id2))
-        return;
+      if (seen.has(id2)) return;
       seen.add(id2);
       var entity = graph.hasEntity(id2);
-      if (!entity)
-        return;
+      if (!entity) return;
       if (entity.type === "node") {
         nodes.add(entity);
       } else if (entity.type === "way") {
@@ -30831,8 +30046,7 @@
   function utilDisplayName(entity) {
     var localizedNameKey = "name:" + _mainLocalizer.languageCode().toLowerCase();
     var name = entity.tags[localizedNameKey] || entity.tags.name || "";
-    if (name)
-      return name;
+    if (name) return name;
     var tags = {
       direction: entity.tags.direction,
       from: entity.tags.from,
@@ -30929,14 +30143,12 @@
           }
         }
         var tagHash = key2 + "=" + value;
-        if (!tagCounts[tagHash])
-          tagCounts[tagHash] = 0;
+        if (!tagCounts[tagHash]) tagCounts[tagHash] = 0;
         tagCounts[tagHash] += 1;
       });
     });
     for (var key in tags) {
-      if (!Array.isArray(tags[key]))
-        continue;
+      if (!Array.isArray(tags[key])) continue;
       tags[key] = tags[key].sort(function(val12, val2) {
         var key2 = key2;
         var count2 = tagCounts[key2 + "=" + val2];
@@ -30954,8 +30166,7 @@
   }
   function utilStringQs(str) {
     var i3 = 0;
-    while (i3 < str.length && (str[i3] === "?" || str[i3] === "#"))
-      i3++;
+    while (i3 < str.length && (str[i3] === "?" || str[i3] === "#")) i3++;
     str = str.slice(i3);
     return str.split("&").reduce(function(obj, pair3) {
       var parts = pair3.split("=");
@@ -30978,8 +30189,7 @@
     var i3 = -1;
     var n3 = prefixes2.length;
     var s2 = document.body;
-    if (property in s2)
-      return property;
+    if (property in s2) return property;
     property = property.slice(0, 1).toUpperCase() + property.slice(1);
     while (++i3 < n3) {
       if (prefixes2[i3] + property in s2) {
@@ -31012,10 +30222,8 @@
   function utilEditDistance(a2, b2) {
     a2 = (0, import_diacritics.remove)(a2.toLowerCase());
     b2 = (0, import_diacritics.remove)(b2.toLowerCase());
-    if (a2.length === 0)
-      return b2.length;
-    if (b2.length === 0)
-      return a2.length;
+    if (a2.length === 0) return b2.length;
+    if (b2.length === 0) return a2.length;
     var matrix = [];
     var i3, j2;
     for (i3 = 0; i3 <= b2.length; i3++) {
@@ -31065,8 +30273,7 @@
         errors[i3] = err;
         results[i3] = data;
         remaining--;
-        if (!remaining)
-          callback(errors, results);
+        if (!remaining) callback(errors, results);
       });
     });
   }
@@ -31077,8 +30284,7 @@
     return index % length2;
   }
   function utilFunctor(value) {
-    if (typeof value === "function")
-      return value;
+    if (typeof value === "function") return value;
     return function() {
       return value;
     };
@@ -31119,16 +30325,11 @@
     return NaN;
   }
   function compareNumericIDs(left, right) {
-    if (isNaN(left) && isNaN(right))
-      return -1;
-    if (isNaN(left))
-      return 1;
-    if (isNaN(right))
-      return -1;
-    if (Math.sign(left) !== Math.sign(right))
-      return -Math.sign(left);
-    if (Math.sign(left) < 0)
-      return Math.sign(right - left);
+    if (isNaN(left) && isNaN(right)) return -1;
+    if (isNaN(left)) return 1;
+    if (isNaN(right)) return -1;
+    if (Math.sign(left) !== Math.sign(right)) return -Math.sign(left);
+    if (Math.sign(left) < 0) return Math.sign(right - left);
     return Math.sign(left - right);
   }
   function utilCompareIDs(left, right) {
@@ -31156,15 +30357,13 @@
       val = val.toString();
     }
     val = val.trim();
-    if (val.normalize)
-      val = val.normalize("NFC");
+    if (val.normalize) val = val.normalize("NFC");
     return utilUnicodeCharsTruncated(val, maxChars);
   }
 
   // modules/osm/entity.js
   function osmEntity(attrs) {
-    if (this instanceof osmEntity)
-      return;
+    if (this instanceof osmEntity) return;
     if (attrs && attrs.type) {
       return osmEntity[attrs.type].apply(this, arguments);
     } else if (attrs && attrs.id) {
@@ -31242,18 +30441,14 @@
       if (debug) {
         Object.freeze(this);
         Object.freeze(this.tags);
-        if (this.loc)
-          Object.freeze(this.loc);
-        if (this.nodes)
-          Object.freeze(this.nodes);
-        if (this.members)
-          Object.freeze(this.members);
+        if (this.loc) Object.freeze(this.loc);
+        if (this.nodes) Object.freeze(this.nodes);
+        if (this.members) Object.freeze(this.members);
       }
       return this;
     },
     copy: function(resolver, copies) {
-      if (copies[this.id])
-        return copies[this.id];
+      if (copies[this.id]) return copies[this.id];
       var copy2 = osmEntity(this, { id: void 0, user: void 0, version: void 0 });
       copies[this.id] = copy2;
       return copy2;
@@ -31310,32 +30505,24 @@
     },
     deprecatedTags: function(dataDeprecated) {
       var tags = this.tags;
-      if (Object.keys(tags).length === 0)
-        return [];
+      if (Object.keys(tags).length === 0) return [];
       var deprecated = [];
       dataDeprecated.forEach(function(d2) {
         var oldKeys = Object.keys(d2.old);
         if (d2.replace) {
           var hasExistingValues = Object.keys(d2.replace).some(function(replaceKey) {
-            if (!tags[replaceKey] || d2.old[replaceKey])
-              return false;
+            if (!tags[replaceKey] || d2.old[replaceKey]) return false;
             var replaceValue = d2.replace[replaceKey];
-            if (replaceValue === "*")
-              return false;
-            if (replaceValue === tags[replaceKey])
-              return false;
+            if (replaceValue === "*") return false;
+            if (replaceValue === tags[replaceKey]) return false;
             return true;
           });
-          if (hasExistingValues)
-            return;
+          if (hasExistingValues) return;
         }
         var matchesDeprecatedTags = oldKeys.every(function(oldKey) {
-          if (!tags[oldKey])
-            return false;
-          if (d2.old[oldKey] === "*")
-            return true;
-          if (d2.old[oldKey] === tags[oldKey])
-            return true;
+          if (!tags[oldKey]) return false;
+          if (d2.old[oldKey] === "*") return true;
+          if (d2.old[oldKey] === tags[oldKey]) return true;
           var vals = tags[oldKey].split(";").filter(Boolean);
           if (vals.length === 0) {
             return false;
@@ -31365,10 +30552,8 @@
 
   // modules/osm/lanes.js
   function osmLanes(entity) {
-    if (entity.type !== "way")
-      return null;
-    if (!entity.tags.highway)
-      return null;
+    if (entity.type !== "way") return null;
+    if (!entity.tags.highway) return null;
     var tags = entity.tags;
     var isOneWay = entity.isOneWay();
     var laneCount = getLaneCount(tags, isOneWay);
@@ -31463,11 +30648,9 @@
   }
   function parseMaxspeed(tags) {
     var maxspeed = tags.maxspeed;
-    if (!maxspeed)
-      return;
+    if (!maxspeed) return;
     var maxspeedRegex = /^([0-9][\.0-9]+?)(?:[ ]?(?:km\/h|kmh|kph|mph|knots))?$/;
-    if (!maxspeedRegex.test(maxspeed))
-      return;
+    if (!maxspeedRegex.test(maxspeed)) return;
     return parseInt(maxspeed, 10);
   }
   function parseLaneDirections(tags, isOneWay, laneCount) {
@@ -31503,8 +30686,7 @@
     };
   }
   function parseTurnLanes(tag2) {
-    if (!tag2)
-      return;
+    if (!tag2) return;
     var validValues = [
       "left",
       "slight_left",
@@ -31519,42 +30701,35 @@
       "none"
     ];
     return tag2.split("|").map(function(s2) {
-      if (s2 === "")
-        s2 = "none";
+      if (s2 === "") s2 = "none";
       return s2.split(";").map(function(d2) {
         return validValues.indexOf(d2) === -1 ? "unknown" : d2;
       });
     });
   }
   function parseMaxspeedLanes(tag2, maxspeed) {
-    if (!tag2)
-      return;
+    if (!tag2) return;
     return tag2.split("|").map(function(s2) {
-      if (s2 === "none")
-        return s2;
+      if (s2 === "none") return s2;
       var m2 = parseInt(s2, 10);
-      if (s2 === "" || m2 === maxspeed)
-        return null;
+      if (s2 === "" || m2 === maxspeed) return null;
       return isNaN(m2) ? "unknown" : m2;
     });
   }
   function parseMiscLanes(tag2) {
-    if (!tag2)
-      return;
+    if (!tag2) return;
     var validValues = [
       "yes",
       "no",
       "designated"
     ];
     return tag2.split("|").map(function(s2) {
-      if (s2 === "")
-        s2 = "no";
+      if (s2 === "") s2 = "no";
       return validValues.indexOf(s2) === -1 ? "unknown" : s2;
     });
   }
   function parseBicycleWay(tag2) {
-    if (!tag2)
-      return;
+    if (!tag2) return;
     var validValues = [
       "yes",
       "no",
@@ -31562,30 +30737,26 @@
       "lane"
     ];
     return tag2.split("|").map(function(s2) {
-      if (s2 === "")
-        s2 = "no";
+      if (s2 === "") s2 = "no";
       return validValues.indexOf(s2) === -1 ? "unknown" : s2;
     });
   }
   function mapToLanesObj(lanesObj, data, key) {
     if (data.forward) {
       data.forward.forEach(function(l2, i3) {
-        if (!lanesObj.forward[i3])
-          lanesObj.forward[i3] = {};
+        if (!lanesObj.forward[i3]) lanesObj.forward[i3] = {};
         lanesObj.forward[i3][key] = l2;
       });
     }
     if (data.backward) {
       data.backward.forEach(function(l2, i3) {
-        if (!lanesObj.backward[i3])
-          lanesObj.backward[i3] = {};
+        if (!lanesObj.backward[i3]) lanesObj.backward[i3] = {};
         lanesObj.backward[i3][key] = l2;
       });
     }
     if (data.unspecified) {
       data.unspecified.forEach(function(l2, i3) {
-        if (!lanesObj.unspecified[i3])
-          lanesObj.unspecified[i3] = {};
+        if (!lanesObj.unspecified[i3]) lanesObj.unspecified[i3] = {};
         lanesObj.unspecified[i3][key] = l2;
       });
     }
@@ -31605,8 +30776,7 @@
     type: "way",
     nodes: [],
     copy: function(resolver, copies) {
-      if (copies[this.id])
-        return copies[this.id];
+      if (copies[this.id]) return copies[this.id];
       var copy2 = osmEntity.prototype.copy.call(this, resolver, copies);
       var nodes = this.nodes.map(function(id2) {
         return resolver.entity(id2).copy(resolver, copies).id;
@@ -31637,41 +30807,26 @@
       return this.nodes.indexOf(node) >= 0;
     },
     affix: function(node) {
-      if (this.nodes[0] === node)
-        return "prefix";
-      if (this.nodes[this.nodes.length - 1] === node)
-        return "suffix";
+      if (this.nodes[0] === node) return "prefix";
+      if (this.nodes[this.nodes.length - 1] === node) return "suffix";
     },
     layer: function() {
       if (isFinite(this.tags.layer)) {
         return Math.max(-10, Math.min(+this.tags.layer, 10));
       }
-      if (this.tags.covered === "yes")
-        return -1;
-      if (this.tags.location === "overground")
-        return 1;
-      if (this.tags.location === "underground")
-        return -1;
-      if (this.tags.location === "underwater")
-        return -10;
-      if (this.tags.power === "line")
-        return 10;
-      if (this.tags.power === "minor_line")
-        return 10;
-      if (this.tags.aerialway)
-        return 10;
-      if (this.tags.bridge)
-        return 1;
-      if (this.tags.cutting)
-        return -1;
-      if (this.tags.tunnel)
-        return -1;
-      if (this.tags.waterway)
-        return -1;
-      if (this.tags.man_made === "pipeline")
-        return -10;
-      if (this.tags.boundary)
-        return -10;
+      if (this.tags.covered === "yes") return -1;
+      if (this.tags.location === "overground") return 1;
+      if (this.tags.location === "underground") return -1;
+      if (this.tags.location === "underwater") return -10;
+      if (this.tags.power === "line") return 10;
+      if (this.tags.power === "minor_line") return 10;
+      if (this.tags.aerialway) return 10;
+      if (this.tags.bridge) return 1;
+      if (this.tags.cutting) return -1;
+      if (this.tags.tunnel) return -1;
+      if (this.tags.waterway) return -1;
+      if (this.tags.man_made === "pipeline") return -10;
+      if (this.tags.boundary) return -10;
       return 0;
     },
     // the approximate width of the line based on its tags except its `width` tag
@@ -31733,8 +30888,7 @@
           var width = averageWidths[key][this.tags[key]];
           if (key === "highway") {
             var laneCount = this.tags.lanes && parseInt(this.tags.lanes, 10);
-            if (!laneCount)
-              laneCount = this.isOneWay() ? 1 : 2;
+            if (!laneCount) laneCount = this.isOneWay() ? 1 : 2;
             return width * laneCount;
           }
           return width;
@@ -31792,8 +30946,7 @@
       return this.nodes.length > 1 && this.first() === this.last();
     },
     isConvex: function(resolver) {
-      if (!this.isClosed() || this.isDegenerate())
-        return null;
+      if (!this.isClosed() || this.isDegenerate()) return null;
       var nodes = utilArrayUniq(resolver.childNodes(this));
       var coords = nodes.map(function(n3) {
         return n3.loc;
@@ -31820,10 +30973,8 @@
       return osmTagSuggestingArea(this.tags);
     },
     isArea: function() {
-      if (this.tags.area === "yes")
-        return true;
-      if (!this.isClosed() || this.tags.area === "no")
-        return false;
+      if (this.tags.area === "yes") return true;
+      if (!this.isClosed() || this.tags.area === "no") return false;
       return this.tagSuggestingArea() !== null;
     },
     isDegenerate: function() {
@@ -31832,10 +30983,8 @@
     areAdjacent: function(n1, n22) {
       for (var i3 = 0; i3 < this.nodes.length; i3++) {
         if (this.nodes[i3] === n1) {
-          if (this.nodes[i3 - 1] === n22)
-            return true;
-          if (this.nodes[i3 + 1] === n22)
-            return true;
+          if (this.nodes[i3 - 1] === n22) return true;
+          if (this.nodes[i3 + 1] === n22) return true;
         }
       }
       return false;
@@ -31877,8 +31026,7 @@
     },
     // If this way is not closed, append the beginning node to the end of the nodelist to close it.
     close: function() {
-      if (this.isClosed() || !this.nodes.length)
-        return this;
+      if (this.isClosed() || !this.nodes.length) return this;
       var nodes = this.nodes.slice();
       nodes = nodes.filter(noRepeatNodes);
       nodes.push(nodes[0]);
@@ -31886,8 +31034,7 @@
     },
     // If this way is closed, remove any connector nodes from the end of the nodelist to unclose it.
     unclose: function() {
-      if (!this.isClosed())
-        return this;
+      if (!this.isClosed()) return this;
       var nodes = this.nodes.slice();
       var connector = this.first();
       var i3 = nodes.length - 1;
@@ -31918,14 +31065,12 @@
         var i3 = 1;
         while (i3 < nodes.length && nodes.length > 2 && nodes[i3] === connector) {
           nodes.splice(i3, 1);
-          if (index > i3)
-            index--;
+          if (index > i3) index--;
         }
         i3 = nodes.length - 1;
         while (i3 > 0 && nodes.length > 1 && nodes[i3] === connector) {
           nodes.splice(i3, 1);
-          if (index > i3)
-            index--;
+          if (index > i3) index--;
           i3 = nodes.length - 1;
         }
       }
@@ -31951,14 +31096,12 @@
         var i3 = 1;
         while (i3 < nodes.length && nodes.length > 2 && nodes[i3] === connector) {
           nodes.splice(i3, 1);
-          if (index > i3)
-            index--;
+          if (index > i3) index--;
         }
         i3 = nodes.length - 1;
         while (i3 > 0 && nodes.length > 1 && nodes[i3] === connector) {
           nodes.splice(i3, 1);
-          if (index === i3)
-            index = 0;
+          if (index === i3) index = 0;
           i3 = nodes.length - 1;
         }
       }
@@ -32193,8 +31336,7 @@
       var wayMembers = [];
       for (i3 = 0; i3 < members.length; i3++) {
         item = members[i3];
-        if (item.index === -1)
-          continue;
+        if (item.index === -1) continue;
         wayMembers.push(utilObjectOmit(item, ["index"]));
       }
       var newMembers = PTv2members.concat(groups.node || [], wayMembers, groups.relation || []);
@@ -32273,10 +31415,8 @@
           newPreset.fields(loc).concat(newPreset.moreFields(loc)).filter((f2) => f2.matchGeometry(geometry)).map((f2) => f2.key).filter(Boolean).forEach((key) => preserveKeys.push(key));
         }
       }
-      if (oldPreset)
-        tags = oldPreset.unsetTags(tags, geometry, preserveKeys, false, loc);
-      if (newPreset)
-        tags = newPreset.setTags(tags, geometry, skipFieldDefaults, loc);
+      if (oldPreset) tags = oldPreset.unsetTags(tags, geometry, preserveKeys, false, loc);
+      if (newPreset) tags = newPreset.setTags(tags, geometry, skipFieldDefaults, loc);
       return graph.replace(entity.update({ tags }));
     };
   }
@@ -32367,8 +31507,7 @@
           }
         }
       }
-      if (val === "")
-        return [];
+      if (val === "") return [];
       var values = val.split(";");
       var results = [];
       values.forEach(function(v2) {
@@ -32381,8 +31520,7 @@
         }
         var lookBackward = this.tags["traffic_sign:backward"] || v2 === "backward" || v2 === "both" || v2 === "all";
         var lookForward = this.tags["traffic_sign:forward"] || v2 === "forward" || v2 === "both" || v2 === "all";
-        if (!lookForward && !lookBackward)
-          return;
+        if (!lookForward && !lookBackward) return;
         var nodeIds = {};
         resolver.parentWays(this).forEach(function(parent) {
           var nodes = parent.nodes;
@@ -32421,8 +31559,7 @@
         var parents = resolver.parentWays(this);
         if (parents.length > 1) {
           for (var i3 in parents) {
-            if (parents[i3].geometry(resolver) === "line" && parents[i3].hasInterestingTags())
-              return true;
+            if (parents[i3].geometry(resolver) === "line" && parents[i3].hasInterestingTags()) return true;
           }
         } else if (parents.length === 1) {
           var way = parents[0];
@@ -32471,8 +31608,7 @@
           }, this)
         }
       };
-      if (changeset_id)
-        r2.node["@changeset"] = changeset_id;
+      if (changeset_id) r2.node["@changeset"] = changeset_id;
       return r2;
     },
     asGeoJSON: function() {
@@ -32487,14 +31623,12 @@
   function actionCircularize(wayId, projection2, maxAngle) {
     maxAngle = (maxAngle || 20) * Math.PI / 180;
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var way = graph.entity(wayId);
       var origNodes = {};
       graph.childNodes(way).forEach(function(node2) {
-        if (!origNodes[node2.id])
-          origNodes[node2.id] = node2;
+        if (!origNodes[node2.id]) origNodes[node2.id] = node2;
       });
       if (!way.isConvex(graph)) {
         graph = action.makeConvex(graph);
@@ -32602,8 +31736,7 @@
           var parentWays = graph.parentWays(keyNodes[i3]);
           for (j2 = 0; j2 < parentWays.length; j2++) {
             var sharedWay = parentWays[j2];
-            if (sharedWay === way)
-              continue;
+            if (sharedWay === way) continue;
             if (sharedWay.areAdjacent(startNode.id, endNode.id)) {
               var startIndex2 = sharedWay.nodes.lastIndexOf(startNode.id);
               var endIndex2 = sharedWay.nodes.lastIndexOf(endNode.id);
@@ -32710,13 +31843,10 @@
   // modules/actions/delete_way.js
   function actionDeleteWay(wayID) {
     function canDeleteNode(node, graph) {
-      if (graph.parentWays(node).length || graph.parentRelations(node).length)
-        return false;
+      if (graph.parentWays(node).length || graph.parentRelations(node).length) return false;
       var geometries = osmNodeGeometriesForTags(node.tags);
-      if (geometries.point)
-        return false;
-      if (geometries.vertex)
-        return true;
+      if (geometries.point) return false;
+      if (geometries.vertex) return true;
       return !node.hasInterestingTags();
     }
     var action = function(graph) {
@@ -32830,8 +31960,7 @@
       survivor = graph.entity(utilOldestID(interestingIDs.length > 0 ? interestingIDs : nodeIDs));
       for (i3 = 0; i3 < nodeIDs.length; i3++) {
         node = graph.entity(nodeIDs[i3]);
-        if (node.id === survivor.id)
-          continue;
+        if (node.id === survivor.id) continue;
         parents = graph.parentWays(node);
         for (j2 = 0; j2 < parents.length; j2++) {
           graph = graph.replace(parents[j2].replaceNode(node.id, survivor.id));
@@ -32893,8 +32022,7 @@
       restrictionIDs = utilArrayUniq(restrictionIDs);
       for (i3 = 0; i3 < restrictionIDs.length; i3++) {
         relation = graph.entity(restrictionIDs[i3]);
-        if (!relation.isComplete(graph))
-          continue;
+        if (!relation.isComplete(graph)) continue;
         var memberWays = relation.members.filter(function(m2) {
           return m2.type === "way";
         }).map(function(m2) {
@@ -32978,8 +32106,7 @@
         for (j2 = 0; j2 < memberWays.length; j2++) {
           way = memberWays[j2].update({});
           for (k2 = 0; k2 < nodeIDs.length; k2++) {
-            if (nodeIDs[k2] === survivor.id)
-              continue;
+            if (nodeIDs[k2] === survivor.id) continue;
             if (way.areAdjacent(nodeIDs[k2], survivor.id)) {
               way = way.removeNode(nodeIDs[k2]);
             } else {
@@ -33002,8 +32129,7 @@
       }
       function collectNodes(member, collection) {
         var entity = graph.hasEntity(member.id);
-        if (!entity)
-          return;
+        if (!entity) return;
         var role2 = member.role || "";
         if (!collection[role2]) {
           collection[role2] = [];
@@ -33140,8 +32266,7 @@
     };
     action.disabled = function(graph) {
       var connections = action.connections(graph);
-      if (connections.length === 0)
-        return "not_connected";
+      if (connections.length === 0) return "not_connected";
       var parentWays = graph.parentWays(graph.entity(nodeId));
       var seenRelationIds = {};
       var sharedRelation;
@@ -33161,12 +32286,10 @@
           }
         });
       });
-      if (sharedRelation)
-        return "relation";
+      if (sharedRelation) return "relation";
     };
     action.limitWays = function(val) {
-      if (!arguments.length)
-        return wayIds;
+      if (!arguments.length) return wayIds;
       wayIds = val;
       return action;
     };
@@ -33223,8 +32346,7 @@
           continue;
         }
         if (isBuilding) {
-          if (buildingKeysToRetain.indexOf(key) !== -1 || key.match(/^building:.{1,}/) || key.match(/^roof:.{1,}/))
-            continue;
+          if (buildingKeysToRetain.indexOf(key) !== -1 || key.match(/^building:.{1,}/) || key.match(/^roof:.{1,}/)) continue;
         }
         if (isIndoorArea && key === "indoor") {
           continue;
@@ -33283,8 +32405,7 @@
       }) });
       graph = graph.replace(survivor);
       joined.forEach(function(way) {
-        if (way.id === survivorID)
-          return;
+        if (way.id === survivorID) return;
         graph.parentRelations(way).forEach(function(parent) {
           graph = graph.replace(parent.replaceMember(way, survivor));
         });
@@ -33293,18 +32414,15 @@
         graph = actionDeleteWay(way.id)(graph);
       });
       function checkForSimpleMultipolygon() {
-        if (!survivor.isClosed())
-          return;
+        if (!survivor.isClosed()) return;
         var multipolygons = graph.parentMultipolygons(survivor).filter(function(multipolygon2) {
           return multipolygon2.members.length === 1;
         });
-        if (multipolygons.length !== 1)
-          return;
+        if (multipolygons.length !== 1) return;
         var multipolygon = multipolygons[0];
         for (var key in survivor.tags) {
           if (multipolygon.tags[key] && // don't collapse if tags cannot be cleanly merged
-          multipolygon.tags[key] !== survivor.tags[key])
-            return;
+          multipolygon.tags[key] !== survivor.tags[key]) return;
         }
         survivor = survivor.mergeTags(multipolygon.tags);
         graph = graph.replace(survivor);
@@ -33493,8 +32611,7 @@
   // modules/actions/merge_nodes.js
   function actionMergeNodes(nodeIDs, loc) {
     function chooseLoc(graph) {
-      if (!nodeIDs.length)
-        return null;
+      if (!nodeIDs.length) return null;
       var sum = [0, 0];
       var interestingCount = 0;
       var interestingLoc;
@@ -33508,8 +32625,7 @@
       return interestingLoc || geoVecScale(sum, 1 / nodeIDs.length);
     }
     var action = function(graph) {
-      if (nodeIDs.length < 2)
-        return graph;
+      if (nodeIDs.length < 2) return graph;
       var toLoc = loc;
       if (!toLoc) {
         toLoc = chooseLoc(graph);
@@ -33523,12 +32639,10 @@
       return actionConnect(nodeIDs)(graph);
     };
     action.disabled = function(graph) {
-      if (nodeIDs.length < 2)
-        return "not_eligible";
+      if (nodeIDs.length < 2) return "not_eligible";
       for (var i3 = 0; i3 < nodeIDs.length; i3++) {
         var entity = graph.entity(nodeIDs[i3]);
-        if (entity.type !== "node")
-          return "not_eligible";
+        if (entity.type !== "node") return "not_eligible";
       }
       return actionConnect(nodeIDs).disabled(graph);
     };
@@ -33574,14 +32688,12 @@
         var groups = {};
         for (var i3 = 0; i3 < x2.length; i3++) {
           var tagName = Object.keys(x2[i3])[0];
-          if (!groups[tagName])
-            groups[tagName] = [];
+          if (!groups[tagName]) groups[tagName] = [];
           groups[tagName].push(x2[i3][tagName]);
         }
         var ordered = {};
         order.forEach(function(o2) {
-          if (groups[o2])
-            ordered[o2] = groups[o2];
+          if (groups[o2]) ordered[o2] = groups[o2];
         });
         return ordered;
       }
@@ -33599,8 +32711,7 @@
         var processing = [];
         var sorted = {};
         var relations = changes2.relation;
-        if (!relations)
-          return changes2;
+        if (!relations) return changes2;
         for (var i3 = 0; i3 < relations.length; i3++) {
           var relation = relations[i3];
           if (!sorted[relation["@id"]]) {
@@ -33696,16 +32807,14 @@
   osmRelation.creationOrder = function(a2, b2) {
     var aId = parseInt(osmEntity.id.toOSM(a2.id), 10);
     var bId = parseInt(osmEntity.id.toOSM(b2.id), 10);
-    if (aId < 0 || bId < 0)
-      return aId - bId;
+    if (aId < 0 || bId < 0) return aId - bId;
     return bId - aId;
   };
   Object.assign(osmRelation.prototype, {
     type: "relation",
     members: [],
     copy: function(resolver, copies) {
-      if (copies[this.id])
-        return copies[this.id];
+      if (copies[this.id]) return copies[this.id];
       var copy2 = osmEntity.prototype.copy.call(this, resolver, copies);
       var members = this.members.map(function(member) {
         return Object.assign({}, member, { id: resolver.entity(member.id).copy(resolver, copies).id });
@@ -33716,8 +32825,7 @@
     },
     extent: function(resolver, memo) {
       return resolver.transient(this, "extent", function() {
-        if (memo && memo[this.id])
-          return geoExtent();
+        if (memo && memo[this.id]) return geoExtent();
         memo = memo || {};
         memo[this.id] = true;
         var extent = geoExtent();
@@ -33815,8 +32923,7 @@
     // By default, adding a duplicate member (by id and role) is prevented.
     // Return an updated relation.
     replaceMember: function(needle, replacement, keepDuplicates) {
-      if (!this.memberById(needle.id))
-        return this;
+      if (!this.memberById(needle.id)) return this;
       var members = [];
       for (var i3 = 0; i3 < this.members.length; i3++) {
         var member = this.members[i3];
@@ -33899,8 +33006,7 @@
       return !!(this.tags.type && this.tags.type.match(/^restriction:?/));
     },
     isValidRestriction: function() {
-      if (!this.isRestriction())
-        return false;
+      if (!this.isRestriction()) return false;
       var froms = this.members.filter(function(m2) {
         return m2.role === "from";
       });
@@ -33910,24 +33016,18 @@
       var tos = this.members.filter(function(m2) {
         return m2.role === "to";
       });
-      if (froms.length !== 1 && this.tags.restriction !== "no_entry")
-        return false;
+      if (froms.length !== 1 && this.tags.restriction !== "no_entry") return false;
       if (froms.some(function(m2) {
         return m2.type !== "way";
-      }))
-        return false;
-      if (tos.length !== 1 && this.tags.restriction !== "no_exit")
-        return false;
+      })) return false;
+      if (tos.length !== 1 && this.tags.restriction !== "no_exit") return false;
       if (tos.some(function(m2) {
         return m2.type !== "way";
-      }))
-        return false;
-      if (vias.length === 0)
-        return false;
+      })) return false;
+      if (vias.length === 0) return false;
       if (vias.length > 1 && vias.some(function(m2) {
         return m2.type !== "way";
-      }))
-        return false;
+      })) return false;
       return true;
     },
     isConnectivity: function() {
@@ -34026,8 +33126,7 @@
 
   // modules/actions/split.js
   function actionSplit(nodeIds, newWayIds) {
-    if (typeof nodeIds === "string")
-      nodeIds = [nodeIds];
+    if (typeof nodeIds === "string") nodeIds = [nodeIds];
     var _wayIDs;
     var _keepHistoryOn = "longest";
     const circularJunctions = ["roundabout", "circular"];
@@ -34179,21 +33278,16 @@
     }
     function splitWayMember(graph, relationId, wayA, wayB) {
       function connects(way1, way2) {
-        if (way1.nodes.length < 2 || way2.nodes.length < 2)
-          return false;
+        if (way1.nodes.length < 2 || way2.nodes.length < 2) return false;
         if (circularJunctions.includes(way1.tags.junction) && way1.isClosed()) {
           return way1.nodes.some((nodeId) => nodeId === way2.nodes[0] || nodeId === way2.nodes[way2.nodes.length - 1]);
         } else if (circularJunctions.includes(way2.tags.junction) && way2.isClosed()) {
           return way2.nodes.some((nodeId) => nodeId === way1.nodes[0] || nodeId === way1.nodes[way1.nodes.length - 1]);
         }
-        if (way1.nodes[0] === way2.nodes[0])
-          return true;
-        if (way1.nodes[0] === way2.nodes[way2.nodes.length - 1])
-          return true;
-        if (way1.nodes[way1.nodes.length - 1] === way2.nodes[way2.nodes.length - 1])
-          return true;
-        if (way1.nodes[way1.nodes.length - 1] === way2.nodes[0])
-          return true;
+        if (way1.nodes[0] === way2.nodes[0]) return true;
+        if (way1.nodes[0] === way2.nodes[way2.nodes.length - 1]) return true;
+        if (way1.nodes[way1.nodes.length - 1] === way2.nodes[way2.nodes.length - 1]) return true;
+        if (way1.nodes[way1.nodes.length - 1] === way2.nodes[0]) return true;
         return false;
       }
       let relation = graph.entity(relationId);
@@ -34300,13 +33394,10 @@
       }
       return splittableParents;
       function isSplittable(parent) {
-        if (_wayIDs && _wayIDs.indexOf(parent.id) === -1)
-          return false;
-        if (parent.isClosed())
-          return true;
+        if (_wayIDs && _wayIDs.indexOf(parent.id) === -1) return false;
+        if (parent.isClosed()) return true;
         for (var i3 = 1; i3 < parent.nodes.length - 1; i3++) {
-          if (parent.nodes[i3] === nodeId)
-            return true;
+          if (parent.nodes[i3] === nodeId) return true;
         }
         return false;
       }
@@ -34350,14 +33441,12 @@
       }
     };
     action.limitWays = function(val) {
-      if (!arguments.length)
-        return _wayIDs;
+      if (!arguments.length) return _wayIDs;
       _wayIDs = val;
       return action;
     };
     action.keepHistoryOn = function(val) {
-      if (!arguments.length)
-        return _keepHistoryOn;
+      if (!arguments.length) return _keepHistoryOn;
       _keepHistoryOn = val;
       return action;
     };
@@ -34366,8 +33455,7 @@
 
   // modules/core/graph.js
   function coreGraph(other, mutable) {
-    if (!(this instanceof coreGraph))
-      return new coreGraph(other, mutable);
+    if (!(this instanceof coreGraph)) return new coreGraph(other, mutable);
     if (other instanceof coreGraph) {
       var base = other.base();
       this.entities = Object.assign(Object.create(base.entities), other.entities);
@@ -34443,16 +33531,13 @@
       });
     },
     childNodes: function(entity) {
-      if (this._childNodes[entity.id])
-        return this._childNodes[entity.id];
-      if (!entity.nodes)
-        return [];
+      if (this._childNodes[entity.id]) return this._childNodes[entity.id];
+      if (!entity.nodes) return [];
       var nodes = [];
       for (var i3 = 0; i3 < entity.nodes.length; i3++) {
         nodes[i3] = this.entity(entity.nodes[i3]);
       }
-      if (debug)
-        Object.freeze(nodes);
+      if (debug) Object.freeze(nodes);
       this._childNodes[entity.id] = nodes;
       return this._childNodes[entity.id];
     },
@@ -34472,8 +33557,7 @@
       var i3, j2, k2, id2;
       for (i3 = 0; i3 < entities.length; i3++) {
         var entity = entities[i3];
-        if (!entity.visible || !force && base.entities[entity.id])
-          continue;
+        if (!entity.visible || !force && base.entities[entity.id]) continue;
         base.entities[entity.id] = entity;
         this._updateCalculated(void 0, entity, base.parentWays, base.parentRels);
         if (entity.type === "way") {
@@ -34567,8 +33651,7 @@
       }
     },
     replace: function(entity) {
-      if (this.entities[entity.id] === entity)
-        return this;
+      if (this.entities[entity.id] === entity) return this;
       return this.update(function() {
         this._updateCalculated(this.entities[entity.id], entity);
         this.entities[entity.id] = entity;
@@ -34583,8 +33666,7 @@
     revert: function(id2) {
       var baseEntity = this.base().entities[id2];
       var headEntity = this.entities[id2];
-      if (headEntity === baseEntity)
-        return this;
+      if (headEntity === baseEntity) return this;
       return this.update(function() {
         this._updateCalculated(headEntity, baseEntity);
         delete this.entities[id2];
@@ -34595,8 +33677,7 @@
       for (var i3 = 0; i3 < arguments.length; i3++) {
         arguments[i3].call(graph, graph);
       }
-      if (this.frozen)
-        graph.frozen = true;
+      if (this.frozen) graph.frozen = true;
       return graph;
     },
     // Obliterates any existing entities
@@ -34628,8 +33709,7 @@
       });
     }
     function isRoad(way2) {
-      if (way2.isArea() || way2.isDegenerate())
-        return false;
+      if (way2.isArea() || way2.isDegenerate()) return false;
       var roads = {
         "motorway": true,
         "motorway_link": true,
@@ -34671,29 +33751,22 @@
       var hasWays = false;
       for (i3 = 0; i3 < checkWays.length; i3++) {
         way = checkWays[i3];
-        if (!isRoad(way) && !memberOfRestriction(way))
-          continue;
+        if (!isRoad(way) && !memberOfRestriction(way)) continue;
         ways.push(way);
         hasWays = true;
         nodes = utilArrayUniq(graph.childNodes(way));
         for (j2 = 0; j2 < nodes.length; j2++) {
           node = nodes[j2];
-          if (node === vertex)
-            continue;
-          if (vertices.indexOf(node) !== -1)
-            continue;
-          if (geoSphericalDistance(node.loc, startNode.loc) > maxDistance)
-            continue;
+          if (node === vertex) continue;
+          if (vertices.indexOf(node) !== -1) continue;
+          if (geoSphericalDistance(node.loc, startNode.loc) > maxDistance) continue;
           var hasParents = false;
           parents = graph.parentWays(node);
           for (k2 = 0; k2 < parents.length; k2++) {
             parent = parents[k2];
-            if (parent === way)
-              continue;
-            if (ways.indexOf(parent) !== -1)
-              continue;
-            if (!isRoad(parent))
-              continue;
+            if (parent === way) continue;
+            if (ways.indexOf(parent) !== -1) continue;
+            if (!isRoad(parent)) continue;
             hasParents = true;
             break;
           }
@@ -34856,25 +33929,21 @@
       ways
     };
     intersection2.turns = function(fromWayId, maxViaWay) {
-      if (!fromWayId)
-        return [];
-      if (!maxViaWay)
-        maxViaWay = 0;
+      if (!fromWayId) return [];
+      if (!maxViaWay) maxViaWay = 0;
       var vgraph2 = intersection2.graph;
       var keyVertexIds = intersection2.vertices.map(function(v2) {
         return v2.id;
       });
       var start2 = vgraph2.entity(fromWayId);
-      if (!start2 || !(start2.__from || start2.__via))
-        return [];
+      if (!start2 || !(start2.__from || start2.__via)) return [];
       var maxPathLength = maxViaWay * 2 + 3;
       var turns = [];
       step(start2);
       return turns;
       function step(entity, currPath, currRestrictions, matchedRestriction) {
         currPath = (currPath || []).slice();
-        if (currPath.length >= maxPathLength)
-          return;
+        if (currPath.length >= maxPathLength) return;
         currPath.push(entity.id);
         currRestrictions = (currRestrictions || []).slice();
         if (entity.type === "node") {
@@ -34889,10 +33958,8 @@
         var nextWays = [];
         for (i4 = 0; i4 < parents2.length; i4++) {
           var way2 = parents2[i4];
-          if (way2.__oneWay && way2.nodes[0] !== entity.id)
-            continue;
-          if (currPath.indexOf(way2.id) !== -1 && currPath.length >= 3)
-            continue;
+          if (way2.__oneWay && way2.nodes[0] !== entity.id) continue;
+          if (currPath.indexOf(way2.id) !== -1 && currPath.length >= 3) continue;
           var restrict = null;
           for (j3 = 0; j3 < currRestrictions.length; j3++) {
             var restriction = currRestrictions[j3];
@@ -34945,8 +34012,7 @@
                 restrict = { id: restriction.id, direct: false, from: f2.id, no: true, end: true };
               }
             }
-            if (restrict && restrict.direct)
-              break;
+            if (restrict && restrict.direct) break;
           }
           nextWays.push({ way: way2, restrict });
         }
@@ -34976,20 +34042,16 @@
             }
             turns.push(osmTurn(turn));
           }
-          if (currPath[0] === currPath[2])
-            return;
+          if (currPath[0] === currPath[2]) return;
         }
-        if (matchedRestriction && matchedRestriction.end)
-          return;
+        if (matchedRestriction && matchedRestriction.end) return;
         var n1 = vgraph2.entity(entity.first());
         var n22 = vgraph2.entity(entity.last());
         var dist = geoSphericalDistance(n1.loc, n22.loc);
         var nextNodes = [];
         if (currPath.length > 1) {
-          if (dist > maxDistance)
-            return;
-          if (!entity.__via)
-            return;
+          if (dist > maxDistance) return;
+          if (!entity.__via) return;
         }
         if (!entity.__oneWay && // bidirectional..
         keyVertexIds.indexOf(n1.id) !== -1 && // key vertex..
@@ -35002,22 +34064,18 @@
         }
         nextNodes.forEach(function(nextNode) {
           var fromRestrictions = vgraph2.parentRelations(entity).filter(function(r2) {
-            if (!r2.isRestriction())
-              return false;
+            if (!r2.isRestriction()) return false;
             var f2 = r2.memberByRole("from");
-            if (!f2 || f2.id !== entity.id)
-              return false;
+            if (!f2 || f2.id !== entity.id) return false;
             var isOnly = /^only_/.test(r2.tags.restriction);
-            if (!isOnly)
-              return true;
+            if (!isOnly) return true;
             var isOnlyVia = false;
             var v2 = r2.membersByRole("via");
             if (v2.length === 1 && v2[0].type === "node") {
               isOnlyVia = v2[0].id === nextNode.id;
             } else {
               for (var i5 = 0; i5 < v2.length; i5++) {
-                if (v2[i5].type !== "way")
-                  continue;
+                if (v2[i5].type !== "way") continue;
                 var viaWay = vgraph2.entity(v2[i5].id);
                 if (viaWay.first() === nextNode.id || viaWay.last() === nextNode.id) {
                   isOnlyVia = true;
@@ -35031,8 +34089,7 @@
         });
       }
       function pathToTurn(path) {
-        if (path.length < 3)
-          return;
+        if (path.length < 3) return;
         var fromWayId2, fromNodeId, fromVertexId;
         var toWayId, toNodeId, toVertexId;
         var viaWayIds, viaNodeId, isUturn;
@@ -35040,8 +34097,7 @@
         toWayId = path[path.length - 1];
         if (path.length === 3 && fromWayId2 === toWayId) {
           var way2 = vgraph2.entity(fromWayId2);
-          if (way2.__oneWay)
-            return null;
+          if (way2.__oneWay) return null;
           isUturn = true;
           viaNodeId = fromVertexId = toVertexId = path[1];
           fromNodeId = toNodeId = adjacentNode(fromWayId2, viaNodeId);
@@ -35138,8 +34194,7 @@
       }));
       var contained = polygons.map(function(w2, i3) {
         return polygons.map(function(d2, n3) {
-          if (i3 === n3)
-            return null;
+          if (i3 === n3) return null;
           return geoPolygonContainsPolygon(
             d2.nodes.map(function(n4) {
               return n4.loc;
@@ -35349,8 +34404,7 @@
       while (hunks.length) {
         const nextHunk = hunks[0];
         const nextHunkStart = nextHunk.oStart;
-        if (nextHunkStart > regionEnd)
-          break;
+        if (nextHunkStart > regionEnd) break;
         regionEnd = Math.max(regionEnd, nextHunkStart + nextHunk.oLength);
         regionHunks.push(hunks.shift());
       }
@@ -35411,12 +34465,9 @@
       stringSeparator: /\s+/
     };
     options2 = Object.assign(defaults, options2);
-    if (typeof a2 === "string")
-      a2 = a2.split(options2.stringSeparator);
-    if (typeof o2 === "string")
-      o2 = o2.split(options2.stringSeparator);
-    if (typeof b2 === "string")
-      b2 = b2.split(options2.stringSeparator);
+    if (typeof a2 === "string") a2 = a2.split(options2.stringSeparator);
+    if (typeof o2 === "string") o2 = o2.split(options2.stringSeparator);
+    if (typeof b2 === "string") b2 = b2.split(options2.stringSeparator);
     let results = [];
     const regions = diff3MergeRegions(a2, o2, b2);
     let okBuffer = [];
@@ -35427,11 +34478,9 @@
       okBuffer = [];
     }
     function isFalseConflict(a3, b3) {
-      if (a3.length !== b3.length)
-        return false;
+      if (a3.length !== b3.length) return false;
       for (let i3 = 0; i3 < a3.length; i3++) {
-        if (a3[i3] !== b3[i3])
-          return false;
+        if (a3[i3] !== b3[i3]) return false;
       }
       return true;
     }
@@ -35549,8 +34598,7 @@
           } else {
             _conflicts.push(_t.html("merge_remote_changes.conflict.deleted", { user: { html: user(remote.user) } }));
           }
-          if (_conflicts.length !== ccount)
-            break;
+          if (_conflicts.length !== ccount) break;
           updates.replacements.push(target);
         }
       }
@@ -35661,27 +34709,22 @@
     var _delta = tryDelta;
     function setupCache(graph) {
       function canMove(nodeID) {
-        if (moveIDs.indexOf(nodeID) !== -1)
-          return true;
+        if (moveIDs.indexOf(nodeID) !== -1) return true;
         var parents = graph.parentWays(graph.entity(nodeID));
-        if (parents.length < 3)
-          return true;
+        if (parents.length < 3) return true;
         var parentsMoving = parents.every(function(way) {
           return cache.moving[way.id];
         });
-        if (!parentsMoving)
-          delete cache.moving[nodeID];
+        if (!parentsMoving) delete cache.moving[nodeID];
         return parentsMoving;
       }
       function cacheEntities(ids) {
         for (var i3 = 0; i3 < ids.length; i3++) {
           var id2 = ids[i3];
-          if (cache.moving[id2])
-            continue;
+          if (cache.moving[id2]) continue;
           cache.moving[id2] = true;
           var entity = graph.hasEntity(id2);
-          if (!entity)
-            continue;
+          if (!entity) continue;
           if (entity.type === "node") {
             cache.nodes.push(id2);
             cache.startLoc[id2] = entity.loc;
@@ -35705,8 +34748,7 @@
           for (var j2 = 0; j2 < childNodes.length; j2++) {
             var node = childNodes[j2];
             var parents = graph.parentWays(node);
-            if (parents.length !== 2)
-              continue;
+            if (parents.length !== 2) continue;
             var moved = graph.entity(id2);
             var unmoved = null;
             for (var k2 = 0; k2 < parents.length; k2++) {
@@ -35716,12 +34758,9 @@
                 break;
               }
             }
-            if (!unmoved)
-              continue;
-            if (utilArrayIntersection(moved.nodes, unmoved.nodes).length > 2)
-              continue;
-            if (moved.isArea() || unmoved.isArea())
-              continue;
+            if (!unmoved) continue;
+            if (utilArrayIntersection(moved.nodes, unmoved.nodes).length > 2) continue;
+            if (moved.isArea() || unmoved.isArea()) continue;
             cache.intersections.push({
               nodeId: node.id,
               movedId: moved.id,
@@ -35764,8 +34803,7 @@
       }
       var prev = graph.hasEntity(way.nodes[prevIndex]);
       var next = graph.hasEntity(way.nodes[nextIndex]);
-      if (!prev || !next)
-        return graph;
+      if (!prev || !next) return graph;
       var key = wayId + "_" + nodeId;
       var orig = cache.replacedVertex[key];
       if (!orig) {
@@ -35782,15 +34820,13 @@
       }
       orig = orig.move(end);
       var angle2 = Math.abs(geoAngle(orig, prev, projection2) - geoAngle(orig, next, projection2)) * 180 / Math.PI;
-      if (angle2 > 175 && angle2 < 185)
-        return graph;
+      if (angle2 > 175 && angle2 < 185) return graph;
       var p1 = [prev.loc, orig.loc, moved.loc, next.loc].map(projection2);
       var p2 = [prev.loc, moved.loc, orig.loc, next.loc].map(projection2);
       var d1 = geoPathLength(p1);
       var d2 = geoPathLength(p2);
       var insertAt = d1 <= d2 ? movedIndex : nextIndex;
-      if (way.isClosed() && insertAt === 0)
-        insertAt = len;
+      if (way.isClosed() && insertAt === 0) insertAt = len;
       way = way.addNode(orig.id, insertAt);
       return graph.replace(orig).replace(way);
     }
@@ -35822,18 +34858,15 @@
       var way2 = graph.entity(intersection2.unmovedId);
       var isEP1 = intersection2.movedIsEP;
       var isEP2 = intersection2.unmovedIsEP;
-      if (isEP1 && isEP2)
-        return graph;
+      if (isEP1 && isEP2) return graph;
       var nodes1 = graph.childNodes(way1).filter(function(n3) {
         return n3 !== vertex;
       });
       var nodes2 = graph.childNodes(way2).filter(function(n3) {
         return n3 !== vertex;
       });
-      if (way1.isClosed() && way1.first() === vertex.id)
-        nodes1.push(nodes1[0]);
-      if (way2.isClosed() && way2.first() === vertex.id)
-        nodes2.push(nodes2[0]);
+      if (way1.isClosed() && way1.first() === vertex.id) nodes1.push(nodes1[0]);
+      if (way2.isClosed() && way2.first() === vertex.id) nodes2.push(nodes2[0]);
       var edge1 = !isEP1 && geoChooseEdge(nodes1, projection2(vertex.loc), projection2);
       var edge2 = !isEP2 && geoChooseEdge(nodes2, projection2(vertex.loc), projection2);
       var loc;
@@ -35843,8 +34876,7 @@
           loc = geoVecInterp(edge1.loc, edge2.loc, 0.5);
           edge1 = geoChooseEdge(nodes1, projection2(loc), projection2);
           edge2 = geoChooseEdge(nodes2, projection2(loc), projection2);
-          if (Math.abs(edge1.distance - edge2.distance) < epsilon3)
-            break;
+          if (Math.abs(edge1.distance - edge2.distance) < epsilon3) break;
         }
       } else if (!isEP1) {
         loc = edge1.loc;
@@ -35879,10 +34911,8 @@
       }
       for (var i3 = 0; i3 < cache.intersections.length; i3++) {
         var obj = cache.intersections[i3];
-        if (obj.movedIsEP && obj.unmovedIsEP)
-          continue;
-        if (!obj.movedIsEP)
-          continue;
+        if (obj.movedIsEP && obj.unmovedIsEP) continue;
+        if (!obj.movedIsEP) continue;
         var node = graph.entity(obj.nodeId);
         var start2 = projection2(node.loc);
         var end = geoVecAdd(start2, _delta);
@@ -35896,16 +34926,14 @@
         });
         var hits = geoPathIntersections(movedPath, unmovedPath);
         for (var j2 = 0; i3 < hits.length; i3++) {
-          if (geoVecEqual(hits[j2], end))
-            continue;
+          if (geoVecEqual(hits[j2], end)) continue;
           var edge = geoChooseEdge(unmovedNodes, end, projection2);
           _delta = geoVecSubtract(projection2(edge.loc), start2);
         }
       }
     }
     var action = function(graph) {
-      if (_delta[0] === 0 && _delta[1] === 0)
-        return graph;
+      if (_delta[0] === 0 && _delta[1] === 0) return graph;
       setupCache(graph);
       if (cache.intersections.length) {
         limitDelta(graph);
@@ -35937,8 +34965,7 @@
   // modules/actions/move_node.js
   function actionMoveNode(nodeID, toLoc) {
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var node = graph.entity(nodeID);
       return graph.replace(
@@ -35963,8 +34990,7 @@
     var lowerThreshold = Math.cos((90 - threshold) * Math.PI / 180);
     var upperThreshold = Math.cos(threshold * Math.PI / 180);
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var way = graph.entity(wayID);
       way = way.removeNode("");
@@ -35976,12 +35002,10 @@
       graph = graph.replace(way);
       var isClosed = way.isClosed();
       var nodes = graph.childNodes(way).slice();
-      if (isClosed)
-        nodes.pop();
+      if (isClosed) nodes.pop();
       if (vertexID !== void 0) {
         nodes = nodeSubset(nodes, vertexID, isClosed);
-        if (nodes.length !== 3)
-          return graph;
+        if (nodes.length !== 3) return graph;
       }
       var nodeCount = {};
       var points = [];
@@ -36041,8 +35065,7 @@
         var bestCoords = bestPoints.map(function(p2) {
           return p2.coord;
         });
-        if (isClosed)
-          bestCoords.push(bestCoords[0]);
+        if (isClosed) bestCoords.push(bestCoords[0]);
         for (i3 = 0; i3 < bestPoints.length; i3++) {
           point2 = bestPoints[i3];
           if (!geoVecEqual(originalPoints[i3].coord, point2.coord)) {
@@ -36053,8 +35076,7 @@
         }
         for (i3 = 0; i3 < straights.length; i3++) {
           point2 = straights[i3];
-          if (nodeCount[point2.id] > 1)
-            continue;
+          if (nodeCount[point2.id] > 1) continue;
           node = graph.entity(point2.id);
           if (t2 === 1 && graph.parentWays(node).length === 1 && graph.parentRelations(node).length === 0 && !node.hasInterestingTags()) {
             graph = actionDeleteNode(node.id)(graph);
@@ -36074,10 +35096,8 @@
         });
       }
       function calcMotion(point3, i4, array2) {
-        if (!isClosed && (i4 === 0 || i4 === array2.length - 1))
-          return [0, 0];
-        if (nodeCount[array2[i4].id] > 1)
-          return [0, 0];
+        if (!isClosed && (i4 === 0 || i4 === array2.length - 1)) return [0, 0];
+        if (nodeCount[array2[i4].id] > 1) return [0, 0];
         var a3 = array2[(i4 - 1 + array2.length) % array2.length].coord;
         var origin = point3.coord;
         var b3 = array2[(i4 + 1) % array2.length].coord;
@@ -36117,14 +35137,12 @@
       graph = graph.replace(way);
       var isClosed = way.isClosed();
       var nodes = graph.childNodes(way).slice();
-      if (isClosed)
-        nodes.pop();
+      if (isClosed) nodes.pop();
       var allowStraightAngles = false;
       if (vertexID !== void 0) {
         allowStraightAngles = true;
         nodes = nodeSubset(nodes, vertexID, isClosed);
-        if (nodes.length !== 3)
-          return "end_vertex";
+        if (nodes.length !== 3) return "end_vertex";
       }
       var coords = nodes.map(function(n3) {
         return projection2(n3.loc);
@@ -36251,8 +35269,7 @@
       return [p2, q2];
     }
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var nodes = nodeIDs.map(function(id2) {
         return graph.entity(id2);
@@ -36364,8 +35381,7 @@
       return graph.parentWays(node).length > 1 || graph.parentRelations(node).length || node.hasInterestingTags();
     }
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var nodes = allNodes(graph);
       var points = nodes.map(function(n3) {
@@ -36441,8 +35457,7 @@
   function actionReflect(reflectIds, projection2) {
     var _useLongAxis = true;
     var action = function(graph, t2) {
-      if (t2 === null || !isFinite(t2))
-        t2 = 1;
+      if (t2 === null || !isFinite(t2)) t2 = 1;
       t2 = Math.min(Math.max(+t2, 0), 1);
       var nodes = utilGetAllNodes(reflectIds, graph);
       var points = nodes.map(function(n3) {
@@ -36480,8 +35495,7 @@
       return graph;
     };
     action.useLongAxis = function(val) {
-      if (!arguments.length)
-        return _useLongAxis;
+      if (!arguments.length) return _useLongAxis;
       _useLongAxis = val;
       return action;
     };
@@ -36497,8 +35511,7 @@
       var transferValue;
       var semiIndex;
       for (var oldTagKey in oldTags) {
-        if (!(oldTagKey in tags))
-          continue;
+        if (!(oldTagKey in tags)) continue;
         if (oldTags[oldTagKey] === "*") {
           transferValue = tags[oldTagKey];
           delete tags[oldTagKey];
@@ -36594,16 +35607,14 @@
       select_default2(window).on(_pointerPrefix + "up.hover pointercancel.hover", pointerout, true).on("keydown.hover", keydown).on("keyup.hover", keyup);
       function eventTarget(d3_event) {
         var datum2 = d3_event.target && d3_event.target.__data__;
-        if (typeof datum2 !== "object")
-          return null;
+        if (typeof datum2 !== "object") return null;
         if (!(datum2 instanceof osmEntity) && datum2.properties && datum2.properties.entity instanceof osmEntity) {
           return datum2.properties.entity;
         }
         return datum2;
       }
       function pointerover(d3_event) {
-        if (context.mode().id.indexOf("drag") === -1 && (!d3_event.pointerType || d3_event.pointerType === "mouse") && d3_event.buttons)
-          return;
+        if (context.mode().id.indexOf("drag") === -1 && (!d3_event.pointerType || d3_event.pointerType === "mouse") && d3_event.buttons) return;
         var target = eventTarget(d3_event);
         if (target && _targets.indexOf(target) === -1) {
           _targets.push(target);
@@ -36678,14 +35689,12 @@
       select_default2(window).on(_pointerPrefix + "up.hover pointercancel.hover", null, true).on("keydown.hover", null).on("keyup.hover", null);
     };
     behavior.altDisables = function(val) {
-      if (!arguments.length)
-        return _altDisables;
+      if (!arguments.length) return _altDisables;
       _altDisables = val;
       return behavior;
     };
     behavior.ignoreVertex = function(val) {
-      if (!arguments.length)
-        return _ignoreVertex;
+      if (!arguments.length) return _ignoreVertex;
       _ignoreVertex = val;
       return behavior;
     };
@@ -36724,8 +35733,7 @@
     function datum2(d3_event) {
       var mode = context.mode();
       var isNote = mode && mode.id.indexOf("note") !== -1;
-      if (d3_event.altKey || isNote)
-        return {};
+      if (d3_event.altKey || isNote) return {};
       var element;
       if (d3_event.type === "keydown") {
         element = _lastMouse && _lastMouse.target;
@@ -36736,8 +35744,7 @@
       return d2 && d2.properties && d2.properties.target ? d2 : {};
     }
     function pointerdown(d3_event) {
-      if (_downPointer)
-        return;
+      if (_downPointer) return;
       var pointerLocGetter = utilFastMouse(this);
       _downPointer = {
         id: d3_event.pointerId || "mouse",
@@ -36748,13 +35755,11 @@
       dispatch14.call("down", this, d3_event, datum2(d3_event));
     }
     function pointerup(d3_event) {
-      if (!_downPointer || _downPointer.id !== (d3_event.pointerId || "mouse"))
-        return;
+      if (!_downPointer || _downPointer.id !== (d3_event.pointerId || "mouse")) return;
       var downPointer = _downPointer;
       _downPointer = null;
       _lastPointerUpEvent = d3_event;
-      if (downPointer.isCancelled)
-        return;
+      if (downPointer.isCancelled) return;
       var t2 = +/* @__PURE__ */ new Date();
       var p2 = downPointer.pointerLocGetter(d3_event);
       var dist = geoVecLength(downPointer.downLoc, p2);
@@ -36779,10 +35784,8 @@
           dispatch14.call("downcancel", this);
         }
       }
-      if (d3_event.pointerType && d3_event.pointerType !== "mouse" || d3_event.buttons || _downPointer)
-        return;
-      if (_lastPointerUpEvent && _lastPointerUpEvent.pointerType !== "mouse" && d3_event.timeStamp - _lastPointerUpEvent.timeStamp < 100)
-        return;
+      if (d3_event.pointerType && d3_event.pointerType !== "mouse" || d3_event.buttons || _downPointer) return;
+      if (_lastPointerUpEvent && _lastPointerUpEvent.pointerType !== "mouse" && d3_event.timeStamp - _lastPointerUpEvent.timeStamp < 100) return;
       _lastMouse = d3_event;
       dispatch14.call("move", this, d3_event, datum2(d3_event));
     }
@@ -36837,8 +35840,7 @@
           _disableSpace = false;
         }
       }
-      if (_disableSpace || _mouseLeave || !_lastMouse)
-        return;
+      if (_disableSpace || _mouseLeave || !_lastMouse) return;
       _lastSpace = currSpace;
       _disableSpace = true;
       select_default2(window).on("keyup.space-block", function() {
@@ -36929,18 +35931,15 @@
   }
   function clamper(a2, b2) {
     var t2;
-    if (a2 > b2)
-      t2 = a2, a2 = b2, b2 = t2;
+    if (a2 > b2) t2 = a2, a2 = b2, b2 = t2;
     return function(x2) {
       return Math.max(a2, Math.min(b2, x2));
     };
   }
   function bimap(domain, range3, interpolate) {
     var d0 = domain[0], d1 = domain[1], r0 = range3[0], r1 = range3[1];
-    if (d1 < d0)
-      d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
-    else
-      d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
+    if (d1 < d0) d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
+    else d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
     return function(x2) {
       return r0(d0(x2));
     };
@@ -36967,8 +35966,7 @@
     var domain = unit, range3 = unit, interpolate = value_default, transform2, untransform, unknown, clamp3 = identity3, piecewise, output, input;
     function rescale() {
       var n3 = Math.min(domain.length, range3.length);
-      if (clamp3 !== identity3)
-        clamp3 = clamper(domain[0], domain[n3 - 1]);
+      if (clamp3 !== identity3) clamp3 = clamper(domain[0], domain[n3 - 1]);
       piecewise = n3 > 2 ? polymap : bimap;
       output = input = null;
       return scale;
@@ -37011,8 +36009,7 @@
     return Math.abs(x2 = Math.round(x2)) >= 1e21 ? x2.toLocaleString("en").replace(/,/g, "") : x2.toString(10);
   }
   function formatDecimalParts(x2, p2) {
-    if ((i3 = (x2 = p2 ? x2.toExponential(p2 - 1) : x2.toExponential()).indexOf("e")) < 0)
-      return null;
+    if ((i3 = (x2 = p2 ? x2.toExponential(p2 - 1) : x2.toExponential()).indexOf("e")) < 0) return null;
     var i3, coefficient = x2.slice(0, i3);
     return [
       coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient,
@@ -37030,11 +36027,9 @@
     return function(value, width) {
       var i3 = value.length, t2 = [], j2 = 0, g3 = grouping[0], length2 = 0;
       while (i3 > 0 && g3 > 0) {
-        if (length2 + g3 + 1 > width)
-          g3 = Math.max(1, width - length2);
+        if (length2 + g3 + 1 > width) g3 = Math.max(1, width - length2);
         t2.push(value.substring(i3 -= g3, i3 + g3));
-        if ((length2 += g3 + 1) > width)
-          break;
+        if ((length2 += g3 + 1) > width) break;
         g3 = grouping[j2 = (j2 + 1) % grouping.length];
       }
       return t2.reverse().join(thousands);
@@ -37053,8 +36048,7 @@
   // node_modules/d3-format/src/formatSpecifier.js
   var re = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
   function formatSpecifier(specifier) {
-    if (!(match = re.exec(specifier)))
-      throw new Error("invalid format: " + specifier);
+    if (!(match = re.exec(specifier))) throw new Error("invalid format: " + specifier);
     var match;
     return new FormatSpecifier({
       fill: match[1],
@@ -37088,25 +36082,21 @@
 
   // node_modules/d3-format/src/formatTrim.js
   function formatTrim_default(s2) {
-    out:
-      for (var n3 = s2.length, i3 = 1, i0 = -1, i1; i3 < n3; ++i3) {
-        switch (s2[i3]) {
-          case ".":
-            i0 = i1 = i3;
-            break;
-          case "0":
-            if (i0 === 0)
-              i0 = i3;
-            i1 = i3;
-            break;
-          default:
-            if (!+s2[i3])
-              break out;
-            if (i0 > 0)
-              i0 = 0;
-            break;
-        }
+    out: for (var n3 = s2.length, i3 = 1, i0 = -1, i1; i3 < n3; ++i3) {
+      switch (s2[i3]) {
+        case ".":
+          i0 = i1 = i3;
+          break;
+        case "0":
+          if (i0 === 0) i0 = i3;
+          i1 = i3;
+          break;
+        default:
+          if (!+s2[i3]) break out;
+          if (i0 > 0) i0 = 0;
+          break;
       }
+    }
     return i0 > 0 ? s2.slice(0, i0) + s2.slice(i1 + 1) : s2;
   }
 
@@ -37114,8 +36104,7 @@
   var prefixExponent;
   function formatPrefixAuto_default(x2, p2) {
     var d2 = formatDecimalParts(x2, p2);
-    if (!d2)
-      return x2 + "";
+    if (!d2) return x2 + "";
     var coefficient = d2[0], exponent = d2[1], i3 = exponent - (prefixExponent = Math.max(-8, Math.min(8, Math.floor(exponent / 3))) * 3) + 1, n3 = coefficient.length;
     return i3 === n3 ? coefficient : i3 > n3 ? coefficient + new Array(i3 - n3 + 1).join("0") : i3 > 0 ? coefficient.slice(0, i3) + "." + coefficient.slice(i3) : "0." + new Array(1 - i3).join("0") + formatDecimalParts(x2, Math.max(0, p2 + i3 - 1))[0];
   }
@@ -37123,8 +36112,7 @@
   // node_modules/d3-format/src/formatRounded.js
   function formatRounded_default(x2, p2) {
     var d2 = formatDecimalParts(x2, p2);
-    if (!d2)
-      return x2 + "";
+    if (!d2) return x2 + "";
     var coefficient = d2[0], exponent = d2[1];
     return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1) : coefficient + new Array(exponent - coefficient.length + 2).join("0");
   }
@@ -37159,12 +36147,9 @@
     function newFormat(specifier) {
       specifier = formatSpecifier(specifier);
       var fill = specifier.fill, align = specifier.align, sign2 = specifier.sign, symbol = specifier.symbol, zero3 = specifier.zero, width = specifier.width, comma = specifier.comma, precision3 = specifier.precision, trim = specifier.trim, type2 = specifier.type;
-      if (type2 === "n")
-        comma = true, type2 = "g";
-      else if (!formatTypes_default[type2])
-        precision3 === void 0 && (precision3 = 12), trim = true, type2 = "g";
-      if (zero3 || fill === "0" && align === "=")
-        zero3 = true, fill = "0", align = "=";
+      if (type2 === "n") comma = true, type2 = "g";
+      else if (!formatTypes_default[type2]) precision3 === void 0 && (precision3 = 12), trim = true, type2 = "g";
+      if (zero3 || fill === "0" && align === "=") zero3 = true, fill = "0", align = "=";
       var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type2) ? "0" + type2.toLowerCase() : "", suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type2) ? percent : "";
       var formatType = formatTypes_default[type2], maybeSuffix = /[defgprs%]/.test(type2);
       precision3 = precision3 === void 0 ? 6 : /[gprs]/.test(type2) ? Math.max(1, Math.min(21, precision3)) : Math.max(0, Math.min(20, precision3));
@@ -37177,10 +36162,8 @@
           value = +value;
           var valueNegative = value < 0 || 1 / value < 0;
           value = isNaN(value) ? nan : formatType(Math.abs(value), precision3);
-          if (trim)
-            value = formatTrim_default(value);
-          if (valueNegative && +value === 0 && sign2 !== "+")
-            valueNegative = false;
+          if (trim) value = formatTrim_default(value);
+          if (valueNegative && +value === 0 && sign2 !== "+") valueNegative = false;
           valuePrefix = (valueNegative ? sign2 === "(" ? sign2 : minus : sign2 === "-" || sign2 === "(" ? "" : sign2) + valuePrefix;
           valueSuffix = (type2 === "s" ? prefixes[8 + prefixExponent / 3] : "") + valueSuffix + (valueNegative && sign2 === "(" ? ")" : "");
           if (maybeSuffix) {
@@ -37194,11 +36177,9 @@
             }
           }
         }
-        if (comma && !zero3)
-          value = group(value, Infinity);
+        if (comma && !zero3) value = group(value, Infinity);
         var length2 = valuePrefix.length + value.length + valueSuffix.length, padding = length2 < width ? new Array(width - length2 + 1).join(fill) : "";
-        if (comma && zero3)
-          value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
+        if (comma && zero3) value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
         switch (align) {
           case "<":
             value = valuePrefix + value + valueSuffix + padding;
@@ -37271,8 +36252,7 @@
     switch (specifier.type) {
       case "s": {
         var value = Math.max(Math.abs(start2), Math.abs(stop));
-        if (specifier.precision == null && !isNaN(precision3 = precisionPrefix_default(step, value)))
-          specifier.precision = precision3;
+        if (specifier.precision == null && !isNaN(precision3 = precisionPrefix_default(step, value))) specifier.precision = precision3;
         return formatPrefix(specifier, value);
       }
       case "":
@@ -37280,14 +36260,12 @@
       case "g":
       case "p":
       case "r": {
-        if (specifier.precision == null && !isNaN(precision3 = precisionRound_default(step, Math.max(Math.abs(start2), Math.abs(stop)))))
-          specifier.precision = precision3 - (specifier.type === "e");
+        if (specifier.precision == null && !isNaN(precision3 = precisionRound_default(step, Math.max(Math.abs(start2), Math.abs(stop))))) specifier.precision = precision3 - (specifier.type === "e");
         break;
       }
       case "f":
       case "%": {
-        if (specifier.precision == null && !isNaN(precision3 = precisionFixed_default(step)))
-          specifier.precision = precision3 - (specifier.type === "%") * 2;
+        if (specifier.precision == null && !isNaN(precision3 = precisionFixed_default(step))) specifier.precision = precision3 - (specifier.type === "%") * 2;
         break;
       }
     }
@@ -37306,8 +36284,7 @@
       return tickFormat(d2[0], d2[d2.length - 1], count == null ? 10 : count, specifier);
     };
     scale.nice = function(count) {
-      if (count == null)
-        count = 10;
+      if (count == null) count = 10;
       var d2 = domain();
       var i0 = 0;
       var i1 = d2.length - 1;
@@ -37359,8 +36336,7 @@
     function rescale() {
       var i3 = -1;
       domain = new Array(n3);
-      while (++i3 < n3)
-        domain[i3] = ((i3 + 1) * x12 - (i3 - n3) * x05) / (n3 + 1);
+      while (++i3 < n3) domain[i3] = ((i3 + 1) * x12 - (i3 - n3) * x05) / (n3 + 1);
       return scale;
     }
     scale.domain = function(_2) {
@@ -37516,18 +36492,15 @@
   function behaviorOperation(context) {
     var _operation;
     function keypress(d3_event) {
-      if (!context.map().withinEditableZoom())
-        return;
-      if (_operation.availableForKeypress && !_operation.availableForKeypress())
-        return;
+      if (!context.map().withinEditableZoom()) return;
+      if (_operation.availableForKeypress && !_operation.availableForKeypress()) return;
       d3_event.preventDefault();
       var disabled = _operation.disabled();
       if (disabled) {
         context.ui().flash.duration(4e3).iconName("#iD-operation-" + _operation.id).iconClass("operation disabled").label(_operation.tooltip())();
       } else {
         context.ui().flash.duration(2e3).iconName("#iD-operation-" + _operation.id).iconClass("operation").label(_operation.annotation() || _operation.title)();
-        if (_operation.point)
-          _operation.point(null);
+        if (_operation.point) _operation.point(null);
         _operation();
       }
     }
@@ -37541,8 +36514,7 @@
       context.keybinding().off(_operation.keys);
     };
     behavior.which = function(_2) {
-      if (!arguments.length)
-        return _operation;
+      if (!arguments.length) return _operation;
       _operation = _2;
       return behavior;
     };
@@ -37559,8 +36531,7 @@
     });
     function getAction(entityID) {
       var entity = context.entity(entityID);
-      if (entity.type !== "way" || new Set(entity.nodes).size <= 1)
-        return null;
+      if (entity.type !== "way" || new Set(entity.nodes).size <= 1) return null;
       if (!_extent) {
         _extent = entity.extent(context.graph());
       } else {
@@ -37569,8 +36540,7 @@
       return actionCircularize(entityID, context.projection);
     }
     var operation2 = function() {
-      if (!_actions.length)
-        return;
+      if (!_actions.length) return;
       var combinedAction = function(graph, t2) {
         _actions.forEach(function(action) {
           if (!action.disabled(graph)) {
@@ -37589,8 +36559,7 @@
       return _actions.length && selectedIDs.length === _actions.length;
     };
     operation2.disabled = function() {
-      if (!_actions.length)
-        return "";
+      if (!_actions.length) return "";
       var actionDisableds = _actions.map(function(action) {
         return action.disabled(context.graph());
       }).filter(Boolean);
@@ -37608,8 +36577,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = _coords.filter(function(loc) {
@@ -37646,8 +36614,7 @@
       return code;
     }
     if (detected.os === "win") {
-      if (code === "\u2318\u21E7Z")
-        return "Ctrl+Y";
+      if (code === "\u2318\u21E7Z") return "Ctrl+Y";
     }
     var result = "", replacements = {
       "\u2318": "Ctrl",
@@ -37666,8 +36633,7 @@
     return result;
   };
   uiCmd.display = function(code) {
-    if (code.length !== 1)
-      return code;
+    if (code.length !== 1) return code;
     var detected = utilDetect();
     var mac = detected.os === "mac";
     var replacements = {
@@ -37754,8 +36720,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = coords.filter(function(loc) {
@@ -37780,8 +36745,7 @@
       }
       function protectedMember(id2) {
         var entity = context.entity(id2);
-        if (entity.type !== "way")
-          return false;
+        if (entity.type !== "way") return false;
         var parents = context.graph().parentRelations(entity);
         for (var i3 = 0; i3 < parents.length; i3++) {
           var parent = parents[i3];
@@ -37826,13 +36790,11 @@
         _extent = _extent.extend(entity.extent(context.graph()));
       }
       if (entity.type === "way" && new Set(entity.nodes).size > 2) {
-        if (_type && _type !== "feature")
-          return null;
+        if (_type && _type !== "feature") return null;
         _type = "feature";
         return actionOrthogonalize(entityID, context.projection);
       } else if (geometry === "vertex") {
-        if (_type && _type !== "corner")
-          return null;
+        if (_type && _type !== "corner") return null;
         _type = "corner";
         var graph = context.graph();
         var parents = graph.parentWays(entity);
@@ -37846,8 +36808,7 @@
       return null;
     }
     var operation2 = function() {
-      if (!_actions.length)
-        return;
+      if (!_actions.length) return;
       var combinedAction = function(graph, t2) {
         _actions.forEach(function(action) {
           if (!action.disabled(graph)) {
@@ -37866,8 +36827,7 @@
       return _actions.length && selectedIDs.length === _actions.length;
     };
     operation2.disabled = function() {
-      if (!_actions.length)
-        return "";
+      if (!_actions.length) return "";
       var actionDisableds = _actions.map(function(action) {
         return action.disabled(context.graph());
       }).filter(Boolean);
@@ -37885,8 +36845,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = _coords.filter(function(loc) {
@@ -37953,8 +36912,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = coords.filter(function(loc) {
@@ -38014,8 +36972,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = coords.filter(function(loc) {
@@ -38092,8 +37049,7 @@
       }
       var currMouse = context.map().mouse(d3_event);
       var currAngle = Math.atan2(currMouse[1] - _pivot[1], currMouse[0] - _pivot[0]);
-      if (typeof _prevAngle === "undefined")
-        _prevAngle = currAngle;
+      if (typeof _prevAngle === "undefined") _prevAngle = currAngle;
       var delta = currAngle - _prevAngle;
       fn(actionRotate(entityIDs, _pivot, delta, projection2));
       _prevTransform = currTransform;
@@ -38122,8 +37078,7 @@
       context.enter(modeSelect(context, entityIDs));
     }
     function cancel() {
-      if (_prevGraph)
-        context.pop();
+      if (_prevGraph) context.pop();
       context.enter(modeSelect(context, entityIDs));
     }
     function undone() {
@@ -38138,15 +37093,13 @@
         downEvent = d3_event;
       });
       select_default2(window).on(_pointerPrefix + "move.modeRotate", doRotate, true).on(_pointerPrefix + "up.modeRotate", function(d3_event) {
-        if (!downEvent)
-          return;
+        if (!downEvent) return;
         var mapNode = context.container().select(".main-map").node();
         var pointGetter = utilFastMouse(mapNode);
         var p1 = pointGetter(downEvent);
         var p2 = pointGetter(d3_event);
         var dist = geoVecLength(p1, p2);
-        if (dist <= _tolerancePx)
-          finish(d3_event);
+        if (dist <= _tolerancePx) finish(d3_event);
         downEvent = null;
       }, true);
       context.history().on("undone.modeRotate", undone);
@@ -38162,8 +37115,7 @@
       context.features().forceVisible([]);
     };
     mode.selectedIDs = function() {
-      if (!arguments.length)
-        return entityIDs;
+      if (!arguments.length) return entityIDs;
       return mode;
     };
     return mode;
@@ -38195,8 +37147,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = coords.filter(function(loc) {
@@ -38271,8 +37222,7 @@
       _prevGraph = context.graph();
     }
     function startNudge(nudge) {
-      if (_nudgeInterval)
-        window.clearInterval(_nudgeInterval);
+      if (_nudgeInterval) window.clearInterval(_nudgeInterval);
       _nudgeInterval = window.setInterval(function() {
         context.map().pan(nudge);
         doMove(nudge);
@@ -38301,12 +37251,10 @@
     }
     function cancel() {
       if (baseGraph) {
-        while (context.graph() !== baseGraph)
-          context.pop();
+        while (context.graph() !== baseGraph) context.pop();
         context.enter(modeBrowse(context));
       } else {
-        if (_prevGraph)
-          context.pop();
+        if (_prevGraph) context.pop();
         context.enter(modeSelect(context, entityIDs));
       }
       stopNudge();
@@ -38325,15 +37273,13 @@
         downEvent = d3_event;
       });
       select_default2(window).on(_pointerPrefix + "move.modeMove", move, true).on(_pointerPrefix + "up.modeMove", function(d3_event) {
-        if (!downEvent)
-          return;
+        if (!downEvent) return;
         var mapNode = context.container().select(".main-map").node();
         var pointGetter = utilFastMouse(mapNode);
         var p1 = pointGetter(downEvent);
         var p2 = pointGetter(d3_event);
         var dist = geoVecLength(p1, p2);
-        if (dist <= _tolerancePx)
-          finish(d3_event);
+        if (dist <= _tolerancePx) finish(d3_event);
         downEvent = null;
       }, true);
       context.history().on("undone.modeMove", undone);
@@ -38352,8 +37298,7 @@
       context.features().forceVisible([]);
     };
     mode.selectedIDs = function() {
-      if (!arguments.length)
-        return entityIDs;
+      if (!arguments.length) return entityIDs;
       return mode;
     };
     return mode;
@@ -38362,18 +37307,15 @@
   // modules/behavior/paste.js
   function behaviorPaste(context) {
     function doPaste(d3_event) {
-      if (!context.map().withinEditableZoom())
-        return;
+      if (!context.map().withinEditableZoom()) return;
       d3_event.preventDefault();
       var baseGraph = context.graph();
       var mouse = context.map().mouse();
       var projection2 = context.projection;
       var viewport = geoExtent(projection2.clipExtent()).polygon();
-      if (!geoPointInPolygon(mouse, viewport))
-        return;
+      if (!geoPointInPolygon(mouse, viewport)) return;
       var oldIDs = context.copyIDs();
-      if (!oldIDs.length)
-        return;
+      if (!oldIDs.length) return;
       var extent = geoExtent();
       var oldGraph = context.copyGraph();
       var newIDs = [];
@@ -38433,8 +37375,7 @@
       };
     };
     function pointerdown(d3_event) {
-      if (_pointerId)
-        return;
+      if (_pointerId) return;
       _pointerId = d3_event.pointerId || "mouse";
       _targetNode = this;
       var pointerLocGetter = utilFastMouse(_surface || _targetNode.parentNode);
@@ -38451,14 +37392,12 @@
       }
       d3_event.stopPropagation();
       function pointermove(d3_event2) {
-        if (_pointerId !== (d3_event2.pointerId || "mouse"))
-          return;
+        if (_pointerId !== (d3_event2.pointerId || "mouse")) return;
         var p2 = pointerLocGetter(d3_event2);
         if (!started) {
           var dist = geoVecLength(startOrigin, p2);
           var tolerance = d3_event2.pointerType === "pen" ? _penTolerancePx : _tolerancePx;
-          if (dist < tolerance)
-            return;
+          if (dist < tolerance) return;
           started = true;
           dispatch14.call("start", this, d3_event2, _targetEntity);
         } else {
@@ -38471,8 +37410,7 @@
         }
       }
       function pointerup(d3_event2) {
-        if (_pointerId !== (d3_event2.pointerId || "mouse"))
-          return;
+        if (_pointerId !== (d3_event2.pointerId || "mouse")) return;
         _pointerId = null;
         if (started) {
           dispatch14.call("end", this, d3_event2, _targetEntity);
@@ -38504,14 +37442,12 @@
       selection2.on(_pointerPrefix + "down.drag" + _selector, null);
     };
     behavior.selector = function(_2) {
-      if (!arguments.length)
-        return _selector;
+      if (!arguments.length) return _selector;
       _selector = _2;
       return behavior;
     };
     behavior.origin = function(_2) {
-      if (!arguments.length)
-        return _origin;
+      if (!arguments.length) return _origin;
       _origin = _2;
       return behavior;
     };
@@ -38520,20 +37456,17 @@
       return behavior;
     };
     behavior.targetNode = function(_2) {
-      if (!arguments.length)
-        return _targetNode;
+      if (!arguments.length) return _targetNode;
       _targetNode = _2;
       return behavior;
     };
     behavior.targetEntity = function(_2) {
-      if (!arguments.length)
-        return _targetEntity;
+      if (!arguments.length) return _targetEntity;
       _targetEntity = _2;
       return behavior;
     };
     behavior.surface = function(_2) {
-      if (!arguments.length)
-        return _surface;
+      if (!arguments.length) return _surface;
       _surface = _2;
       return behavior;
     };
@@ -38556,8 +37489,7 @@
     var _startLoc;
     var _lastLoc;
     function startNudge(d3_event, entity, nudge) {
-      if (_nudgeInterval)
-        window.clearInterval(_nudgeInterval);
+      if (_nudgeInterval) window.clearInterval(_nudgeInterval);
       _nudgeInterval = window.setInterval(function() {
         context.map().pan(nudge);
         doMove(d3_event, entity, nudge);
@@ -38589,8 +37521,7 @@
       return _t("operations.connect.annotation.from_" + nodeGeometry + ".to_" + targetGeometry);
     }
     function shouldSnapToNode(target) {
-      if (!_activeEntity)
-        return false;
+      if (!_activeEntity) return false;
       return _activeEntity.geometry(context.graph()) !== "vertex" || (target.geometry(context.graph()) === "vertex" || _mainPresetIndex.allowsVertex(target, context.graph()));
     }
     function origin(entity) {
@@ -38725,8 +37656,7 @@
         var activeIndex = null;
         var relations = graph.parentRelations(parent);
         for (j2 = 0; j2 < relations.length; j2++) {
-          if (!relations[j2].isMultipolygon())
-            continue;
+          if (!relations[j2].isMultipolygon()) continue;
           var rings = osmJoinWays(relations[j2].members, graph);
           for (k2 = 0; k2 < rings.length; k2++) {
             nodes = rings[k2].nodes;
@@ -38743,8 +37673,7 @@
             });
           }
           for (k2 = 0; k2 < rings.length; k2++) {
-            if (k2 === activeIndex)
-              continue;
+            if (k2 === activeIndex) continue;
             if (geoHasLineIntersections(rings[activeIndex].nodes, rings[k2].nodes, entity.id)) {
               return "multipolygonRing";
             }
@@ -38762,8 +37691,7 @@
       return false;
     }
     function move(d3_event, entity, point2) {
-      if (_isCancelled)
-        return;
+      if (_isCancelled) return;
       d3_event.stopPropagation();
       context.surface().classed("nope-disabled", d3_event.altKey);
       _lastLoc = context.projection.invert(point2);
@@ -38776,8 +37704,7 @@
       }
     }
     function end(d3_event, entity) {
-      if (_isCancelled)
-        return;
+      if (_isCancelled) return;
       var wasPoint = entity.geometry(context.graph()) === "point";
       var d2 = datum2(d3_event);
       var nope = d2 && d2.properties && d2.properties.nope || context.surface().classed("nope");
@@ -38827,8 +37754,7 @@
     function _actionBounceBack(nodeID, toLoc) {
       var moveNode = actionMoveNode(nodeID, toLoc);
       var action = function(graph, t2) {
-        if (t2 === 1)
-          context.pop();
+        if (t2 === 1) context.pop();
         return moveNode(graph, t2);
       };
       action.transitionable = true;
@@ -38856,18 +37782,15 @@
       stopNudge();
     };
     mode.selectedIDs = function() {
-      if (!arguments.length)
-        return _activeEntity ? [_activeEntity.id] : [];
+      if (!arguments.length) return _activeEntity ? [_activeEntity.id] : [];
       return mode;
     };
     mode.activeID = function() {
-      if (!arguments.length)
-        return _activeEntity && _activeEntity.id;
+      if (!arguments.length) return _activeEntity && _activeEntity.id;
       return mode;
     };
     mode.restoreSelectedIDs = function(_2) {
-      if (!arguments.length)
-        return _restoreSelectedIDs;
+      if (!arguments.length) return _restoreSelectedIDs;
       _restoreSelectedIDs = _2;
       return mode;
     };
@@ -38880,8 +37803,7 @@
 
   // node_modules/d3-fetch/src/text.js
   function responseText(response) {
-    if (!response.ok)
-      throw new Error(response.status + " " + response.statusText);
+    if (!response.ok) throw new Error(response.status + " " + response.statusText);
     return response.text();
   }
   function text_default3(input, init2) {
@@ -38890,10 +37812,8 @@
 
   // node_modules/d3-fetch/src/json.js
   function responseJson(response) {
-    if (!response.ok)
-      throw new Error(response.status + " " + response.statusText);
-    if (response.status === 204 || response.status === 205)
-      return;
+    if (!response.ok) throw new Error(response.status + " " + response.statusText);
+    if (response.status === 204 || response.status === 205) return;
     return response.json();
   }
   function json_default(input, init2) {
@@ -39013,8 +37933,7 @@
     }
   }
   function tokenReplacements(d2) {
-    if (!(d2 instanceof QAItem))
-      return;
+    if (!(d2 instanceof QAItem)) return;
     const replacements = {};
     const issueTemplate = _krData.errorTypes[d2.whichType];
     if (!issueTemplate) {
@@ -39022,8 +37941,7 @@
       console.log("  ", d2.description);
       return;
     }
-    if (!issueTemplate.regex)
-      return;
+    if (!issueTemplate.regex) return;
     const errorRegex = new RegExp(issueTemplate.regex, "i");
     const errorMatch = errorRegex.exec(d2.description);
     if (!errorMatch) {
@@ -39129,8 +38047,7 @@
       return newList.join(", ");
     }
     function parse370(capture2) {
-      if (!capture2)
-        return "";
+      if (!capture2) return "";
       const match = capture2.match(/\(including the name (\'.+\')\)/);
       if (match && match.length) {
         return _t("QA.keepRight.errorTypes.370.including_the_name", { name: match[1] });
@@ -39178,8 +38095,7 @@
       const tiles = tiler.zoomExtent([_tileZoom, _tileZoom]).getTiles(projection2);
       abortUnwantedRequests(_cache, tiles);
       tiles.forEach((tile) => {
-        if (_cache.loadedTile[tile.id] || _cache.inflightTile[tile.id])
-          return;
+        if (_cache.loadedTile[tile.id] || _cache.inflightTile[tile.id]) return;
         const [left, top, right, bottom] = tile.extent.rectangle();
         const params = Object.assign({}, options2, { left, bottom, right, top });
         const url = "".concat(_krUrlRoot, "/export.php?") + utilQsString(params);
@@ -39292,8 +38208,7 @@
             newState: void 0
           }));
         }
-        if (callback)
-          callback(null, d2);
+        if (callback) callback(null, d2);
       });
     },
     // Get all cached QAItems covering the viewport
@@ -39311,16 +38226,14 @@
     },
     // Replace a single QAItem in the cache
     replaceItem(item) {
-      if (!(item instanceof QAItem) || !item.id)
-        return;
+      if (!(item instanceof QAItem) || !item.id) return;
       _cache.data[item.id] = item;
       updateRtree(encodeIssueRtree(item), true);
       return item;
     },
     // Remove a single QAItem from the cache
     removeItem(item) {
-      if (!(item instanceof QAItem) || !item.id)
-        return;
+      if (!(item instanceof QAItem) || !item.id) return;
       delete _cache.data[item.id];
       updateRtree(encodeIssueRtree(item), false);
     },
@@ -39452,8 +38365,7 @@
       const tiles = tiler2.zoomExtent([_tileZoom2, _tileZoom2]).getTiles(projection2);
       abortUnwantedRequests2(_cache2, tiles);
       tiles.forEach((tile) => {
-        if (_cache2.loadedTile[tile.id] || _cache2.inflightTile[tile.id])
-          return;
+        if (_cache2.loadedTile[tile.id] || _cache2.inflightTile[tile.id]) return;
         const [east, north, west, south] = tile.extent.rectangle();
         const params = Object.assign({}, options2, { east, south, west, north });
         const requests = {};
@@ -39648,12 +38560,10 @@
               _cache2.closed[d2.issueKey] += 1;
             }
           }
-          if (callback)
-            callback(null, d2);
+          if (callback) callback(null, d2);
         }).catch((err2) => {
           delete _cache2.inflightPost[d2.id];
-          if (callback)
-            callback(err2.message);
+          if (callback) callback(err2.message);
         });
       }
     },
@@ -39676,16 +38586,14 @@
     },
     // Replace a single QAItem in the cache
     replaceItem(issue) {
-      if (!(issue instanceof QAItem) || !issue.id)
-        return;
+      if (!(issue instanceof QAItem) || !issue.id) return;
       _cache2.data[issue.id] = issue;
       updateRtree2(encodeIssueRtree2(issue), true);
       return issue;
     },
     // Remove a single QAItem from the cache
     removeItem(issue) {
-      if (!(issue instanceof QAItem) || !issue.id)
-        return;
+      if (!(issue instanceof QAItem) || !issue.id) return;
       delete _cache2.data[issue.id];
       updateRtree2(encodeIssueRtree2(issue), false);
     },
@@ -40451,7 +39359,7 @@
       }
     }
     url(src) {
-      var _a2, _b;
+      var _a3, _b3;
       let cap;
       if (cap = this.rules.inline.url.exec(src)) {
         let text, href;
@@ -40462,7 +39370,7 @@
           let prevCapZero;
           do {
             prevCapZero = cap[0];
-            cap[0] = (_b = (_a2 = this.rules.inline._backpedal.exec(cap[0])) == null ? void 0 : _a2[0]) != null ? _b : "";
+            cap[0] = (_b3 = (_a3 = this.rules.inline._backpedal.exec(cap[0])) == null ? void 0 : _a3[0]) != null ? _b3 : "";
           } while (prevCapZero !== cap[0]);
           text = escape$1(cap[0]);
           if (cap[1] === "www.") {
@@ -41002,8 +39910,8 @@
       this.options = options2 || _defaults;
     }
     code(code, infostring, escaped) {
-      var _a2;
-      const lang = (_a2 = (infostring || "").match(/^\S*/)) == null ? void 0 : _a2[0];
+      var _a3;
+      const lang = (_a3 = (infostring || "").match(/^\S*/)) == null ? void 0 : _a3[0];
       code = code.replace(/\n$/, "") + "\n";
       if (!lang) {
         return "<pre><code>" + (escaped ? code : escape$1(code, true)) + "</code></pre>\n";
@@ -41387,15 +40295,14 @@
     "postprocess",
     "processAllTokens"
   ]));
-  var _parseMarkdown, parseMarkdown_fn, _onError, onError_fn;
+  var _Marked_instances, parseMarkdown_fn, onError_fn;
   var Marked = class {
     constructor(...args) {
-      __privateAdd(this, _parseMarkdown);
-      __privateAdd(this, _onError);
+      __privateAdd(this, _Marked_instances);
       __publicField(this, "defaults", _getDefaults());
       __publicField(this, "options", this.setOptions);
-      __publicField(this, "parse", __privateMethod(this, _parseMarkdown, parseMarkdown_fn).call(this, _Lexer.lex, _Parser.parse));
-      __publicField(this, "parseInline", __privateMethod(this, _parseMarkdown, parseMarkdown_fn).call(this, _Lexer.lexInline, _Parser.parseInline));
+      __publicField(this, "parse", __privateMethod(this, _Marked_instances, parseMarkdown_fn).call(this, _Lexer.lex, _Parser.parse));
+      __publicField(this, "parseInline", __privateMethod(this, _Marked_instances, parseMarkdown_fn).call(this, _Lexer.lexInline, _Parser.parseInline));
       __publicField(this, "Parser", _Parser);
       __publicField(this, "Renderer", _Renderer);
       __publicField(this, "TextRenderer", _TextRenderer);
@@ -41408,7 +40315,7 @@
      * Run callback for every token
      */
     walkTokens(tokens, callback) {
-      var _a2, _b;
+      var _a3, _b3;
       let values = [];
       for (const token of tokens) {
         values = values.concat(callback.call(this, token));
@@ -41432,7 +40339,7 @@
           }
           default: {
             const genericToken = token;
-            if ((_b = (_a2 = this.defaults.extensions) == null ? void 0 : _a2.childTokens) == null ? void 0 : _b[genericToken.type]) {
+            if ((_b3 = (_a3 = this.defaults.extensions) == null ? void 0 : _a3.childTokens) == null ? void 0 : _b3[genericToken.type]) {
               this.defaults.extensions.childTokens[genericToken.type].forEach((childTokens) => {
                 const tokens2 = genericToken[childTokens].flat(Infinity);
                 values = values.concat(this.walkTokens(tokens2, callback));
@@ -41606,7 +40513,7 @@
       return _Parser.parse(tokens, options2 != null ? options2 : this.defaults);
     }
   };
-  _parseMarkdown = new WeakSet();
+  _Marked_instances = new WeakSet();
   parseMarkdown_fn = function(lexer2, parser3) {
     return (src, options2) => {
       const origOpt = { ...options2 };
@@ -41617,7 +40524,7 @@
         }
         opt.async = true;
       }
-      const throwError = __privateMethod(this, _onError, onError_fn).call(this, !!opt.silent, !!opt.async);
+      const throwError = __privateMethod(this, _Marked_instances, onError_fn).call(this, !!opt.silent, !!opt.async);
       if (typeof src === "undefined" || src === null) {
         return throwError(new Error("marked(): input parameter is undefined or null"));
       }
@@ -41651,7 +40558,6 @@
       }
     };
   };
-  _onError = new WeakSet();
   onError_fn = function(silent, async) {
     return (e3) => {
       e3.message += "\nPlease report this to https://github.com/markedjs/marked.";
@@ -41787,8 +40693,7 @@
       let tiles = tiler3.zoomExtent([_tileZoom3, _tileZoom3]).getTiles(projection2);
       abortUnwantedRequests3(_cache3, tiles);
       tiles.forEach((tile) => {
-        if (_cache3.loadedTile[tile.id] || _cache3.inflightTile[tile.id])
-          return;
+        if (_cache3.loadedTile[tile.id] || _cache3.inflightTile[tile.id]) return;
         let [x2, y2, z2] = tile.xyz;
         let url = "".concat(_osmoseUrlRoot, "/issues/").concat(z2, "/").concat(x2, "/").concat(y2, ".geojson?") + utilQsString(params);
         let controller = new AbortController();
@@ -41840,8 +40745,7 @@
         _cache3.strings[locale2] = {};
       }
       const allRequests = items.map((itemType) => {
-        if (itemType in _cache3.strings[locale2])
-          return null;
+        if (itemType in _cache3.strings[locale2]) return null;
         const cacheData = (data) => {
           const [cat = { items: [] }] = data.categories;
           const [item2 = { class: [] }] = cat.items;
@@ -41856,14 +40760,10 @@
           }
           const { title, detail, fix, trap } = cl2;
           let issueStrings = {};
-          if (title)
-            issueStrings.title = title.auto;
-          if (detail)
-            issueStrings.detail = marked(detail.auto);
-          if (trap)
-            issueStrings.trap = marked(trap.auto);
-          if (fix)
-            issueStrings.fix = marked(fix.auto);
+          if (title) issueStrings.title = title.auto;
+          if (detail) issueStrings.detail = marked(detail.auto);
+          if (trap) issueStrings.trap = marked(trap.auto);
+          if (fix) issueStrings.fix = marked(fix.auto);
           _cache3.strings[locale2][itemType] = issueStrings;
         };
         const [item, cl] = itemType.split("-");
@@ -41893,14 +40793,12 @@
           }
           _cache3.closed[issue.item] += 1;
         }
-        if (callback)
-          callback(null, issue);
+        if (callback) callback(null, issue);
       };
       _cache3.inflightPost[issue.id] = controller;
       fetch(url, { signal: controller.signal }).then(after).catch((err) => {
         delete _cache3.inflightPost[issue.id];
-        if (callback)
-          callback(err.message);
+        if (callback) callback(err.message);
       });
     },
     // Get all cached QAItems covering the viewport
@@ -41922,16 +40820,14 @@
     },
     // Replace a single QAItem in the cache
     replaceItem(item) {
-      if (!(item instanceof QAItem) || !item.id)
-        return;
+      if (!(item instanceof QAItem) || !item.id) return;
       _cache3.data[item.id] = item;
       updateRtree3(encodeIssueRtree3(item), true);
       return item;
     },
     // Remove a single QAItem from the cache
     removeItem(item) {
-      if (!(item instanceof QAItem) || !item.id)
-        return;
+      if (!(item instanceof QAItem) || !item.id) return;
       delete _cache3.data[item.id];
       updateRtree3(encodeIssueRtree3(item), false);
     },
@@ -41977,8 +40873,7 @@
   function loadTile(which, url, tile) {
     const cache = _mlyCache.requests;
     const tileId = "".concat(tile.id, "-").concat(which);
-    if (cache.loaded[tileId] || cache.inflight[tileId])
-      return;
+    if (cache.loaded[tileId] || cache.inflight[tileId]) return;
     const controller = new AbortController();
     cache.inflight[tileId] = controller;
     const requestUrl = url.replace("{x}", tile.xyz[0]).replace("{y}", tile.xyz[1]).replace("{z}", tile.xyz[2]);
@@ -42211,8 +41106,7 @@
     },
     // Return a promise that resolves when the image viewer (Mapillary JS) library has finished loading
     ensureViewerLoaded: function(context) {
-      if (_loadViewerPromise)
-        return _loadViewerPromise;
+      if (_loadViewerPromise) return _loadViewerPromise;
       const wrap2 = context.container().select(".photoviewer").selectAll(".mly-wrapper").data([0]);
       wrap2.enter().append("div").attr("id", "ideditor-mly").attr("class", "photo-wrapper mly-wrapper").classed("hide", true);
       const that = this;
@@ -42220,8 +41114,7 @@
         let loadedCount = 0;
         function loaded() {
           loadedCount += 1;
-          if (loadedCount === 2)
-            resolve();
+          if (loadedCount === 2) resolve();
         }
         const head = select_default2("head");
         head.selectAll("#ideditor-mapillary-viewercss").data([0]).enter().append("link").attr("id", "ideditor-mapillary-viewercss").attr("rel", "stylesheet").attr("crossorigin", "anonymous").attr("href", context.asset(viewercss)).on("load.serviceMapillary", loaded).on("error.serviceMapillary", function() {
@@ -42282,10 +41175,8 @@
       const fromDate = context.photos().fromDate();
       const toDate = context.photos().toDate();
       const filter2 = ["all"];
-      if (!showsPano)
-        filter2.push(["!=", "cameraType", "spherical"]);
-      if (!showsFlat && showsPano)
-        filter2.push(["==", "pano", true]);
+      if (!showsPano) filter2.push(["!=", "cameraType", "spherical"]);
+      if (!showsFlat && showsPano) filter2.push(["==", "pano", true]);
       if (fromDate) {
         filter2.push([">=", "capturedAt", new Date(fromDate).getTime()]);
       }
@@ -42316,8 +41207,7 @@
         _mlyViewer.getComponent("sequence").stop();
       }
       const viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(null);
+      if (!viewer.empty()) viewer.datum(null);
       viewer.classed("hide", true).selectAll(".photo-wrapper").classed("hide", true);
       this.updateUrlImage(null);
       dispatch5.call("imageChanged");
@@ -42347,8 +41237,7 @@
     // Initialize image viewer (Mapillar JS)
     initViewer: function(context) {
       const that = this;
-      if (!window.mapillary)
-        return;
+      if (!window.mapillary) return;
       const opts = {
         accessToken,
         component: {
@@ -42381,8 +41270,7 @@
         _mlyViewer.setFilter(_mlyViewerFilter);
       }
       context.ui().photoviewer.on("resize.mapillary", function() {
-        if (_mlyViewer)
-          _mlyViewer.resize();
+        if (_mlyViewer) _mlyViewer.resize();
       });
       function imageChanged(node) {
         that.resetTags();
@@ -42451,10 +41339,8 @@
     },
     // Get detections for the current image and shows them in the image viewer
     updateDetections: function(imageId, url) {
-      if (!_mlyViewer || _mlyFallback)
-        return;
-      if (!imageId)
-        return;
+      if (!_mlyViewer || _mlyFallback) return;
+      if (!imageId) return;
       const cache = _mlyCache.image_detections;
       if (cache.forImageId[imageId]) {
         showDetections(_mlyCache.image_detections.forImageId[imageId]);
@@ -42485,8 +41371,7 @@
       }
       function makeTag(data) {
         const valueParts = data.value.split("--");
-        if (!valueParts.length)
-          return;
+        if (!valueParts.length) return;
         let tag2;
         let text;
         let color2 = 16777215;
@@ -42832,10 +41717,8 @@
     function checkEntityID(id2) {
       var h2 = head.entities[id2];
       var b2 = base.entities[id2];
-      if (h2 === b2)
-        return;
-      if (_changes[id2])
-        return;
+      if (h2 === b2) return;
+      if (_changes[id2]) return;
       if (!h2 && b2) {
         _changes[id2] = { base: b2, head: h2 };
         _didChange.deletion = true;
@@ -43011,10 +41894,8 @@
           var ids = utilArrayUnion(mh, mb);
           for (i3 = 0; i3 < ids.length; i3++) {
             var member = head.hasEntity(ids[i3]);
-            if (!member)
-              continue;
-            if (extent && !member.intersects(extent, head))
-              continue;
+            if (!member) continue;
+            if (extent && !member.intersects(extent, head)) continue;
             result[ids[i3]] = member;
           }
         }
@@ -43025,8 +41906,7 @@
       function addParents(parents, result2) {
         for (var i4 = 0; i4 < parents.length; i4++) {
           var parent = parents[i4];
-          if (parent.id in result2)
-            continue;
+          if (parent.id in result2) continue;
           result2[parent.id] = parent;
           addParents(head.parentRelations(parent), result2);
         }
@@ -43052,8 +41932,7 @@
     }
     function segmentBBox(segment) {
       var extent = segment.extent(head);
-      if (!extent)
-        return null;
+      if (!extent) return null;
       var bbox2 = extent.bbox();
       bbox2.segment = segment;
       _segmentsBBoxes[segment.id] = bbox2;
@@ -43080,8 +41959,7 @@
           segments = segments.concat(entitySegments);
         }
       });
-      if (segments.length)
-        _segmentsRTree.load(segments.map(segmentBBox).filter(Boolean));
+      if (segments.length) _segmentsRTree.load(segments.map(segmentBBox).filter(Boolean));
     }
     function updateParents(entity, insertions, memo) {
       head.parentWays(entity).forEach(function(way) {
@@ -43092,8 +41970,7 @@
         updateParents(way, insertions, memo);
       });
       head.parentRelations(entity).forEach(function(relation) {
-        if (memo[entity.id])
-          return;
+        if (memo[entity.id]) return;
         memo[entity.id] = true;
         if (_bboxes[relation.id]) {
           removeEntity(relation);
@@ -43106,8 +41983,7 @@
       var insertions = {};
       for (var i3 = 0; i3 < entities.length; i3++) {
         var entity = entities[i3];
-        if (!entity.visible)
-          continue;
+        if (!entity.visible) continue;
         if (head.entities.hasOwnProperty(entity.id) || _bboxes[entity.id]) {
           if (!force) {
             continue;
@@ -43122,13 +41998,11 @@
       return tree;
     };
     function updateToGraph(graph) {
-      if (graph === head)
-        return;
+      if (graph === head) return;
       var diff = coreDifference(head, graph);
       head = graph;
       var changed = diff.didChange;
-      if (!changed.addition && !changed.deletion && !changed.geometry)
-        return;
+      if (!changed.addition && !changed.deletion && !changed.geometry) return;
       var insertions = {};
       if (changed.deletion) {
         diff.deleted().forEach(function(entity) {
@@ -43235,14 +42109,12 @@
       return loading;
     };
     loading.message = function(val) {
-      if (!arguments.length)
-        return _message;
+      if (!arguments.length) return _message;
       _message = val;
       return loading;
     };
     loading.blocking = function(val) {
-      if (!arguments.length)
-        return _blocking;
+      if (!arguments.length) return _blocking;
       _blocking = val;
       return loading;
     };
@@ -43352,8 +42224,7 @@
           var origArguments = arguments;
           select_default2(document).transition("history.perform").duration(duration).ease(linear2).tween("history.tween", function() {
             return function(t2) {
-              if (t2 < 1)
-                _overwrite([action0], t2);
+              if (t2 < 1) _overwrite([action0], t2);
             };
           }).on("start", function() {
             _perform([action0], 0);
@@ -43392,8 +42263,7 @@
         var previous = previousStack.graph;
         while (_index > 0) {
           _index--;
-          if (_stack[_index].annotation)
-            break;
+          if (_stack[_index].annotation) break;
         }
         dispatch14.call("undone", this, _stack[_index], previousStack);
         return change(previous);
@@ -43429,16 +42299,14 @@
       undoAnnotation: function() {
         var i3 = _index;
         while (i3 >= 0) {
-          if (_stack[i3].annotation)
-            return _stack[i3].annotation;
+          if (_stack[i3].annotation) return _stack[i3].annotation;
           i3--;
         }
       },
       redoAnnotation: function() {
         var i3 = _index + 1;
         while (i3 <= _stack.length - 1) {
-          if (_stack[i3].annotation)
-            return _stack[i3].annotation;
+          if (_stack[i3].annotation) return _stack[i3].annotation;
           i3++;
         }
       },
@@ -43587,8 +42455,7 @@
         }
       },
       toJSON: function() {
-        if (!this.hasChanges())
-          return;
+        if (!this.hasChanges()) return;
         var allEntities = {};
         var baseEntities = {};
         var base = _stack[0];
@@ -43624,20 +42491,13 @@
             }
           });
           var x2 = {};
-          if (modified.length)
-            x2.modified = modified;
-          if (deleted.length)
-            x2.deleted = deleted;
-          if (i3.imageryUsed)
-            x2.imageryUsed = i3.imageryUsed;
-          if (i3.photoOverlaysUsed)
-            x2.photoOverlaysUsed = i3.photoOverlaysUsed;
-          if (i3.annotation)
-            x2.annotation = i3.annotation;
-          if (i3.transform)
-            x2.transform = i3.transform;
-          if (i3.selectedIDs)
-            x2.selectedIDs = i3.selectedIDs;
+          if (modified.length) x2.modified = modified;
+          if (deleted.length) x2.deleted = deleted;
+          if (i3.imageryUsed) x2.imageryUsed = i3.imageryUsed;
+          if (i3.photoOverlaysUsed) x2.photoOverlaysUsed = i3.photoOverlaysUsed;
+          if (i3.annotation) x2.annotation = i3.annotation;
+          if (i3.transform) x2.transform = i3.transform;
+          if (i3.selectedIDs) x2.selectedIDs = i3.selectedIDs;
           return x2;
         });
         return JSON.stringify({
@@ -43770,8 +42630,7 @@
         if (lock.locked() && // don't overwrite existing, unresolved changes
         !_hasUnresolvedRestorableChanges) {
           const success = corePreferences(getKey("saved_history"), history.toJSON() || null);
-          if (!success)
-            dispatch14.call("storage_error");
+          if (!success) dispatch14.call("storage_error");
         }
         return history;
       },
@@ -43798,8 +42657,7 @@
         if (lock.locked()) {
           _hasUnresolvedRestorableChanges = false;
           var json = this.savedHistoryJSON();
-          if (json)
-            history.fromJSON(json, true);
+          if (json) history.fromJSON(json, true);
         }
       },
       _getKey: getKey
@@ -43844,10 +42702,8 @@
       return node.tags.noexit === "yes" || node.tags.amenity === "parking_entrance" || node.tags.entrance && node.tags.entrance !== "no";
     }
     const validation = function checkAlmostJunction(entity, graph) {
-      if (!isHighway(entity))
-        return [];
-      if (entity.isDegenerate())
-        return [];
+      if (!isHighway(entity)) return [];
+      if (entity.isDegenerate()) return [];
       const tree = context.history().tree();
       const extendableNodeInfos = findConnectableEndNodesByExtension(entity);
       let issues = [];
@@ -43967,22 +42823,18 @@
       }
       function findConnectableEndNodesByExtension(way) {
         let results = [];
-        if (way.isClosed())
-          return results;
+        if (way.isClosed()) return results;
         let testNodes;
         const indices = [0, way.nodes.length - 1];
         indices.forEach((nodeIndex) => {
           const nodeID = way.nodes[nodeIndex];
           const node = graph.entity(nodeID);
-          if (!isExtendableCandidate(node, way))
-            return;
+          if (!isExtendableCandidate(node, way)) return;
           const connectionInfo = canConnectByExtend(way, nodeIndex);
-          if (!connectionInfo)
-            return;
+          if (!connectionInfo) return;
           testNodes = graph.childNodes(way).slice();
           testNodes[nodeIndex] = testNodes[nodeIndex].move(connectionInfo.cross_loc);
-          if (geoHasSelfIntersections(testNodes, nodeID))
-            return;
+          if (geoHasSelfIntersections(testNodes, nodeID)) return;
           results.push(connectionInfo);
         });
         return results;
@@ -44007,26 +42859,20 @@
             minAngle = diff;
           }
         });
-        if (minAngle <= SIG_ANGLE_TH)
-          return joinTo;
+        if (minAngle <= SIG_ANGLE_TH) return joinTo;
         return null;
       }
       function hasTag(tags, key) {
         return tags[key] !== void 0 && tags[key] !== "no";
       }
       function canConnectWays(way, way2) {
-        if (way.id === way2.id)
-          return true;
-        if ((hasTag(way.tags, "bridge") || hasTag(way2.tags, "bridge")) && !(hasTag(way.tags, "bridge") && hasTag(way2.tags, "bridge")))
-          return false;
-        if ((hasTag(way.tags, "tunnel") || hasTag(way2.tags, "tunnel")) && !(hasTag(way.tags, "tunnel") && hasTag(way2.tags, "tunnel")))
-          return false;
+        if (way.id === way2.id) return true;
+        if ((hasTag(way.tags, "bridge") || hasTag(way2.tags, "bridge")) && !(hasTag(way.tags, "bridge") && hasTag(way2.tags, "bridge"))) return false;
+        if ((hasTag(way.tags, "tunnel") || hasTag(way2.tags, "tunnel")) && !(hasTag(way.tags, "tunnel") && hasTag(way2.tags, "tunnel"))) return false;
         const layer1 = way.tags.layer || "0", layer2 = way2.tags.layer || "0";
-        if (layer1 !== layer2)
-          return false;
+        if (layer1 !== layer2) return false;
         const level1 = way.tags.level || "0", level2 = way2.tags.level || "0";
-        if (level1 !== level2)
-          return false;
+        if (level1 !== level2) return false;
         return true;
       }
       function canConnectByExtend(way, endNodeIdx) {
@@ -44049,13 +42895,10 @@
         for (let i3 = 0; i3 < segmentInfos.length; i3++) {
           let segmentInfo = segmentInfos[i3];
           let way2 = graph.entity(segmentInfo.wayId);
-          if (!isHighway(way2))
-            continue;
-          if (!canConnectWays(way, way2))
-            continue;
+          if (!isHighway(way2)) continue;
+          if (!canConnectWays(way, way2)) continue;
           let nAid = segmentInfo.nodes[0], nBid = segmentInfo.nodes[1];
-          if (nAid === tipNid || nBid === tipNid)
-            continue;
+          if (nAid === tipNid || nBid === tipNid) continue;
           let nA = graph.entity(nAid), nB = graph.entity(nBid);
           let crossLoc = geoLineIntersection([tipNode.loc, extTipLoc], [nA.loc, nB.loc]);
           if (crossLoc) {
@@ -44095,47 +42938,36 @@
         }
       }
       function wayTypeFor(way) {
-        if (way.tags.boundary && way.tags.boundary !== "no")
-          return "boundary";
-        if (way.tags.indoor && way.tags.indoor !== "no")
-          return "indoor";
-        if (way.tags.building && way.tags.building !== "no" || way.tags["building:part"] && way.tags["building:part"] !== "no")
-          return "building";
-        if (osmPathHighwayTagValues[way.tags.highway])
-          return "path";
+        if (way.tags.boundary && way.tags.boundary !== "no") return "boundary";
+        if (way.tags.indoor && way.tags.indoor !== "no") return "indoor";
+        if (way.tags.building && way.tags.building !== "no" || way.tags["building:part"] && way.tags["building:part"] !== "no") return "building";
+        if (osmPathHighwayTagValues[way.tags.highway]) return "path";
         var parentRelations = graph.parentRelations(way);
         for (var i3 in parentRelations) {
           var relation = parentRelations[i3];
-          if (relation.tags.type === "boundary")
-            return "boundary";
+          if (relation.tags.type === "boundary") return "boundary";
           if (relation.isMultipolygon()) {
-            if (relation.tags.indoor && relation.tags.indoor !== "no")
-              return "indoor";
-            if (relation.tags.building && relation.tags.building !== "no" || relation.tags["building:part"] && relation.tags["building:part"] !== "no")
-              return "building";
+            if (relation.tags.indoor && relation.tags.indoor !== "no") return "indoor";
+            if (relation.tags.building && relation.tags.building !== "no" || relation.tags["building:part"] && relation.tags["building:part"] !== "no") return "building";
           }
         }
         return "other";
       }
       function shouldCheckWay(way) {
-        if (way.nodes.length <= 2 || way.isClosed() && way.nodes.length <= 4)
-          return false;
+        if (way.nodes.length <= 2 || way.isClosed() && way.nodes.length <= 4) return false;
         var bbox2 = way.extent(graph).bbox();
         var hypotenuseMeters = geoSphericalDistance([bbox2.minX, bbox2.minY], [bbox2.maxX, bbox2.maxY]);
-        if (hypotenuseMeters < 1.5)
-          return false;
+        if (hypotenuseMeters < 1.5) return false;
         return true;
       }
       function getIssuesForWay(way) {
-        if (!shouldCheckWay(way))
-          return [];
+        if (!shouldCheckWay(way)) return [];
         var issues = [], nodes = graph.childNodes(way);
         for (var i3 = 0; i3 < nodes.length - 1; i3++) {
           var node1 = nodes[i3];
           var node2 = nodes[i3 + 1];
           var issue = getWayIssueIfAny(node1, node2, way);
-          if (issue)
-            issues.push(issue);
+          if (issue) issues.push(issue);
         }
         return issues;
       }
@@ -44143,13 +42975,11 @@
         var issues = [];
         function checkForCloseness(node1, node2, way) {
           var issue = getWayIssueIfAny(node1, node2, way);
-          if (issue)
-            issues.push(issue);
+          if (issue) issues.push(issue);
         }
         for (var i3 = 0; i3 < parentWays.length; i3++) {
           var parentWay = parentWays[i3];
-          if (!shouldCheckWay(parentWay))
-            continue;
+          if (!shouldCheckWay(parentWay)) continue;
           var lastIndex = parentWay.nodes.length - 1;
           for (var j2 = 0; j2 < parentWay.nodes.length; j2++) {
             if (j2 !== 0) {
@@ -44167,17 +42997,12 @@
         return issues;
       }
       function thresholdMetersForWay(way) {
-        if (!shouldCheckWay(way))
-          return 0;
+        if (!shouldCheckWay(way)) return 0;
         var wayType = wayTypeFor(way);
-        if (wayType === "boundary")
-          return 0;
-        if (wayType === "indoor")
-          return 0.01;
-        if (wayType === "building")
-          return 0.05;
-        if (wayType === "path")
-          return 0.1;
+        if (wayType === "boundary") return 0;
+        if (wayType === "indoor") return 0.01;
+        if (wayType === "building") return 0.05;
+        if (wayType === "path") return 0.1;
         return 0.2;
       }
       function getIssuesForDetachedPoint(node) {
@@ -44193,15 +43018,11 @@
         var intersected = context.history().tree().intersects(queryExtent, graph);
         for (var j2 = 0; j2 < intersected.length; j2++) {
           var nearby = intersected[j2];
-          if (nearby.id === node.id)
-            continue;
-          if (nearby.type !== "node" || nearby.geometry(graph) !== "point")
-            continue;
+          if (nearby.id === node.id) continue;
+          if (nearby.type !== "node" || nearby.geometry(graph) !== "point") continue;
           if (nearby.loc === node.loc || geoSphericalDistance(node.loc, nearby.loc) < pointThresholdMeters) {
-            if ("memorial:type" in node.tags && "memorial:type" in nearby.tags && node.tags["memorial:type"] === "stolperstein" && nearby.tags["memorial:type"] === "stolperstein")
-              continue;
-            if ("memorial" in node.tags && "memorial" in nearby.tags && node.tags.memorial === "stolperstein" && nearby.tags.memorial === "stolperstein")
-              continue;
+            if ("memorial:type" in node.tags && "memorial:type" in nearby.tags && node.tags["memorial:type"] === "stolperstein" && nearby.tags["memorial:type"] === "stolperstein") continue;
+            if ("memorial" in node.tags && "memorial" in nearby.tags && node.tags.memorial === "stolperstein" && nearby.tags.memorial === "stolperstein") continue;
             var zAxisKeys = { layer: true, level: true, "addr:housenumber": true, "addr:unit": true };
             var zAxisDifferentiates = false;
             for (var key in zAxisKeys) {
@@ -44212,8 +43033,7 @@
                 break;
               }
             }
-            if (zAxisDifferentiates)
-              continue;
+            if (zAxisDifferentiates) continue;
             issues.push(new validationIssue({
               type: type2,
               subtype: "detached",
@@ -44263,8 +43083,7 @@
           });
           var threshold = Math.min(...thresholds);
           var distance = geoSphericalDistance(node1.loc, node2.loc);
-          if (distance > threshold)
-            return null;
+          if (distance > threshold) return null;
         }
         return new validationIssue({
           type: type2,
@@ -44341,19 +43160,13 @@
     };
     function getFeatureType(entity, graph) {
       var geometry = entity.geometry(graph);
-      if (geometry !== "line" && geometry !== "area")
-        return null;
+      if (geometry !== "line" && geometry !== "area") return null;
       var tags = entity.tags;
-      if (hasTag(tags, "building") && !ignoredBuildings[tags.building])
-        return "building";
-      if (hasTag(tags, "highway") && osmRoutableHighwayTagValues[tags.highway])
-        return "highway";
-      if (geometry !== "line")
-        return null;
-      if (hasTag(tags, "railway") && osmRailwayTrackTagValues[tags.railway])
-        return "railway";
-      if (hasTag(tags, "waterway") && osmFlowingWaterwayTagValues[tags.waterway])
-        return "waterway";
+      if (hasTag(tags, "building") && !ignoredBuildings[tags.building]) return "building";
+      if (hasTag(tags, "highway") && osmRoutableHighwayTagValues[tags.highway]) return "highway";
+      if (geometry !== "line") return null;
+      if (hasTag(tags, "railway") && osmRailwayTrackTagValues[tags.railway]) return "railway";
+      if (hasTag(tags, "waterway") && osmFlowingWaterwayTagValues[tags.waterway]) return "waterway";
       return null;
     }
     function isLegitCrossing(tags1, featureType1, tags2, featureType2) {
@@ -44365,34 +43178,21 @@
       var layer1 = tags1.layer || "0";
       var layer2 = tags2.layer || "0";
       if (allowsBridge(featureType1) && allowsBridge(featureType2)) {
-        if (hasTag(tags1, "bridge") && !hasTag(tags2, "bridge"))
-          return true;
-        if (!hasTag(tags1, "bridge") && hasTag(tags2, "bridge"))
-          return true;
-        if (hasTag(tags1, "bridge") && hasTag(tags2, "bridge") && layer1 !== layer2)
-          return true;
-      } else if (allowsBridge(featureType1) && hasTag(tags1, "bridge"))
-        return true;
-      else if (allowsBridge(featureType2) && hasTag(tags2, "bridge"))
-        return true;
+        if (hasTag(tags1, "bridge") && !hasTag(tags2, "bridge")) return true;
+        if (!hasTag(tags1, "bridge") && hasTag(tags2, "bridge")) return true;
+        if (hasTag(tags1, "bridge") && hasTag(tags2, "bridge") && layer1 !== layer2) return true;
+      } else if (allowsBridge(featureType1) && hasTag(tags1, "bridge")) return true;
+      else if (allowsBridge(featureType2) && hasTag(tags2, "bridge")) return true;
       if (allowsTunnel(featureType1) && allowsTunnel(featureType2)) {
-        if (hasTag(tags1, "tunnel") && !hasTag(tags2, "tunnel"))
-          return true;
-        if (!hasTag(tags1, "tunnel") && hasTag(tags2, "tunnel"))
-          return true;
-        if (hasTag(tags1, "tunnel") && hasTag(tags2, "tunnel") && layer1 !== layer2)
-          return true;
-      } else if (allowsTunnel(featureType1) && hasTag(tags1, "tunnel"))
-        return true;
-      else if (allowsTunnel(featureType2) && hasTag(tags2, "tunnel"))
-        return true;
-      if (featureType1 === "waterway" && featureType2 === "highway" && tags2.man_made === "pier")
-        return true;
-      if (featureType2 === "waterway" && featureType1 === "highway" && tags1.man_made === "pier")
-        return true;
+        if (hasTag(tags1, "tunnel") && !hasTag(tags2, "tunnel")) return true;
+        if (!hasTag(tags1, "tunnel") && hasTag(tags2, "tunnel")) return true;
+        if (hasTag(tags1, "tunnel") && hasTag(tags2, "tunnel") && layer1 !== layer2) return true;
+      } else if (allowsTunnel(featureType1) && hasTag(tags1, "tunnel")) return true;
+      else if (allowsTunnel(featureType2) && hasTag(tags2, "tunnel")) return true;
+      if (featureType1 === "waterway" && featureType2 === "highway" && tags2.man_made === "pier") return true;
+      if (featureType2 === "waterway" && featureType1 === "highway" && tags1.man_made === "pier") return true;
       if (featureType1 === "building" || featureType2 === "building" || taggedAsIndoor(tags1) || taggedAsIndoor(tags2)) {
-        if (layer1 !== layer2)
-          return true;
+        if (layer1 !== layer2) return true;
       }
       return false;
     }
@@ -44432,32 +43232,25 @@
           }
           return {};
         }
-        if (featureType1 === "waterway")
-          return {};
-        if (featureType1 === "railway")
-          return {};
+        if (featureType1 === "waterway") return {};
+        if (featureType1 === "railway") return {};
       } else {
         var featureTypes = [featureType1, featureType2];
         if (featureTypes.indexOf("highway") !== -1) {
           if (featureTypes.indexOf("railway") !== -1) {
-            if (!bothLines)
-              return {};
+            if (!bothLines) return {};
             var isTram = entity1.tags.railway === "tram" || entity2.tags.railway === "tram";
             if (osmPathHighwayTagValues[entity1.tags.highway] || osmPathHighwayTagValues[entity2.tags.highway]) {
-              if (isTram)
-                return { railway: "tram_crossing" };
+              if (isTram) return { railway: "tram_crossing" };
               return { railway: "crossing" };
             } else {
-              if (isTram)
-                return { railway: "tram_level_crossing" };
+              if (isTram) return { railway: "tram_level_crossing" };
               return { railway: "level_crossing" };
             }
           }
           if (featureTypes.indexOf("waterway") !== -1) {
-            if (hasTag(entity1.tags, "tunnel") && hasTag(entity2.tags, "tunnel"))
-              return null;
-            if (hasTag(entity1.tags, "bridge") && hasTag(entity2.tags, "bridge"))
-              return null;
+            if (hasTag(entity1.tags, "tunnel") && hasTag(entity2.tags, "tunnel")) return null;
+            if (hasTag(entity1.tags, "bridge") && hasTag(entity2.tags, "bridge")) return null;
             if (highwaysDisallowingFords[entity1.tags.highway] || highwaysDisallowingFords[entity2.tags.highway]) {
               return null;
             }
@@ -44469,12 +43262,10 @@
     }
     function findCrossingsByWay(way1, graph, tree) {
       var edgeCrossInfos = [];
-      if (way1.type !== "way")
-        return edgeCrossInfos;
+      if (way1.type !== "way") return edgeCrossInfos;
       var taggedFeature1 = getFeatureWithFeatureTypeTagsForWay(way1, graph);
       var way1FeatureType = getFeatureType(taggedFeature1, graph);
-      if (way1FeatureType === null)
-        return edgeCrossInfos;
+      if (way1FeatureType === null) return edgeCrossInfos;
       var checkedSingleCrossingWays = {};
       var i3, j2;
       var extent;
@@ -44500,14 +43291,11 @@
         segmentInfos = tree.waySegments(extent, graph);
         for (j2 = 0; j2 < segmentInfos.length; j2++) {
           segment2Info = segmentInfos[j2];
-          if (segment2Info.wayId === way1.id)
-            continue;
-          if (checkedSingleCrossingWays[segment2Info.wayId])
-            continue;
+          if (segment2Info.wayId === way1.id) continue;
+          if (checkedSingleCrossingWays[segment2Info.wayId]) continue;
           comparedWays[segment2Info.wayId] = true;
           way2 = graph.hasEntity(segment2Info.wayId);
-          if (!way2)
-            continue;
+          if (!way2) continue;
           taggedFeature2 = getFeatureWithFeatureTypeTagsForWay(way2, graph);
           way2FeatureType = getFeatureType(taggedFeature2, graph);
           if (way2FeatureType === null || isLegitCrossing(taggedFeature1.tags, way1FeatureType, taggedFeature2.tags, way2FeatureType)) {
@@ -44520,11 +43308,9 @@
             continue;
           }
           nA = graph.hasEntity(nAId);
-          if (!nA)
-            continue;
+          if (!nA) continue;
           nB = graph.hasEntity(nBId);
-          if (!nB)
-            continue;
+          if (!nB) continue;
           segment1 = [n1.loc, n22.loc];
           segment2 = [nA.loc, nB.loc];
           var point2 = geoLineIntersection(segment1, segment2);
@@ -44555,8 +43341,7 @@
     }
     function waysToCheck(entity, graph) {
       var featureType = getFeatureType(entity, graph);
-      if (!featureType)
-        return [];
+      if (!featureType) return [];
       if (entity.type === "way") {
         return [entity];
       } else if (entity.type === "relation") {
@@ -44648,8 +43433,7 @@
         loc: crossing.crossPoint,
         dynamicFixes: function(context2) {
           var mode = context2.mode();
-          if (!mode || mode.id !== "select" || mode.selectedIDs().length !== 1)
-            return [];
+          if (!mode || mode.id !== "select" || mode.selectedIDs().length !== 1) return [];
           var selectedIndex = this.entityIds[0] === mode.selectedIDs()[0] ? 0 : 1;
           var selectedFeatureType = this.data.featureTypes[selectedIndex];
           var otherFeatureType = this.data.featureTypes[selectedIndex === 0 ? 1 : 0];
@@ -44695,14 +43479,11 @@
         title: _t.append("issues.fix." + fixTitleID + ".title"),
         onClick: function(context2) {
           var mode = context2.mode();
-          if (!mode || mode.id !== "select")
-            return;
+          if (!mode || mode.id !== "select") return;
           var selectedIDs = mode.selectedIDs();
-          if (selectedIDs.length !== 1)
-            return;
+          if (selectedIDs.length !== 1) return;
           var selectedWayID = selectedIDs[0];
-          if (!context2.hasEntity(selectedWayID))
-            return;
+          if (!context2.hasEntity(selectedWayID)) return;
           var resultWayIDs = [selectedWayID];
           var edge, crossedEdge, crossedWayID;
           if (this.issue.entityIds[0] === selectedWayID) {
@@ -44733,8 +43514,7 @@
             var a1 = geoAngle(edgeNodes[0], edgeNodes[1], projection2) + Math.PI;
             var a2 = geoAngle(graph.entity(crossedEdge[0]), graph.entity(crossedEdge[1]), projection2) + Math.PI;
             var crossingAngle = Math.max(a1, a2) - Math.min(a1, a2);
-            if (crossingAngle > Math.PI)
-              crossingAngle -= Math.PI;
+            if (crossingAngle > Math.PI) crossingAngle -= Math.PI;
             structLengthMeters = structLengthMeters / 2 / Math.sin(crossingAngle) * 2;
             structLengthMeters += 4;
             structLengthMeters = Math.min(Math.max(structLengthMeters, 4), 50);
@@ -44800,8 +43580,7 @@
                   }
                 }
               }
-              if (!newNode)
-                newNode = endNode;
+              if (!newNode) newNode = endNode;
               var splitAction = actionSplit([newNode.id]).limitWays(resultWayIDs);
               graph = splitAction(graph);
               if (splitAction.getCreatedWayIDs().length) {
@@ -44886,19 +43665,15 @@
         title: _t.append("issues.fix.tag_this_as_" + higherOrLower + ".title"),
         onClick: function(context2) {
           var mode = context2.mode();
-          if (!mode || mode.id !== "select")
-            return;
+          if (!mode || mode.id !== "select") return;
           var selectedIDs = mode.selectedIDs();
-          if (selectedIDs.length !== 1)
-            return;
+          if (selectedIDs.length !== 1) return;
           var selectedID = selectedIDs[0];
           if (!this.issue.entityIds.some(function(entityId) {
             return entityId === selectedID;
-          }))
-            return;
+          })) return;
           var entity = context2.hasEntity(selectedID);
-          if (!entity)
-            return;
+          if (!entity) return;
           var tags = Object.assign({}, entity.tags);
           var layer = tags.layer && Number(tags.layer);
           if (layer && !isNaN(layer)) {
@@ -44982,8 +43757,7 @@
     }
     function move(d3_event, datum2) {
       var loc = context.map().mouseCoordinates();
-      if (!_drawNode)
-        createDrawNode(loc);
+      if (!_drawNode) createDrawNode(loc);
       context.surface().classed("nope-disabled", d3_event.altKey);
       var targetLoc = datum2 && datum2.properties && datum2.properties.entity && allowsVertex(datum2.properties.entity) && datum2.properties.entity.loc;
       var targetNodes = datum2 && datum2.properties && datum2.properties.nodes;
@@ -45021,10 +43795,8 @@
         }
       } else {
         if (parentWay.isClosed()) {
-          if (nodes.length < 3)
-            return false;
-          if (_drawNode)
-            nodes.splice(-2, 1);
+          if (nodes.length < 3) return false;
+          if (_drawNode) nodes.splice(-2, 1);
           testNode = nodes[nodes.length - 2];
         } else {
           return false;
@@ -45048,8 +43820,7 @@
       context.enter(nextMode);
     }
     function setActiveElements() {
-      if (!_drawNode)
-        return;
+      if (!_drawNode) return;
       context.surface().selectAll("." + _drawNode.id).classed("active", true);
     }
     function resetToStartGraph() {
@@ -45083,8 +43854,7 @@
       }).on("down", function() {
         move.apply(this, arguments);
       }).on("downcancel", function() {
-        if (_drawNode)
-          removeDrawNode();
+        if (_drawNode) removeDrawNode();
       }).on("click", drawWay.add).on("clickWay", drawWay.addWay).on("clickNode", drawWay.addNode).on("undo", context.undo).on("cancel", drawWay.cancel).on("finish", drawWay.finish);
       select_default2(window).on("keydown.drawWay", keydown).on("keyup.drawWay", keyup);
       context.map().dblclickZoomEnable(false).on("drawn.draw", setActiveElements);
@@ -45159,15 +43929,12 @@
       });
     };
     function getFeatureType(ways) {
-      if (ways.every((way) => way.isClosed()))
-        return "area";
-      if (ways.every((way) => !way.isClosed()))
-        return "line";
+      if (ways.every((way) => way.isClosed())) return "area";
+      if (ways.every((way) => !way.isClosed())) return "line";
       return "generic";
     }
     function followMode() {
-      if (_didResolveTempEdit)
-        return;
+      if (_didResolveTempEdit) return;
       try {
         const isDrawingArea = _origWay.nodes[0] === _origWay.nodes.slice(-1)[0];
         const [secondLastNodeId, lastNodeId] = _origWay.nodes.slice(isDrawingArea ? -3 : -2);
@@ -45192,8 +43959,7 @@
         const indexOfSecondLast = way.nodes.indexOf(secondLastNodeId);
         const isDescendingPastZero = indexOfLast === way.nodes.length - 2 && indexOfSecondLast === 0;
         let nextNodeIndex = indexOfLast + (indexOfLast > indexOfSecondLast && !isDescendingPastZero ? 1 : -1);
-        if (nextNodeIndex === -1)
-          nextNodeIndex = indexOfSecondLast === 1 ? way.nodes.length - 2 : 1;
+        if (nextNodeIndex === -1) nextNodeIndex = indexOfSecondLast === 1 ? way.nodes.length - 2 : 1;
         const nextNode = historyGraph.entity(way.nodes[nextNodeIndex]);
         drawWay.addNode(nextNode, {
           geometry: { type: "Point", coordinates: nextNode.loc },
@@ -45241,14 +44007,12 @@
       context.enter(modeBrowse(context));
     };
     drawWay.nodeIndex = function(val) {
-      if (!arguments.length)
-        return _nodeIndex;
+      if (!arguments.length) return _nodeIndex;
       _nodeIndex = val;
       return drawWay;
     };
     drawWay.activeID = function() {
-      if (!arguments.length)
-        return _drawNode && _drawNode.id;
+      if (!arguments.length) return _drawNode && _drawNode.id;
       return drawWay;
     };
     return utilRebind(drawWay, dispatch14, "on");
@@ -45289,8 +44053,7 @@
     }
     var validation = function checkDisconnectedWay(entity, graph) {
       var routingIslandWays = routingIslandForEntity(entity);
-      if (!routingIslandWays)
-        return [];
+      if (!routingIslandWays) return [];
       return [new validationIssue({
         type: type2,
         subtype: "highway",
@@ -45313,11 +44076,9 @@
           if (singleEntity.type === "way" && !singleEntity.isClosed()) {
             var textDirection = _mainLocalizer.textDirection();
             var startFix = makeContinueDrawingFixIfAllowed(textDirection, singleEntity.first(), "start");
-            if (startFix)
-              fixes.push(startFix);
+            if (startFix) fixes.push(startFix);
             var endFix = makeContinueDrawingFixIfAllowed(textDirection, singleEntity.last(), "end");
-            if (endFix)
-              fixes.push(endFix);
+            if (endFix) fixes.push(endFix);
           }
           if (!fixes.length) {
             fixes.push(new validationIssueFix({
@@ -45385,34 +44146,26 @@
       }
       function isConnectedVertex(vertex) {
         var osm = services.osm;
-        if (osm && !osm.isDataLoaded(vertex.loc))
-          return true;
-        if (vertex.tags.entrance && vertex.tags.entrance !== "no")
-          return true;
-        if (vertex.tags.amenity === "parking_entrance")
-          return true;
+        if (osm && !osm.isDataLoaded(vertex.loc)) return true;
+        if (vertex.tags.entrance && vertex.tags.entrance !== "no") return true;
+        if (vertex.tags.amenity === "parking_entrance") return true;
         return false;
       }
       function isRoutableNode(node) {
-        if (node.tags.highway === "elevator")
-          return true;
+        if (node.tags.highway === "elevator") return true;
         return false;
       }
       function isRoutableWay(way, ignoreInnerWays) {
-        if (isTaggedAsHighway(way) || way.tags.route === "ferry")
-          return true;
+        if (isTaggedAsHighway(way) || way.tags.route === "ferry") return true;
         return graph.parentRelations(way).some(function(parentRelation) {
-          if (parentRelation.tags.type === "route" && parentRelation.tags.route === "ferry")
-            return true;
-          if (parentRelation.isMultipolygon() && isTaggedAsHighway(parentRelation) && (!ignoreInnerWays || parentRelation.memberById(way.id).role !== "inner"))
-            return true;
+          if (parentRelation.tags.type === "route" && parentRelation.tags.route === "ferry") return true;
+          if (parentRelation.isMultipolygon() && isTaggedAsHighway(parentRelation) && (!ignoreInnerWays || parentRelation.memberById(way.id).role !== "inner")) return true;
           return false;
         });
       }
       function makeContinueDrawingFixIfAllowed(textDirection, vertexID, whichEnd) {
         var vertex = graph.hasEntity(vertexID);
-        if (!vertex || vertex.tags.noexit === "yes")
-          return null;
+        if (!vertex || vertex.tags.noexit === "yes") return null;
         var useLeftContinue = whichEnd === "start" && textDirection === "ltr" || whichEnd === "end" && textDirection === "rtl";
         return new validationIssueFix({
           icon: "iD-operation-continue" + (useLeftContinue ? "-left" : ""),
@@ -45423,8 +44176,7 @@
             var way = context.hasEntity(wayId);
             var vertexId = this.entityIds[0];
             var vertex2 = context.hasEntity(vertexId);
-            if (!way || !vertex2)
-              return;
+            if (!way || !vertex2) return;
             var map2 = context.map();
             if (!context.editable() || !map2.trimmedExtent().contains(vertex2.loc)) {
               map2.zoomToEase(vertex2);
@@ -45487,14 +44239,11 @@
   function validationHelpRequest(context) {
     var type2 = "help_request";
     var validation = function checkFixmeTag(entity) {
-      if (!entity.tags.fixme)
-        return [];
-      if (entity.version === void 0)
-        return [];
+      if (!entity.tags.fixme) return [];
+      if (entity.version === void 0) return [];
       if (entity.v !== void 0) {
         var baseEntity = context.history().base().hasEntity(entity.id);
-        if (!baseEntity || !baseEntity.tags.fixme)
-          return [];
+        if (!baseEntity || !baseEntity.tags.fixme) return [];
       }
       return [new validationIssue({
         type: type2,
@@ -45533,31 +44282,22 @@
   function validationImpossibleOneway() {
     var type2 = "impossible_oneway";
     var validation = function checkImpossibleOneway(entity, graph) {
-      if (entity.type !== "way" || entity.geometry(graph) !== "line")
-        return [];
-      if (entity.isClosed())
-        return [];
-      if (!typeForWay(entity))
-        return [];
-      if (!isOneway(entity))
-        return [];
+      if (entity.type !== "way" || entity.geometry(graph) !== "line") return [];
+      if (entity.isClosed()) return [];
+      if (!typeForWay(entity)) return [];
+      if (!isOneway(entity)) return [];
       var firstIssues = issuesForNode(entity, entity.first());
       var lastIssues = issuesForNode(entity, entity.last());
       return firstIssues.concat(lastIssues);
       function typeForWay(way) {
-        if (way.geometry(graph) !== "line")
-          return null;
-        if (osmRoutableHighwayTagValues[way.tags.highway])
-          return "highway";
-        if (osmFlowingWaterwayTagValues[way.tags.waterway])
-          return "waterway";
+        if (way.geometry(graph) !== "line") return null;
+        if (osmRoutableHighwayTagValues[way.tags.highway]) return "highway";
+        if (osmFlowingWaterwayTagValues[way.tags.waterway]) return "waterway";
         return null;
       }
       function isOneway(way) {
-        if (way.tags.oneway === "yes")
-          return true;
-        if (way.tags.oneway)
-          return false;
+        if (way.tags.oneway === "yes") return true;
+        if (way.tags.oneway) return false;
         for (var key in way.tags) {
           if (osmOneWayTags[key] && osmOneWayTags[key][way.tags[key]]) {
             return true;
@@ -45570,8 +44310,7 @@
         for (var index in way.nodes) {
           if (way.nodes[index] === nodeID) {
             occurrences += 1;
-            if (occurrences > 1)
-              return true;
+            if (occurrences > 1) return true;
           }
         }
         return false;
@@ -45579,35 +44318,26 @@
       function isConnectedViaOtherTypes(way, node) {
         var wayType = typeForWay(way);
         if (wayType === "highway") {
-          if (node.tags.entrance && node.tags.entrance !== "no")
-            return true;
-          if (node.tags.amenity === "parking_entrance")
-            return true;
+          if (node.tags.entrance && node.tags.entrance !== "no") return true;
+          if (node.tags.amenity === "parking_entrance") return true;
         } else if (wayType === "waterway") {
           if (node.id === way.first()) {
-            if (node.tags.natural === "spring")
-              return true;
+            if (node.tags.natural === "spring") return true;
           } else {
-            if (node.tags.manhole === "drain")
-              return true;
+            if (node.tags.manhole === "drain") return true;
           }
         }
         return graph.parentWays(node).some(function(parentWay) {
-          if (parentWay.id === way.id)
-            return false;
+          if (parentWay.id === way.id) return false;
           if (wayType === "highway") {
-            if (parentWay.geometry(graph) === "area" && osmRoutableHighwayTagValues[parentWay.tags.highway])
-              return true;
-            if (parentWay.tags.route === "ferry")
-              return true;
+            if (parentWay.geometry(graph) === "area" && osmRoutableHighwayTagValues[parentWay.tags.highway]) return true;
+            if (parentWay.tags.route === "ferry") return true;
             return graph.parentRelations(parentWay).some(function(parentRelation) {
-              if (parentRelation.tags.type === "route" && parentRelation.tags.route === "ferry")
-                return true;
+              if (parentRelation.tags.type === "route" && parentRelation.tags.route === "ferry") return true;
               return parentRelation.isMultipolygon() && osmRoutableHighwayTagValues[parentRelation.tags.highway];
             });
           } else if (wayType === "waterway") {
-            if (parentWay.tags.natural === "water" || parentWay.tags.natural === "coastline")
-              return true;
+            if (parentWay.tags.natural === "water" || parentWay.tags.natural === "coastline") return true;
           }
           return false;
         });
@@ -45615,38 +44345,28 @@
       function issuesForNode(way, nodeID) {
         var isFirst = nodeID === way.first();
         var wayType = typeForWay(way);
-        if (nodeOccursMoreThanOnce(way, nodeID))
-          return [];
+        if (nodeOccursMoreThanOnce(way, nodeID)) return [];
         var osm = services.osm;
-        if (!osm)
-          return [];
+        if (!osm) return [];
         var node = graph.hasEntity(nodeID);
-        if (!node || !osm.isDataLoaded(node.loc))
-          return [];
-        if (isConnectedViaOtherTypes(way, node))
-          return [];
+        if (!node || !osm.isDataLoaded(node.loc)) return [];
+        if (isConnectedViaOtherTypes(way, node)) return [];
         var attachedWaysOfSameType = graph.parentWays(node).filter(function(parentWay) {
-          if (parentWay.id === way.id)
-            return false;
+          if (parentWay.id === way.id) return false;
           return typeForWay(parentWay) === wayType;
         });
-        if (wayType === "waterway" && attachedWaysOfSameType.length === 0)
-          return [];
+        if (wayType === "waterway" && attachedWaysOfSameType.length === 0) return [];
         var attachedOneways = attachedWaysOfSameType.filter(function(attachedWay) {
           return isOneway(attachedWay);
         });
-        if (attachedOneways.length < attachedWaysOfSameType.length)
-          return [];
+        if (attachedOneways.length < attachedWaysOfSameType.length) return [];
         if (attachedOneways.length) {
           var connectedEndpointsOkay = attachedOneways.some(function(attachedOneway) {
-            if ((isFirst ? attachedOneway.first() : attachedOneway.last()) !== nodeID)
-              return true;
-            if (nodeOccursMoreThanOnce(attachedOneway, nodeID))
-              return true;
+            if ((isFirst ? attachedOneway.first() : attachedOneway.last()) !== nodeID) return true;
+            if (nodeOccursMoreThanOnce(attachedOneway, nodeID)) return true;
             return false;
           });
-          if (connectedEndpointsOkay)
-            return [];
+          if (connectedEndpointsOkay) return [];
         }
         var placement = isFirst ? "start" : "end", messageID = wayType + ".", referenceID = wayType + ".";
         if (wayType === "waterway") {
@@ -45740,19 +44460,15 @@
     ];
     const validation = function checkIncompatibleSource(entity) {
       const entitySources = entity.tags && entity.tags.source && entity.tags.source.split(";");
-      if (!entitySources)
-        return [];
+      if (!entitySources) return [];
       const entityID = entity.id;
       return entitySources.map((source) => {
         const matchRule = incompatibleRules.find((rule) => {
-          if (!rule.regex.test(source))
-            return false;
-          if (rule.exceptRegex && rule.exceptRegex.test(source))
-            return false;
+          if (!rule.regex.test(source)) return false;
+          if (rule.exceptRegex && rule.exceptRegex.test(source)) return false;
           return true;
         });
-        if (!matchRule)
-          return null;
+        if (!matchRule) return null;
         return new validationIssue({
           type: type2,
           severity: "warning",
@@ -45792,8 +44508,7 @@
   function validationMaprules() {
     var type2 = "maprules";
     var validation = function checkMaprules(entity, graph) {
-      if (!services.maprules)
-        return [];
+      if (!services.maprules) return [];
       var rules = services.maprules.validationRules();
       var issues = [];
       for (var i3 = 0; i3 < rules.length; i3++) {
@@ -45811,8 +44526,7 @@
   function validationMismatchedGeometry() {
     var type2 = "mismatched_geometry";
     function tagSuggestingLineIsArea(entity) {
-      if (entity.type !== "way" || entity.isClosed())
-        return null;
+      if (entity.type !== "way" || entity.isClosed()) return null;
       var tagSuggestingArea = entity.tagSuggestingArea();
       if (!tagSuggestingArea) {
         return null;
@@ -45825,8 +44539,7 @@
       return tagSuggestingArea;
     }
     function makeConnectEndpointsFixOnClick(way, graph) {
-      if (way.nodes.length < 3)
-        return null;
+      if (way.nodes.length < 3) return null;
       var nodes = graph.childNodes(way), testNodes;
       var firstToLastDistanceMeters = geoSphericalDistance(nodes[0].loc, nodes[nodes.length - 1].loc);
       if (firstToLastDistanceMeters < 0.75) {
@@ -45860,8 +44573,7 @@
     }
     function lineTaggedAsAreaIssue(entity) {
       var tagSuggestingArea = tagSuggestingLineIsArea(entity);
-      if (!tagSuggestingArea)
-        return null;
+      if (!tagSuggestingArea) return null;
       var validAsLine = false;
       var presetAsLine = _mainPresetIndex.matchTags(entity.tags, "line");
       if (presetAsLine) {
@@ -45927,12 +44639,9 @@
       }
     }
     function vertexPointIssue(entity, graph) {
-      if (entity.type !== "node")
-        return null;
-      if (Object.keys(entity.tags).length === 0)
-        return null;
-      if (entity.isOnAddressLine(graph))
-        return null;
+      if (entity.type !== "node") return null;
+      if (Object.keys(entity.tags).length === 0) return null;
+      if (entity.isOnAddressLine(graph)) return null;
       var geometry = entity.geometry(graph);
       var allowedGeometries = osmNodeGeometriesForTags(entity.tags);
       if (geometry === "point" && !allowedGeometries.point && allowedGeometries.vertex) {
@@ -45982,38 +44691,27 @@
       return null;
     }
     function otherMismatchIssue(entity, graph) {
-      if (!entity.hasInterestingTags())
-        return null;
-      if (entity.type !== "node" && entity.type !== "way")
-        return null;
-      if (entity.type === "node" && entity.isOnAddressLine(graph))
-        return null;
+      if (!entity.hasInterestingTags()) return null;
+      if (entity.type !== "node" && entity.type !== "way") return null;
+      if (entity.type === "node" && entity.isOnAddressLine(graph)) return null;
       var sourceGeom = entity.geometry(graph);
       var targetGeoms = entity.type === "way" ? ["point", "vertex"] : ["line", "area"];
-      if (sourceGeom === "area")
-        targetGeoms.unshift("line");
+      if (sourceGeom === "area") targetGeoms.unshift("line");
       var asSource = _mainPresetIndex.match(entity, graph);
       var targetGeom = targetGeoms.find((nodeGeom) => {
         var asTarget = _mainPresetIndex.matchTags(entity.tags, nodeGeom);
         if (!asSource || !asTarget || asSource === asTarget || // sometimes there are two presets with the same tags for different geometries
-        (0, import_fast_deep_equal4.default)(asSource.tags, asTarget.tags))
-          return false;
-        if (asTarget.isFallback())
-          return false;
+        (0, import_fast_deep_equal4.default)(asSource.tags, asTarget.tags)) return false;
+        if (asTarget.isFallback()) return false;
         var primaryKey = Object.keys(asTarget.tags)[0];
-        if (primaryKey === "building")
-          return false;
-        if (asTarget.tags[primaryKey] === "*")
-          return false;
+        if (primaryKey === "building") return false;
+        if (asTarget.tags[primaryKey] === "*") return false;
         return asSource.isFallback() || asSource.tags[primaryKey] === "*";
       });
-      if (!targetGeom)
-        return null;
+      if (!targetGeom) return null;
       var subtype = targetGeom + "_as_" + sourceGeom;
-      if (targetGeom === "vertex")
-        targetGeom = "point";
-      if (sourceGeom === "vertex")
-        sourceGeom = "point";
+      if (targetGeom === "vertex") targetGeom = "point";
+      if (sourceGeom === "vertex") sourceGeom = "point";
       var referenceId = targetGeom + "_as_" + sourceGeom;
       var dynamicFixes;
       if (targetGeom === "point") {
@@ -46095,18 +44793,15 @@
     }
     function unclosedMultipolygonPartIssues(entity, graph) {
       if (entity.type !== "relation" || !entity.isMultipolygon() || entity.isDegenerate() || // cannot determine issues for incompletely-downloaded relations
-      !entity.isComplete(graph))
-        return [];
+      !entity.isComplete(graph)) return [];
       var sequences = osmJoinWays(entity.members, graph);
       var issues = [];
       for (var i3 in sequences) {
         var sequence = sequences[i3];
-        if (!sequence.nodes)
-          continue;
+        if (!sequence.nodes) continue;
         var firstNode = sequence.nodes[0];
         var lastNode = sequence.nodes[sequence.nodes.length - 1];
-        if (firstNode === lastNode)
-          continue;
+        if (firstNode === lastNode) continue;
         var issue = new validationIssue({
           type: type2,
           subtype: "unclosed_multipolygon_part",
@@ -46138,14 +44833,11 @@
     }
     var validation = function checkMismatchedGeometry(entity, graph) {
       var vertexPoint = vertexPointIssue(entity, graph);
-      if (vertexPoint)
-        return [vertexPoint];
+      if (vertexPoint) return [vertexPoint];
       var lineAsArea = lineTaggedAsAreaIssue(entity);
-      if (lineAsArea)
-        return [lineAsArea];
+      if (lineAsArea) return [lineAsArea];
       var mismatch = otherMismatchIssue(entity, graph);
-      if (mismatch)
-        return [mismatch];
+      if (mismatch) return [mismatch];
       return unclosedMultipolygonPartIssues(entity, graph);
     };
     validation.type = type2;
@@ -46159,8 +44851,7 @@
       var issues = [];
       if (entity.type === "way") {
         graph.parentRelations(entity).forEach(function(relation) {
-          if (!relation.isMultipolygon())
-            return;
+          if (!relation.isMultipolygon()) return;
           var member = relation.memberById(entity.id);
           if (member && isMissingRole(member)) {
             issues.push(makeIssue(entity, relation, member));
@@ -46244,8 +44935,7 @@
     function hasDescriptiveTags(entity) {
       var onlyAttributeKeys = ["description", "name", "note", "start_date"];
       var entityDescriptiveKeys = Object.keys(entity.tags).filter(function(k2) {
-        if (k2 === "area" || !osmIsInterestingTag(k2))
-          return false;
+        if (k2 === "area" || !osmIsInterestingTag(k2)) return false;
         return !onlyAttributeKeys.some(function(attributeKey) {
           return k2 === attributeKey || k2.indexOf(attributeKey + ":") === 0;
         });
@@ -46279,8 +44969,7 @@
       if (!subtype && isUnknownRoad(entity)) {
         subtype = "highway_classification";
       }
-      if (!subtype)
-        return [];
+      if (!subtype) return [];
       var messageID = subtype === "highway_classification" ? "unknown_road" : "missing_tag." + subtype;
       var referenceID = subtype === "highway_classification" ? "unknown_road" : "missing_tag";
       var canDelete = entity.version === void 0 || entity.v !== void 0;
@@ -46413,11 +45102,9 @@
     _mainFileFetcher.get("deprecated").then((d2) => _dataDeprecated = d2).catch(() => {
     }).finally(() => _waitingForDeprecated = false);
     function oldTagIssues(entity, graph) {
-      if (!entity.hasInterestingTags())
-        return [];
+      if (!entity.hasInterestingTags()) return [];
       let preset = _mainPresetIndex.match(entity, graph);
-      if (!preset)
-        return [];
+      if (!preset) return [];
       const oldTags = Object.assign({}, entity.tags);
       let subtype = "deprecated_tags";
       if (preset.replacement) {
@@ -46489,8 +45176,7 @@
       let issues = [];
       issues.provisional = _waitingForDeprecated || waitingForNsi;
       const tagDiff = utilTagDiff(oldTags, newTags);
-      if (!tagDiff.length)
-        return issues;
+      if (!tagDiff.length) return issues;
       const isOnlyAddingTags = tagDiff.every((d2) => d2.type === "+");
       let prefix = "";
       if (nsiResult) {
@@ -46535,8 +45221,7 @@
       return issues;
       function doUpgrade(graph2) {
         const currEntity = graph2.hasEntity(entity.id);
-        if (!currEntity)
-          return graph2;
+        if (!currEntity) return graph2;
         let newTags2 = Object.assign({}, currEntity.tags);
         tagDiff.forEach((diff) => {
           if (diff.type === "-") {
@@ -46549,11 +45234,9 @@
       }
       function addNotTag(graph2) {
         const currEntity = graph2.hasEntity(entity.id);
-        if (!currEntity)
-          return graph2;
+        if (!currEntity) return graph2;
         const item = nsiResult && nsiResult.matched;
-        if (!item)
-          return graph2;
+        if (!item) return graph2;
         let newTags2 = Object.assign({}, currEntity.tags);
         const wd = item.mainTag;
         const notwd = "not:".concat(wd);
@@ -46568,8 +45251,7 @@
       }
       function showMessage(context) {
         const currEntity = context.hasEntity(entity.id);
-        if (!currEntity)
-          return "";
+        if (!currEntity) return "";
         let messageID = "issues.outdated_tags.".concat(prefix, "message");
         if (subtype === "noncanonical_brand" && isOnlyAddingTags) {
           messageID += "_incomplete";
@@ -46629,19 +45311,16 @@
     };
     var validation = function checkPrivateData(entity) {
       var tags = entity.tags;
-      if (!tags.building || !privateBuildingValues[tags.building])
-        return [];
+      if (!tags.building || !privateBuildingValues[tags.building]) return [];
       var keepTags = {};
       for (var k2 in tags) {
-        if (publicKeys[k2])
-          return [];
+        if (publicKeys[k2]) return [];
         if (!personalTags[k2]) {
           keepTags[k2] = tags[k2];
         }
       }
       var tagDiff = utilTagDiff(tags, keepTags);
-      if (!tagDiff.length)
-        return [];
+      if (!tagDiff.length) return [];
       var fixID = tagDiff.length === 1 ? "remove_tag" : "remove_tags";
       return [new validationIssue({
         type: type2,
@@ -46663,8 +45342,7 @@
       })];
       function doUpgrade(graph) {
         var currEntity = graph.hasEntity(entity.id);
-        if (!currEntity)
-          return graph;
+        if (!currEntity) return graph;
         var newTags = Object.assign({}, currEntity.tags);
         tagDiff.forEach(function(diff) {
           if (diff.type === "-") {
@@ -46677,8 +45355,7 @@
       }
       function showMessage(context) {
         var currEntity = context.hasEntity(this.entityIds[0]);
-        if (!currEntity)
-          return "";
+        if (!currEntity) return "";
         return _t.append(
           "issues.private_data.contact.message",
           { feature: utilDisplayLabel(currEntity, context.graph()) }
@@ -46753,8 +45430,7 @@
         severity: "warning",
         message: function(context) {
           let entity = context.hasEntity(this.entityIds[0]);
-          if (!entity)
-            return "";
+          if (!entity) return "";
           let preset = _mainPresetIndex.match(entity, context.graph());
           let langName = langCode && _mainLocalizer.languageName(langCode);
           return _t.append(
@@ -46791,13 +45467,11 @@
     let validation = function checkGenericName(entity) {
       const tags = entity.tags;
       const hasWikidata = !!tags.wikidata || !!tags["brand:wikidata"] || !!tags["operator:wikidata"];
-      if (hasWikidata)
-        return [];
+      if (hasWikidata) return [];
       let issues = [];
       for (let key in tags) {
         const m2 = key.match(/^name(?:(?::)([a-zA-Z_-]+))?$/);
-        if (!m2)
-          continue;
+        if (!m2) continue;
         const langCode = m2.length >= 2 ? m2[1] : null;
         const value = tags[key];
         if (isGenericName(value, tags)) {
@@ -46818,46 +45492,36 @@
     var epsilon3 = 0.05;
     var nodeThreshold = 10;
     function isBuilding(entity, graph) {
-      if (entity.type !== "way" || entity.geometry(graph) !== "area")
-        return false;
+      if (entity.type !== "way" || entity.geometry(graph) !== "area") return false;
       return entity.tags.building && entity.tags.building !== "no";
     }
     var validation = function checkUnsquareWay(entity, graph) {
-      if (!isBuilding(entity, graph))
-        return [];
-      if (entity.tags.nonsquare === "yes")
-        return [];
+      if (!isBuilding(entity, graph)) return [];
+      if (entity.tags.nonsquare === "yes") return [];
       var isClosed = entity.isClosed();
-      if (!isClosed)
-        return [];
+      if (!isClosed) return [];
       var nodes = graph.childNodes(entity).slice();
-      if (nodes.length > nodeThreshold + 1)
-        return [];
+      if (nodes.length > nodeThreshold + 1) return [];
       var osm = services.osm;
       if (!osm || nodes.some(function(node) {
         return !osm.isDataLoaded(node.loc);
-      }))
-        return [];
+      })) return [];
       var hasConnectedSquarableWays = nodes.some(function(node) {
         return graph.parentWays(node).some(function(way) {
-          if (way.id === entity.id)
-            return false;
-          if (isBuilding(way, graph))
-            return true;
+          if (way.id === entity.id) return false;
+          if (isBuilding(way, graph)) return true;
           return graph.parentRelations(way).some(function(parentRelation) {
             return parentRelation.isMultipolygon() && parentRelation.tags.building && parentRelation.tags.building !== "no";
           });
         });
       });
-      if (hasConnectedSquarableWays)
-        return [];
+      if (hasConnectedSquarableWays) return [];
       var storedDegreeThreshold = corePreferences("validate-square-degrees");
       var degreeThreshold = isFinite(storedDegreeThreshold) ? Number(storedDegreeThreshold) : DEFAULT_DEG_THRESHOLD;
       var points = nodes.map(function(node) {
         return context.projection(node.loc);
       });
-      if (!geoOrthoCanOrthogonalize(points, isClosed, epsilon3, degreeThreshold, true))
-        return [];
+      if (!geoOrthoCanOrthogonalize(points, isClosed, epsilon3, degreeThreshold, true)) return [];
       var autoArgs;
       if (!entity.tags.wikidata) {
         var autoAction = actionOrthogonalize(entity.id, context.projection, void 0, degreeThreshold);
@@ -46947,8 +45611,7 @@
         const parts = rule.split("/", 2);
         const type2 = parts[0];
         const subtype = parts[1] || "*";
-        if (!type2 || !subtype)
-          return;
+        if (!type2 || !subtype) return;
         result.push({ type: makeRegExp(type2), subtype: makeRegExp(subtype) });
       });
       return result;
@@ -46959,8 +45622,7 @@
     }
     validator.init = () => {
       Object.values(validations_exports).forEach((validation) => {
-        if (typeof validation !== "function")
-          return;
+        if (typeof validation !== "function") return;
         const fn = validation(context);
         const key = fn.type;
         _rules[key] = fn;
@@ -46980,8 +45642,7 @@
       _deferredRIC = {};
       _deferredST.forEach(window.clearTimeout);
       _deferredST.clear();
-      if (resetIgnored)
-        _ignoredIssueIDs.clear();
+      if (resetIgnored) _ignoredIssueIDs.clear();
       _resolvedIssueIDs.clear();
       _baseCache = validationCache("base");
       _headCache = validationCache("head");
@@ -47002,14 +45663,12 @@
     };
     function revalidateUnsquare(cache) {
       const checkUnsquareWay = _rules.unsquare_way;
-      if (!cache.graph || typeof checkUnsquareWay !== "function")
-        return;
+      if (!cache.graph || typeof checkUnsquareWay !== "function") return;
       cache.uncacheIssuesOfType("unsquare_way");
       const buildings = context.history().tree().intersects(geoExtent([-180, -90], [180, 90]), cache.graph).filter((entity) => entity.type === "way" && entity.tags.building && entity.tags.building !== "no");
       buildings.forEach((entity) => {
         const detected = checkUnsquareWay(entity, cache.graph);
-        if (!detected.length)
-          return;
+        if (!detected.length) return;
         cache.cacheIssues(detected);
       });
     }
@@ -47021,44 +45680,32 @@
       if (_headCache.graph && _headCache.graph !== _baseCache.graph) {
         Object.values(_headCache.issuesByIssueID).forEach((issue) => {
           const userModified = (issue.entityIds || []).some((id2) => _completeDiff.hasOwnProperty(id2));
-          if (opts.what === "edited" && !userModified)
-            return;
-          if (!filter2(issue))
-            return;
+          if (opts.what === "edited" && !userModified) return;
+          if (!filter2(issue)) return;
           seen.add(issue.id);
           results.push(issue);
         });
       }
       if (opts.what === "all") {
         Object.values(_baseCache.issuesByIssueID).forEach((issue) => {
-          if (!filter2(issue))
-            return;
+          if (!filter2(issue)) return;
           seen.add(issue.id);
           results.push(issue);
         });
       }
       return results;
       function filter2(issue) {
-        if (!issue)
-          return false;
-        if (seen.has(issue.id))
-          return false;
-        if (_resolvedIssueIDs.has(issue.id))
-          return false;
-        if (opts.includeDisabledRules === "only" && !_disabledRules[issue.type])
-          return false;
-        if (!opts.includeDisabledRules && _disabledRules[issue.type])
-          return false;
-        if (opts.includeIgnored === "only" && !_ignoredIssueIDs.has(issue.id))
-          return false;
-        if (!opts.includeIgnored && _ignoredIssueIDs.has(issue.id))
-          return false;
-        if ((issue.entityIds || []).some((id2) => !context.hasEntity(id2)))
-          return false;
+        if (!issue) return false;
+        if (seen.has(issue.id)) return false;
+        if (_resolvedIssueIDs.has(issue.id)) return false;
+        if (opts.includeDisabledRules === "only" && !_disabledRules[issue.type]) return false;
+        if (!opts.includeDisabledRules && _disabledRules[issue.type]) return false;
+        if (opts.includeIgnored === "only" && !_ignoredIssueIDs.has(issue.id)) return false;
+        if (!opts.includeIgnored && _ignoredIssueIDs.has(issue.id)) return false;
+        if ((issue.entityIds || []).some((id2) => !context.hasEntity(id2))) return false;
         if (opts.where === "visible") {
           const extent = issue.extent(context.graph());
-          if (!view.intersects(extent))
-            return false;
+          if (!view.intersects(extent)) return false;
         }
         return true;
       }
@@ -47169,10 +45816,8 @@
     };
     validator.validate = () => {
       const baseGraph = context.history().base();
-      if (!_headCache.graph)
-        _headCache.graph = baseGraph;
-      if (!_baseCache.graph)
-        _baseCache.graph = baseGraph;
+      if (!_headCache.graph) _headCache.graph = baseGraph;
+      if (!_baseCache.graph) _baseCache.graph = baseGraph;
       const prevGraph = _headCache.graph;
       const currGraph = context.graph();
       if (currGraph === prevGraph) {
@@ -47208,13 +45853,10 @@
     });
     context.on("exit.validator", validator.validate);
     context.history().on("merge.validator", (entities) => {
-      if (!entities)
-        return;
+      if (!entities) return;
       const baseGraph = context.history().base();
-      if (!_headCache.graph)
-        _headCache.graph = baseGraph;
-      if (!_baseCache.graph)
-        _baseCache.graph = baseGraph;
+      if (!_headCache.graph) _headCache.graph = baseGraph;
+      if (!_baseCache.graph) _baseCache.graph = baseGraph;
       let entityIDs = entities.map((entity) => entity.id);
       entityIDs = _baseCache.withAllRelatedEntities(entityIDs);
       validateEntitiesAsync(entityIDs, _baseCache);
@@ -47263,8 +45905,7 @@
     function updateResolvedIssues(entityIDs) {
       entityIDs.forEach((entityID) => {
         const baseIssues = _baseCache.issuesByEntityID[entityID];
-        if (!baseIssues)
-          return;
+        if (!baseIssues) return;
         baseIssues.forEach((issueID) => {
           const issue = _baseCache.issuesByIssueID[issueID];
           const userModified = (issue.entityIds || []).some((id2) => _completeDiff.hasOwnProperty(id2));
@@ -47278,18 +45919,15 @@
     }
     function validateEntitiesAsync(entityIDs, cache) {
       const jobs = Array.from(entityIDs).map((entityID) => {
-        if (cache.queuedEntityIDs.has(entityID))
-          return null;
+        if (cache.queuedEntityIDs.has(entityID)) return null;
         cache.queuedEntityIDs.add(entityID);
         cache.uncacheEntityID(entityID);
         return () => {
           cache.queuedEntityIDs.delete(entityID);
           const graph = cache.graph;
-          if (!graph)
-            return;
+          if (!graph) return;
           const entity = graph.hasEntity(entityID);
-          if (!entity)
-            return;
+          if (!entity) return;
           const result = validateEntity(entity, graph);
           if (result.provisional) {
             cache.provisionalEntityIDs.add(entityID);
@@ -47298,26 +45936,22 @@
         };
       }).filter(Boolean);
       cache.queue = cache.queue.concat(utilArrayChunk(jobs, 100));
-      if (cache.queuePromise)
-        return cache.queuePromise;
+      if (cache.queuePromise) return cache.queuePromise;
       cache.queuePromise = processQueue(cache).then(() => revalidateProvisionalEntities(cache)).catch(() => {
       }).finally(() => cache.queuePromise = null);
       return cache.queuePromise;
     }
     function revalidateProvisionalEntities(cache) {
-      if (!cache.provisionalEntityIDs.size)
-        return;
+      if (!cache.provisionalEntityIDs.size) return;
       const handle = window.setTimeout(() => {
         _deferredST.delete(handle);
-        if (!cache.provisionalEntityIDs.size)
-          return;
+        if (!cache.provisionalEntityIDs.size) return;
         validateEntitiesAsync(Array.from(cache.provisionalEntityIDs), cache);
       }, RETRY);
       _deferredST.add(handle);
     }
     function processQueue(cache) {
-      if (!cache.queue.length)
-        return Promise.resolve();
+      if (!cache.queue.length) return Promise.resolve();
       const chunk = cache.queue.pop();
       return new Promise((resolvePromise, rejectPromise) => {
         const handle = window.requestIdleCallback(() => {
@@ -47327,8 +45961,7 @@
         });
         _deferredRIC[handle] = rejectPromise;
       }).then(() => {
-        if (cache.queue.length % 25 === 0)
-          dispatch14.call("validated");
+        if (cache.queue.length % 25 === 0) dispatch14.call("validated");
       }).then(() => processQueue(cache));
     }
     return validator;
@@ -47448,8 +46081,7 @@
         return;
       }
       var osm = context.connection();
-      if (!osm)
-        return;
+      if (!osm) return;
       if (!osm.authenticated()) {
         osm.authenticate(function(err) {
           if (!err) {
@@ -47477,8 +46109,7 @@
     };
     function performFullConflictCheck(changeset) {
       var osm = context.connection();
-      if (!osm)
-        return;
+      if (!osm) return;
       var history = context.history();
       var localGraph = context.graph();
       var remoteGraph = coreGraph(history.base(), true);
@@ -47508,8 +46139,7 @@
         var s2 = new Set(ids);
         ids.forEach(function(id2) {
           var entity = graph.entity(id2);
-          if (entity.type !== "way")
-            return;
+          if (entity.type !== "way") return;
           graph.childNodes(entity).forEach(function(child) {
             if (child.version !== void 0) {
               s2.add(child.id);
@@ -47519,8 +46149,7 @@
         return Array.from(s2);
       }
       function loaded(err, result) {
-        if (_errors.length)
-          return;
+        if (_errors.length) return;
         if (err) {
           _errors.push({
             msg: err.message || err.responseText,
@@ -47535,8 +46164,7 @@
             _toLoad = _toLoad.filter(function(val) {
               return val !== entity.id;
             });
-            if (!entity.visible)
-              return;
+            if (!entity.visible) return;
             var i4, id2;
             if (entity.type === "way") {
               for (i4 = 0; i4 < entity.nodes.length; i4++) {
@@ -47586,15 +46214,13 @@
           return utilDisplayName(entity) || utilDisplayType(entity.id) + " " + entity.id;
         }
         function sameVersions(local, remote) {
-          if (local.version !== remote.version)
-            return false;
+          if (local.version !== remote.version) return false;
           if (local.type === "way") {
             var children2 = utilArrayUnion(local.nodes, remote.nodes);
             for (var i4 = 0; i4 < children2.length; i4++) {
               var a2 = localGraph.hasEntity(children2[i4]);
               var b2 = remoteGraph.hasEntity(children2[i4]);
-              if (a2 && b2 && a2.version !== b2.version)
-                return false;
+              if (a2 && b2 && a2.version !== b2.version) return false;
             }
           }
           return true;
@@ -47602,13 +46228,11 @@
         _toCheck.forEach(function(id2) {
           var local = localGraph.entity(id2);
           var remote = remoteGraph.entity(id2);
-          if (sameVersions(local, remote))
-            return;
+          if (sameVersions(local, remote)) return;
           var merge2 = actionMergeRemoteChanges(id2, localGraph, remoteGraph, _discardTags, formatUser);
           history.replace(merge2);
           var mergeConflicts = merge2.conflicts();
-          if (!mergeConflicts.length)
-            return;
+          if (!mergeConflicts.length) return;
           var forceLocal = actionMergeRemoteChanges(id2, localGraph, remoteGraph, _discardTags).withOption("force_local");
           var forceRemote = actionMergeRemoteChanges(id2, localGraph, remoteGraph, _discardTags).withOption("force_remote");
           var keepMine = _t("save.conflict." + (remote.visible ? "keep_local" : "restore"));
@@ -47753,12 +46377,10 @@
     isRetina = window.devicePixelRatio && window.devicePixelRatio >= 2;
   });
   function localeDateString(s2) {
-    if (!s2)
-      return null;
+    if (!s2) return null;
     var options2 = { day: "numeric", month: "short", year: "numeric" };
     var d2 = new Date(s2);
-    if (isNaN(d2.getTime()))
-      return null;
+    if (isNaN(d2.getTime())) return null;
     return d2.toLocaleDateString(_mainLocalizer.localeCode(), options2);
   }
   function vintageRange(vintage) {
@@ -47782,8 +46404,7 @@
     source.zoomExtent = data.zoomExtent || [0, 22];
     source.overzoom = data.overzoom !== false;
     source.offset = function(val) {
-      if (!arguments.length)
-        return _offset;
+      if (!arguments.length) return _offset;
       _offset = val;
       return source;
     };
@@ -47813,8 +46434,7 @@
       return _best;
     };
     source.area = function() {
-      if (!data.polygon)
-        return Number.MAX_VALUE;
+      if (!data.polygon) return Number.MAX_VALUE;
       var area = area_default({ type: "MultiPolygon", coordinates: [data.polygon] });
       return isNaN(area) ? 0 : area;
     };
@@ -47822,8 +46442,7 @@
       return _name || source.id;
     };
     source.template = function(val) {
-      if (!arguments.length)
-        return _template;
+      if (!arguments.length) return _template;
       if (source.id === "custom" || source.id === "Bing") {
         _template = val;
       }
@@ -47831,8 +46450,7 @@
     };
     source.url = function(coord2) {
       var result = _template.replace(/#[\s\S]*/u, "");
-      if (result === "")
-        return result;
+      if (result === "") return result;
       if (!source.type || source.id === "custom") {
         if (/SERVICE=WMS|\{(proj|wkid|bbox)\}/.test(result)) {
           source.type = "wms";
@@ -47902,10 +46520,8 @@
           for (var zoom = coord2[2]; zoom > 0; zoom--) {
             var b2 = 0;
             var mask = 1 << zoom - 1;
-            if ((coord2[0] & mask) !== 0)
-              b2++;
-            if ((coord2[1] & mask) !== 0)
-              b2 += 2;
+            if ((coord2[0] & mask) !== 0) b2++;
+            if ((coord2[1] & mask) !== 0) b2 += 2;
             u2 += b2.toString();
           }
           return u2;
@@ -47991,8 +46607,7 @@
       var zoom = Math.min(tileCoord[2], 21);
       var centerPoint = center[1] + "," + center[0];
       var url2 = "https://dev.virtualearth.net/REST/v1/Imagery/BasicMetadata/AerialOSM/" + centerPoint + "?zl=" + zoom + "&key=" + key;
-      if (inflight[tileID])
-        return;
+      if (inflight[tileID]) return;
       if (!cache[tileID]) {
         cache[tileID] = {};
       }
@@ -48017,12 +46632,10 @@
           vintage.range = vintageRange(vintage);
           var metadata = { vintage };
           cache[tileID].metadata = metadata;
-          if (callback)
-            callback(null, metadata);
+          if (callback) callback(null, metadata);
         }).catch(function(err) {
           delete inflight[tileID];
-          if (callback)
-            callback(err.message);
+          if (callback) callback(err.message);
         });
       });
     };
@@ -48038,8 +46651,7 @@
     var inflight = {};
     var _prevCenter;
     esri.fetchTilemap = function(center) {
-      if (_prevCenter && geoSphericalDistance(center, _prevCenter) < 5e3)
-        return;
+      if (_prevCenter && geoSphericalDistance(center, _prevCenter) < 5e3) return;
       _prevCenter = center;
       var z2 = 20;
       var dummyUrl = esri.url([1, 2, 3]);
@@ -48071,8 +46683,7 @@
       var unknown = _t("info_panels.background.unknown");
       var vintage = {};
       var metadata = {};
-      if (inflight[tileID])
-        return;
+      if (inflight[tileID]) return;
       var url = "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/4/query";
       url += "?returnGeometry=false&geometry=" + centerPoint + "&inSR=4326&geometryType=esriGeometryPoint&outFields=*&f=json";
       if (!cache[tileID]) {
@@ -48112,12 +46723,10 @@
           metadata.accuracy += " m";
         }
         cache[tileID].metadata = metadata;
-        if (callback)
-          callback(null, metadata);
+        if (callback) callback(null, metadata);
       }).catch(function(err) {
         delete inflight[tileID];
-        if (callback)
-          callback(err.message);
+        if (callback) callback(err.message);
       });
       function clean2(val) {
         return String(val).trim() || unknown;
@@ -48412,8 +47021,7 @@
 
   // node_modules/@turf/meta/dist/es/index.js
   function coordEach(geojson, callback, excludeWrapCoord) {
-    if (geojson === null)
-      return;
+    if (geojson === null) return;
     var j2, k2, l2, geometry, stopG, coords, geometryMaybeCollection, wrapShrink = 0, coordIndex = 0, isGeometryCollection, type2 = geojson.type, isFeatureCollection = type2 === "FeatureCollection", isFeature = type2 === "Feature", stop = isFeatureCollection ? geojson.features.length : 1;
     for (var featureIndex = 0; featureIndex < stop; featureIndex++) {
       geometryMaybeCollection = isFeatureCollection ? geojson.features[featureIndex].geometry : isFeature ? geojson.geometry : geojson;
@@ -48423,8 +47031,7 @@
         var multiFeatureIndex = 0;
         var geometryIndex = 0;
         geometry = isGeometryCollection ? geometryMaybeCollection.geometries[geomIndex] : geometryMaybeCollection;
-        if (geometry === null)
-          continue;
+        if (geometry === null) continue;
         coords = geometry.coordinates;
         var geomType = geometry.type;
         wrapShrink = excludeWrapCoord && (geomType === "Polygon" || geomType === "MultiPolygon") ? 1 : 0;
@@ -48455,11 +47062,9 @@
               ) === false)
                 return false;
               coordIndex++;
-              if (geomType === "MultiPoint")
-                multiFeatureIndex++;
+              if (geomType === "MultiPoint") multiFeatureIndex++;
             }
-            if (geomType === "LineString")
-              multiFeatureIndex++;
+            if (geomType === "LineString") multiFeatureIndex++;
             break;
           case "Polygon":
           case "MultiLineString":
@@ -48475,13 +47080,10 @@
                   return false;
                 coordIndex++;
               }
-              if (geomType === "MultiLineString")
-                multiFeatureIndex++;
-              if (geomType === "Polygon")
-                geometryIndex++;
+              if (geomType === "MultiLineString") multiFeatureIndex++;
+              if (geomType === "Polygon") geometryIndex++;
             }
-            if (geomType === "Polygon")
-              multiFeatureIndex++;
+            if (geomType === "Polygon") multiFeatureIndex++;
             break;
           case "MultiPolygon":
             for (j2 = 0; j2 < coords.length; j2++) {
@@ -48608,18 +47210,15 @@
       render(selection2);
     }
     function render(selection2) {
-      if (!_source)
-        return;
+      if (!_source) return;
       var requests = [];
       var showDebug = context.getDebug("tile") && !_source.overlay;
       if (_source.validZoom(_zoom)) {
         tiler9.skipNullIsland(!!_source.overlay);
         tiler9().forEach(function(d2) {
           addSource(d2);
-          if (d2[3] === "")
-            return;
-          if (typeof d2[3] !== "string")
-            return;
+          if (d2[3] === "") return;
+          if (typeof d2[3] !== "string") return;
           requests.push(d2);
           if (_cache5[d2[3]] === false && lookUp(d2)) {
             requests.push(addSource(lookUp(d2)));
@@ -48713,20 +47312,17 @@
       }
     }
     background.projection = function(val) {
-      if (!arguments.length)
-        return _projection;
+      if (!arguments.length) return _projection;
       _projection = val;
       return background;
     };
     background.dimensions = function(val) {
-      if (!arguments.length)
-        return tiler9.size();
+      if (!arguments.length) return tiler9.size();
       tiler9.size(val);
       return background;
     };
     background.source = function(val) {
-      if (!arguments.length)
-        return _source;
+      if (!arguments.length) return _source;
       _source = val;
       _tileSize = _source.tileSize;
       _cache5 = {};
@@ -48750,15 +47346,13 @@
     let _sharpness = 1;
     function ensureImageryIndex() {
       return _mainFileFetcher.get("imagery").then((sources) => {
-        if (_imageryIndex)
-          return _imageryIndex;
+        if (_imageryIndex) return _imageryIndex;
         _imageryIndex = {
           imagery: sources,
           features: {}
         };
         const features = sources.map((source) => {
-          if (!source.polygon)
-            return null;
+          if (!source.polygon) return null;
           const rings = source.polygon.map((ring) => [ring]);
           const feature3 = {
             type: "Feature",
@@ -48837,8 +47431,7 @@
     }
     background.updateImagery = function() {
       let currSource = baseLayer.source();
-      if (context.inIntro() || !currSource)
-        return;
+      if (context.inIntro() || !currSource) return;
       let o2 = _overlayLayers.filter((d2) => !d2.source().isLocatorOverlay() && !d2.source().isHidden()).map((d2) => d2.source().id).join(",");
       const meters = geoOffsetToMeters(currSource.offset());
       const EPSILON = 0.01;
@@ -48898,8 +47491,7 @@
       context.history().photoOverlaysUsed(photoOverlaysUsed);
     };
     background.sources = (extent, zoom, includeCurrent) => {
-      if (!_imageryIndex)
-        return [];
+      if (!_imageryIndex) return [];
       let visible = {};
       (_imageryIndex.query.bbox(extent.rectangle(), true) || []).forEach((d2) => visible[d2.id] = true);
       const currSource = baseLayer.source();
@@ -48913,29 +47505,22 @@
         _checkedBlocklists = blocklists.map((regex) => String(regex));
       }
       return _imageryIndex.backgrounds.filter((source) => {
-        if (includeCurrent && currSource === source)
-          return true;
-        if (source.isBlocked)
-          return false;
-        if (!source.polygon)
-          return true;
-        if (zoom && zoom < 6)
-          return false;
+        if (includeCurrent && currSource === source) return true;
+        if (source.isBlocked) return false;
+        if (!source.polygon) return true;
+        if (zoom && zoom < 6) return false;
         return visible[source.id];
       });
     };
     background.dimensions = (val) => {
-      if (!val)
-        return;
+      if (!val) return;
       baseLayer.dimensions(val);
       _overlayLayers.forEach((layer) => layer.dimensions(val));
     };
     background.baseLayerSource = function(d2) {
-      if (!arguments.length)
-        return baseLayer.source();
+      if (!arguments.length) return baseLayer.source();
       const osm = context.connection();
-      if (!osm)
-        return background;
+      if (!osm) return background;
       const blocklists = osm.imageryBlocklists();
       const template = d2.template();
       let fail = false;
@@ -48945,8 +47530,7 @@
         regex = blocklists[i3];
         fail = regex.test(template);
         tested++;
-        if (fail)
-          break;
+        if (fail) break;
       }
       if (!tested) {
         regex = /.*\.google(apis)?\..*\/(vt|kh)[\?\/].*([xyz]=.*){3}.*/;
@@ -48958,8 +47542,7 @@
       return background;
     };
     background.findSource = (id2) => {
-      if (!id2 || !_imageryIndex)
-        return null;
+      if (!id2 || !_imageryIndex) return null;
       return _imageryIndex.backgrounds.find((d2) => d2.id && d2.id === id2);
     };
     background.bing = () => {
@@ -48967,8 +47550,7 @@
     };
     background.showsLayer = (d2) => {
       const currSource = baseLayer.source();
-      if (!d2 || !currSource)
-        return false;
+      if (!d2 || !currSource) return false;
       return d2.id === currSource.id || _overlayLayers.some((layer) => d2.id === layer.source().id);
     };
     background.overlayLayerSources = () => {
@@ -49014,41 +47596,32 @@
       return background;
     };
     background.brightness = function(d2) {
-      if (!arguments.length)
-        return _brightness;
+      if (!arguments.length) return _brightness;
       _brightness = d2;
-      if (context.mode())
-        dispatch14.call("change");
+      if (context.mode()) dispatch14.call("change");
       return background;
     };
     background.contrast = function(d2) {
-      if (!arguments.length)
-        return _contrast;
+      if (!arguments.length) return _contrast;
       _contrast = d2;
-      if (context.mode())
-        dispatch14.call("change");
+      if (context.mode()) dispatch14.call("change");
       return background;
     };
     background.saturation = function(d2) {
-      if (!arguments.length)
-        return _saturation;
+      if (!arguments.length) return _saturation;
       _saturation = d2;
-      if (context.mode())
-        dispatch14.call("change");
+      if (context.mode()) dispatch14.call("change");
       return background;
     };
     background.sharpness = function(d2) {
-      if (!arguments.length)
-        return _sharpness;
+      if (!arguments.length) return _sharpness;
       _sharpness = d2;
-      if (context.mode())
-        dispatch14.call("change");
+      if (context.mode()) dispatch14.call("change");
       return background;
     };
     let _loadPromise;
     background.ensureLoaded = () => {
-      if (_loadPromise)
-        return _loadPromise;
+      if (_loadPromise) return _loadPromise;
       return _loadPromise = ensureImageryIndex();
     };
     background.init = () => {
@@ -49065,8 +47638,7 @@
         if (!requestedBackground && extent) {
           const viewArea = extent.area();
           best = validBackgrounds.find((s2) => {
-            if (!s2.best() || s2.overlay)
-              return false;
+            if (!s2.best() || s2.overlay) return false;
             let bbox2 = es_default(bboxClip(
               { type: "MultiPolygon", coordinates: [s2.polygon || [extent.polygon()]] },
               extent.rectangle()
@@ -49247,8 +47819,7 @@
       var strings = Object.keys(tags);
       for (var i3 = 0; i3 < strings.length; i3++) {
         var s2 = strings[i3];
-        if (osmLifecyclePrefixes[s2] || osmLifecyclePrefixes[tags[s2]])
-          return true;
+        if (osmLifecyclePrefixes[s2] || osmLifecyclePrefixes[tags[s2]]) return true;
       }
       return false;
     });
@@ -49307,8 +47878,7 @@
           _rules[k2].enable();
         }
       }
-      if (didEnable)
-        update();
+      if (didEnable) update();
     };
     features.disable = function(k2) {
       if (_rules[k2] && _rules[k2].enabled) {
@@ -49324,8 +47894,7 @@
           _rules[k2].disable();
         }
       }
-      if (didDisable)
-        update();
+      if (didDisable) update();
     };
     features.toggle = function(k2) {
       if (_rules[k2]) {
@@ -49390,8 +47959,7 @@
       return relation.tags.type === "boundary";
     }
     features.getMatches = function(entity, resolver, geometry) {
-      if (geometry === "vertex" || geometry === "relation" && !relationShouldBeChecked(entity))
-        return {};
+      if (geometry === "vertex" || geometry === "relation" && !relationShouldBeChecked(entity)) return {};
       var ent = osmEntity.key(entity);
       if (!_cache5[ent]) {
         _cache5[ent] = {};
@@ -49401,8 +47969,7 @@
         var hasMatch = false;
         for (var i3 = 0; i3 < _keys.length; i3++) {
           if (_keys[i3] === "others") {
-            if (hasMatch)
-              continue;
+            if (hasMatch) continue;
             if (entity.type === "way") {
               var parents = features.getParents(entity, resolver, geometry);
               if (parents.length === 1 && parents[0].isMultipolygon() || // 2b. or belongs only to boundary relations
@@ -49426,8 +47993,7 @@
       return _cache5[ent].matches;
     };
     features.getParents = function(entity, resolver, geometry) {
-      if (geometry === "point")
-        return [];
+      if (geometry === "point") return [];
       var ent = osmEntity.key(entity);
       if (!_cache5[ent]) {
         _cache5[ent] = {};
@@ -49444,10 +48010,8 @@
       return _cache5[ent].parents;
     };
     features.isHiddenPreset = function(preset, geometry) {
-      if (!_hidden.length)
-        return false;
-      if (!preset.tags)
-        return false;
+      if (!_hidden.length) return false;
+      if (!preset.tags) return false;
       var test = preset.setTags({}, geometry);
       for (var key in _rules) {
         if (_rules[key].filter(test, geometry)) {
@@ -49460,27 +48024,20 @@
       return false;
     };
     features.isHiddenFeature = function(entity, resolver, geometry) {
-      if (!_hidden.length)
-        return false;
-      if (!entity.version)
-        return false;
-      if (_forceVisible[entity.id])
-        return false;
+      if (!_hidden.length) return false;
+      if (!entity.version) return false;
+      if (_forceVisible[entity.id]) return false;
       var matches = Object.keys(features.getMatches(entity, resolver, geometry));
       return matches.length && matches.every(function(k2) {
         return features.hidden(k2);
       });
     };
     features.isHiddenChild = function(entity, resolver, geometry) {
-      if (!_hidden.length)
-        return false;
-      if (!entity.version || geometry === "point")
-        return false;
-      if (_forceVisible[entity.id])
-        return false;
+      if (!_hidden.length) return false;
+      if (!entity.version || geometry === "point") return false;
+      if (_forceVisible[entity.id]) return false;
       var parents = features.getParents(entity, resolver, geometry);
-      if (!parents.length)
-        return false;
+      if (!parents.length) return false;
       for (var i3 = 0; i3 < parents.length; i3++) {
         if (!features.isHidden(parents[i3], resolver, parents[i3].geometry(resolver))) {
           return false;
@@ -49489,8 +48046,7 @@
       return true;
     };
     features.hasHiddenConnections = function(entity, resolver) {
-      if (!_hidden.length)
-        return false;
+      if (!_hidden.length) return false;
       var childNodes, connections;
       if (entity.type === "midpoint") {
         childNodes = [resolver.entity(entity.edge[0]), resolver.entity(entity.edge[1])];
@@ -49507,16 +48063,13 @@
       });
     };
     features.isHidden = function(entity, resolver, geometry) {
-      if (!_hidden.length)
-        return false;
-      if (!entity.version)
-        return false;
+      if (!_hidden.length) return false;
+      if (!entity.version) return false;
       var fn = geometry === "vertex" ? features.isHiddenChild : features.isHiddenFeature;
       return fn(entity, resolver, geometry);
     };
     features.filter = function(d2, resolver) {
-      if (!_hidden.length)
-        return d2;
+      if (!_hidden.length) return d2;
       var result = [];
       for (var i3 = 0; i3 < d2.length; i3++) {
         var entity = d2[i3];
@@ -49527,8 +48080,7 @@
       return result;
     };
     features.forceVisible = function(entityIDs) {
-      if (!arguments.length)
-        return Object.keys(_forceVisible);
+      if (!arguments.length) return Object.keys(_forceVisible);
       _forceVisible = {};
       for (var i3 = 0; i3 < entityIDs.length; i3++) {
         _forceVisible[entityIDs[i3]] = true;
@@ -49554,8 +48106,7 @@
       }
     };
     context.history().on("merge.features", function(newEntities) {
-      if (!newEntities)
-        return;
+      if (!newEntities) return;
       var handle = window.requestIdleCallback(function() {
         var graph = context.graph();
         var types = utilArrayGroupBy(newEntities, "type");
@@ -49575,10 +48126,8 @@
 
   // modules/svg/helpers.js
   function svgPassiveVertex(node, graph, activeID) {
-    if (!activeID)
-      return 1;
-    if (activeID === node.id)
-      return 0;
+    if (!activeID) return 1;
+    if (activeID === node.id) return 0;
     var parents = graph.parentWays(node);
     var i3, j2, nodes, isClosed, ix1, ix2, ix3, ix4, max3;
     for (i3 = 0; i3 < parents.length; i3++) {
@@ -49592,25 +48141,16 @@
           ix4 = j2 + 2;
           if (isClosed) {
             max3 = nodes.length - 1;
-            if (ix1 < 0)
-              ix1 = max3 + ix1;
-            if (ix2 < 0)
-              ix2 = max3 + ix2;
-            if (ix3 > max3)
-              ix3 = ix3 - max3;
-            if (ix4 > max3)
-              ix4 = ix4 - max3;
+            if (ix1 < 0) ix1 = max3 + ix1;
+            if (ix2 < 0) ix2 = max3 + ix2;
+            if (ix3 > max3) ix3 = ix3 - max3;
+            if (ix4 > max3) ix4 = ix4 - max3;
           }
-          if (nodes[ix1] === activeID)
-            return 0;
-          else if (nodes[ix2] === activeID)
-            return 2;
-          else if (nodes[ix3] === activeID)
-            return 2;
-          else if (nodes[ix4] === activeID)
-            return 0;
-          else if (isClosed && nodes.indexOf(activeID) !== -1)
-            return 0;
+          if (nodes[ix1] === activeID) return 0;
+          else if (nodes[ix2] === activeID) return 2;
+          else if (nodes[ix3] === activeID) return 2;
+          else if (nodes[ix4] === activeID) return 0;
+          else if (isClosed && nodes.indexOf(activeID) !== -1) return 0;
         }
       }
     }
@@ -49882,8 +48422,7 @@
       for (i3 = 0; i3 < primaries.length; i3++) {
         k2 = primaries[i3];
         v2 = t2[k2];
-        if (!v2 || v2 === "no")
-          continue;
+        if (!v2 || v2 === "no") continue;
         if (k2 === "piste:type") {
           k2 = "piste";
         } else if (k2 === "building:part") {
@@ -49904,8 +48443,7 @@
           for (j2 = 0; j2 < primaries.length; j2++) {
             k2 = statuses[i3] + ":" + primaries[j2];
             v2 = t2[k2];
-            if (!v2 || v2 === "no")
-              continue;
+            if (!v2 || v2 === "no") continue;
             status = statuses[i3];
             break;
           }
@@ -49915,8 +48453,7 @@
         for (i3 = 0; i3 < statuses.length; i3++) {
           k2 = statuses[i3];
           v2 = t2[k2];
-          if (!v2 || v2 === "no")
-            continue;
+          if (!v2 || v2 === "no") continue;
           if (v2 === "yes") {
             status = k2;
           } else if (primary && primary === v2) {
@@ -49926,8 +48463,7 @@
             primary = v2;
             classes.push("tag-" + v2);
           }
-          if (status)
-            break;
+          if (status) break;
         }
       }
       if (status) {
@@ -49937,8 +48473,7 @@
       for (i3 = 0; i3 < secondaries.length; i3++) {
         k2 = secondaries[i3];
         v2 = t2[k2];
-        if (!v2 || v2 === "no" || k2 === primary)
-          continue;
+        if (!v2 || v2 === "no" || k2 === primary) continue;
         classes.push("tag-" + k2);
         classes.push("tag-" + k2 + "-" + v2);
       }
@@ -49962,8 +48497,7 @@
       return classes.filter((klass) => /^[-_a-z0-9]+$/.test(klass)).join(" ").trim();
     };
     tagClasses.tags = function(val) {
-      if (!arguments.length)
-        return _tags;
+      if (!arguments.length) return _tags;
       _tags = val;
       return tagClasses;
     };
@@ -50054,15 +48588,13 @@
     }
     for (var tag2 in patterns) {
       var entityValue = tags[tag2];
-      if (!entityValue)
-        continue;
+      if (!entityValue) continue;
       if (typeof patterns[tag2] === "string") {
         return "pattern-" + patterns[tag2];
       } else {
         var values = patterns[tag2];
         for (var value in values) {
-          if (entityValue !== value)
-            continue;
+          if (entityValue !== value) continue;
           var rules = values[value];
           if (typeof rules === "string") {
             return "pattern-" + rules;
@@ -50146,8 +48678,7 @@
       var base = context.history().base();
       for (var i3 = 0; i3 < entities.length; i3++) {
         var entity = entities[i3];
-        if (entity.geometry(graph) !== "area")
-          continue;
+        if (entity.geometry(graph) !== "area") continue;
         if (!areas[entity.id]) {
           areas[entity.id] = {
             entity,
@@ -50342,7 +48873,7 @@
     };
   }
   function extractProperties(node) {
-    var _a2;
+    var _a3;
     const properties = getMulti(node, [
       "name",
       "cmt",
@@ -50353,7 +48884,7 @@
     ]);
     const extensions = Array.from(node.getElementsByTagNameNS("http://www.garmin.com/xmlschemas/GpxExtensions/v3", "*"));
     for (const child of extensions) {
-      if (((_a2 = child.parentNode) == null ? void 0 : _a2.parentNode) === node) {
+      if (((_a3 = child.parentNode) == null ? void 0 : _a3.parentNode) === node) {
         properties[child.tagName.replace(":", "_")] = nodeVal(child);
       }
     }
@@ -50759,7 +49290,7 @@
     };
   }
   function getPlacemark(node, styleMap, schema, options2) {
-    var _a2;
+    var _a3;
     const { coordTimes, geometries } = getGeometry(node);
     const geometry = geometryListToGeometry(geometries);
     if (!geometry && options2.skipNullGeometry) {
@@ -50781,7 +49312,7 @@
         }
       } : {})
     };
-    if (((_a2 = feature3.properties) == null ? void 0 : _a2.visibility) !== void 0) {
+    if (((_a3 = feature3.properties) == null ? void 0 : _a3.visibility) !== void 0) {
       feature3.properties.visibility = feature3.properties.visibility !== "0";
     }
     const id2 = node.getAttribute("id");
@@ -50853,7 +49384,7 @@
     return null;
   }
   function getGroundOverlay(node, styleMap, schema, options2) {
-    var _a2;
+    var _a3;
     const box = getGroundOverlayBox(node);
     const geometry = (box == null ? void 0 : box.geometry) || null;
     if (!geometry && options2.skipNullGeometry) {
@@ -50888,7 +49419,7 @@
     if (box == null ? void 0 : box.bbox) {
       feature3.bbox = box.bbox;
     }
-    if (((_a2 = feature3.properties) == null ? void 0 : _a2.visibility) !== void 0) {
+    if (((_a3 = feature3.properties) == null ? void 0 : _a3.visibility) !== void 0) {
       feature3.properties.visibility = feature3.properties.visibility !== "0";
     }
     const id2 = node.getAttribute("id");
@@ -50974,8 +49505,7 @@
       ".json"
     ];
     function init2() {
-      if (_initialized)
-        return;
+      if (_initialized) return;
       _geojson = {};
       _enabled = true;
       function over(d3_event) {
@@ -50986,12 +49516,10 @@
       context.container().attr("dropzone", "copy").on("drop.svgData", function(d3_event) {
         d3_event.stopPropagation();
         d3_event.preventDefault();
-        if (!detected.filedrop)
-          return;
+        if (!detected.filedrop) return;
         var f2 = d3_event.dataTransfer.files[0];
         var extension = getExtension(f2.name);
-        if (!supportedFormats.includes(extension))
-          return;
+        if (!supportedFormats.includes(extension)) return;
         drawData.fileList(d3_event.dataTransfer.files);
       }).on("dragenter.svgData", over).on("dragexit.svgData", over).on("dragover.svgData", over);
       _initialized = true;
@@ -51023,8 +49551,7 @@
       layer.style("display", "none");
     }
     function ensureIDs(gj) {
-      if (!gj)
-        return null;
+      if (!gj) return null;
       if (gj.type === "FeatureCollection") {
         for (var i3 = 0; i3 < gj.features.length; i3++) {
           ensureFeatureID(gj.features[i3]);
@@ -51035,14 +49562,12 @@
       return gj;
     }
     function ensureFeatureID(feature3) {
-      if (!feature3)
-        return;
+      if (!feature3) return;
       feature3.__featurehash__ = utilHashcode((0, import_fast_json_stable_stringify.default)(feature3));
       return feature3;
     }
     function getFeatures(gj) {
-      if (!gj)
-        return [];
+      if (!gj) return [];
       if (gj.type === "FeatureCollection") {
         return gj.features;
       } else {
@@ -51075,8 +49600,7 @@
       layer.exit().remove();
       layer = layer.enter().append("g").attr("class", "layer-mapdata").merge(layer);
       var surface = context.surface();
-      if (!surface || surface.empty())
-        return;
+      if (!surface || surface.empty()) return;
       var geoData, polygonData;
       if (_template && vtService) {
         var sourceID = _template;
@@ -51137,8 +49661,7 @@
       }
     }
     function getExtension(fileName) {
-      if (!fileName)
-        return;
+      if (!fileName) return;
       var re3 = /\.(gpx|kml|(geo)?json|png)$/i;
       var match = fileName.toLowerCase().match(re3);
       return match && match.length && match[0];
@@ -51192,14 +49715,12 @@
       return this;
     };
     drawData.showLabels = function(val) {
-      if (!arguments.length)
-        return _showLabels;
+      if (!arguments.length) return _showLabels;
       _showLabels = val;
       return this;
     };
     drawData.enabled = function(val) {
-      if (!arguments.length)
-        return _enabled;
+      if (!arguments.length) return _enabled;
       _enabled = val;
       if (_enabled) {
         showLayer();
@@ -51214,8 +49735,7 @@
       return !!(_template || Object.keys(gj).length);
     };
     drawData.template = function(val, src) {
-      if (!arguments.length)
-        return _template;
+      if (!arguments.length) return _template;
       var osm = context.connection();
       if (osm) {
         var blocklists = osm.imageryBlocklists();
@@ -51226,8 +49746,7 @@
           regex = blocklists[i3];
           fail = regex.test(val);
           tested++;
-          if (fail)
-            break;
+          if (fail) break;
         }
         if (!tested) {
           regex = /.*\.google(apis)?\..*\/(vt|kh)[\?\/].*([xyz]=.*){3}.*/;
@@ -51242,8 +49761,7 @@
       return this;
     };
     drawData.geojson = function(gj, src) {
-      if (!arguments.length)
-        return _geojson;
+      if (!arguments.length) return _geojson;
       _template = null;
       _fileList = null;
       _geojson = null;
@@ -51257,14 +49775,12 @@
       return this;
     };
     drawData.fileList = function(fileList) {
-      if (!arguments.length)
-        return _fileList;
+      if (!arguments.length) return _fileList;
       _template = null;
       _geojson = null;
       _src = null;
       _fileList = fileList;
-      if (!fileList || !fileList.length)
-        return this;
+      if (!fileList || !fileList.length) return this;
       var f2 = fileList[0];
       var extension = getExtension(f2.name);
       var reader = new FileReader();
@@ -51299,14 +49815,12 @@
     };
     drawData.fitZoom = function() {
       var features = getFeatures(_geojson);
-      if (!features.length)
-        return;
+      if (!features.length) return;
       var map2 = context.map();
       var viewport = map2.trimmedExtent().polygon();
       var coords = features.reduce(function(coords2, feature3) {
         var geom = feature3.geometry;
-        if (!geom)
-          return coords2;
+        if (!geom) return coords2;
         var c2 = geom.coordinates;
         switch (geom.type) {
           case "Point":
@@ -51557,8 +50071,7 @@
       });
     }
     function updateMarkers() {
-      if (!layerVisible || !_layerEnabled)
-        return;
+      if (!layerVisible || !_layerEnabled) return;
       const service = getService();
       const selectedID = context.selectedErrorID();
       const data = service ? service.getItems(projection2) : [];
@@ -51570,8 +50083,7 @@
       markersEnter.append("path").call(markerPath, "shadow");
       markersEnter.append("use").attr("class", "qaItem-fill").attr("width", "20px").attr("height", "20px").attr("x", "-8px").attr("y", "-22px").attr("xlink:href", "#iD-icon-bolt");
       markers.merge(markersEnter).sort(sortY).classed("selected", (d2) => d2.id === selectedID).attr("transform", getTransform);
-      if (touchLayer.empty())
-        return;
+      if (touchLayer.empty()) return;
       const fillClass = context.getDebug("target") ? "pink " : "nocolor ";
       const targets = touchLayer.selectAll(".qaItem.keepRight").data(data, (d2) => d2.id);
       targets.exit().remove();
@@ -51600,8 +50112,7 @@
       }
     }
     drawKeepRight.enabled = function(val) {
-      if (!arguments.length)
-        return _layerEnabled;
+      if (!arguments.length) return _layerEnabled;
       _layerEnabled = val;
       if (_layerEnabled) {
         layerOn();
@@ -51623,8 +50134,7 @@
     var layer = select_default2(null);
     var _position;
     function init2() {
-      if (svgGeolocate.initialized)
-        return;
+      if (svgGeolocate.initialized) return;
       svgGeolocate.enabled = false;
       svgGeolocate.initialized = true;
     }
@@ -51671,8 +50181,7 @@
       }
     }
     drawLocation.enabled = function(position, enabled) {
-      if (!arguments.length)
-        return svgGeolocate.enabled;
+      if (!arguments.length) return svgGeolocate.enabled;
       _position = position;
       svgGeolocate.enabled = enabled;
       if (svgGeolocate.enabled) {
@@ -51747,8 +50256,7 @@
     }
     function textWidth(text, size, elem) {
       var c2 = _textWidthCache[size];
-      if (!c2)
-        c2 = _textWidthCache[size] = {};
+      if (!c2) c2 = _textWidthCache[size] = {};
       if (c2[text]) {
         return c2[text];
       } else if (elem) {
@@ -51875,8 +50383,7 @@
         }
         var preset = geometry === "area" && _mainPresetIndex.match(entity, graph);
         var icon2 = preset && !shouldSkipIcon(preset) && preset.icon;
-        if (!icon2 && !utilDisplayName(entity))
-          continue;
+        if (!icon2 && !utilDisplayName(entity)) continue;
         for (k2 = 0; k2 < labelStack.length; k2++) {
           var matchGeom = labelStack[k2][0];
           var matchKey = labelStack[k2][1];
@@ -51908,11 +50415,9 @@
           var width = name && textWidth(name, fontSize);
           var p2 = null;
           if (geometry === "point" || geometry === "vertex") {
-            if (wireframe)
-              continue;
+            if (wireframe) continue;
             var renderAs = renderNodeAs[entity.id];
-            if (renderAs === "vertex" && zoom < 17)
-              continue;
+            if (renderAs === "vertex" && zoom < 17) continue;
             p2 = getPointLabel(entity, width, fontSize, renderAs);
           } else if (geometry === "line") {
             p2 = getLineLabel(entity, width, fontSize);
@@ -51978,8 +50483,7 @@
           return projection2(node.loc);
         });
         var length2 = geoPathLength(points);
-        if (length2 < width2 + 20)
-          return;
+        if (length2 < width2 + 20) return;
         var lineOffsets = [
           50,
           45,
@@ -52006,8 +50510,7 @@
           var offset = lineOffsets[i4];
           var middle = offset / 100 * length2;
           var start2 = middle - width2 / 2;
-          if (start2 < 0 || start2 + width2 > length2)
-            continue;
+          if (start2 < 0 || start2 + width2 > length2) continue;
           var sub = subpath(points, start2, start2 + width2);
           if (!sub || !geoPolygonIntersectsPolygon(viewport, sub, true)) {
             continue;
@@ -52087,8 +50590,7 @@
         var centroid = path.centroid(entity2.asGeoJSON(graph));
         var extent = entity2.extent(graph);
         var areaWidth = projection2(extent[1])[0] - projection2(extent[0])[0];
-        if (isNaN(centroid[0]) || areaWidth < 20)
-          return;
+        if (isNaN(centroid[0]) || areaWidth < 20) return;
         var preset2 = _mainPresetIndex.match(entity2, context.graph());
         var picon = preset2 && preset2.icon;
         var iconSize = 17;
@@ -52261,15 +50763,14 @@
   var a = !!s;
   var o = (e3) => e3;
   function l(e3, t2 = o) {
-    if (n2)
-      try {
-        return "function" == typeof __require ? Promise.resolve(t2(__require(e3))) : import(
-          /* webpackIgnore: true */
-          e3
-        ).then(t2);
-      } catch (t3) {
-        console.warn("Couldn't load ".concat(e3));
-      }
+    if (n2) try {
+      return "function" == typeof __require ? Promise.resolve(t2(__require(e3))) : import(
+        /* webpackIgnore: true */
+        e3
+      ).then(t2);
+    } catch (t3) {
+      console.warn("Couldn't load ".concat(e3));
+    }
   }
   var h = e.fetch;
   var u = (e3) => h = e3;
@@ -52306,8 +50807,7 @@
   }
   function m(e3) {
     return "" === (e3 = function(e4) {
-      for (; e4.endsWith("\0"); )
-        e4 = e4.slice(0, -1);
+      for (; e4.endsWith("\0"); ) e4 = e4.slice(0, -1);
       return e4;
     }(e3).trim()) ? void 0 : e3;
   }
@@ -52328,8 +50828,7 @@
       return e3 instanceof this && e3.le === t2 ? e3 : new _I(e3, void 0, void 0, t2);
     }
     constructor(e3, t2 = 0, i3, n3) {
-      if ("boolean" == typeof n3 && (this.le = n3), Array.isArray(e3) && (e3 = new Uint8Array(e3)), 0 === e3)
-        this.byteOffset = 0, this.byteLength = 0;
+      if ("boolean" == typeof n3 && (this.le = n3), Array.isArray(e3) && (e3 = new Uint8Array(e3)), 0 === e3) this.byteOffset = 0, this.byteLength = 0;
       else if (e3 instanceof ArrayBuffer) {
         void 0 === i3 && (i3 = e3.byteLength - t2);
         let n4 = new DataView(e3, t2, i3);
@@ -52341,8 +50840,7 @@
       } else if ("number" == typeof e3) {
         let t3 = new DataView(new ArrayBuffer(e3));
         this._swapDataView(t3);
-      } else
-        g2("Invalid input argument for BufferView: " + e3);
+      } else g2("Invalid input argument for BufferView: " + e3);
     }
     _swapArrayBuffer(e3) {
       this._swapDataView(new DataView(e3));
@@ -52377,8 +50875,7 @@
     }
     getUnicodeString(e3 = 0, t2 = this.byteLength) {
       const i3 = [];
-      for (let n3 = 0; n3 < t2 && e3 + n3 < this.byteLength; n3 += 2)
-        i3.push(this.getUint16(e3 + n3));
+      for (let n3 = 0; n3 < t2 && e3 + n3 < this.byteLength; n3 += 2) i3.push(this.getUint16(e3 + n3));
       return C(i3);
     }
     getInt8(e3) {
@@ -52492,19 +50989,14 @@
   };
   function U(e3, t2, i3) {
     let n3 = new L();
-    for (let [e4, t3] of i3)
-      n3.set(e4, t3);
-    if (Array.isArray(t2))
-      for (let i4 of t2)
-        e3.set(i4, n3);
-    else
-      e3.set(t2, n3);
+    for (let [e4, t3] of i3) n3.set(e4, t3);
+    if (Array.isArray(t2)) for (let i4 of t2) e3.set(i4, n3);
+    else e3.set(t2, n3);
     return n3;
   }
   function F(e3, t2, i3) {
     let n3, s2 = e3.get(t2);
-    for (n3 of i3)
-      s2.set(n3[0], n3[1]);
+    for (n3 of i3) s2.set(n3[0], n3[1]);
   }
   var E = /* @__PURE__ */ new Map();
   var B = /* @__PURE__ */ new Map();
@@ -52527,31 +51019,24 @@
       return this.enabled || this.deps.size > 0;
     }
     constructor(e3, t2, i3, n3) {
-      if (super(), c(this, "enabled", false), c(this, "skip", /* @__PURE__ */ new Set()), c(this, "pick", /* @__PURE__ */ new Set()), c(this, "deps", /* @__PURE__ */ new Set()), c(this, "translateKeys", false), c(this, "translateValues", false), c(this, "reviveValues", false), this.key = e3, this.enabled = t2, this.parse = this.enabled, this.applyInheritables(n3), this.canBeFiltered = H.includes(e3), this.canBeFiltered && (this.dict = E.get(e3)), void 0 !== i3)
-        if (Array.isArray(i3))
-          this.parse = this.enabled = true, this.canBeFiltered && i3.length > 0 && this.translateTagSet(i3, this.pick);
-        else if ("object" == typeof i3) {
-          if (this.enabled = true, this.parse = false !== i3.parse, this.canBeFiltered) {
-            let { pick: e4, skip: t3 } = i3;
-            e4 && e4.length > 0 && this.translateTagSet(e4, this.pick), t3 && t3.length > 0 && this.translateTagSet(t3, this.skip);
-          }
-          this.applyInheritables(i3);
-        } else
-          true === i3 || false === i3 ? this.parse = this.enabled = i3 : g2("Invalid options argument: ".concat(i3));
+      if (super(), c(this, "enabled", false), c(this, "skip", /* @__PURE__ */ new Set()), c(this, "pick", /* @__PURE__ */ new Set()), c(this, "deps", /* @__PURE__ */ new Set()), c(this, "translateKeys", false), c(this, "translateValues", false), c(this, "reviveValues", false), this.key = e3, this.enabled = t2, this.parse = this.enabled, this.applyInheritables(n3), this.canBeFiltered = H.includes(e3), this.canBeFiltered && (this.dict = E.get(e3)), void 0 !== i3) if (Array.isArray(i3)) this.parse = this.enabled = true, this.canBeFiltered && i3.length > 0 && this.translateTagSet(i3, this.pick);
+      else if ("object" == typeof i3) {
+        if (this.enabled = true, this.parse = false !== i3.parse, this.canBeFiltered) {
+          let { pick: e4, skip: t3 } = i3;
+          e4 && e4.length > 0 && this.translateTagSet(e4, this.pick), t3 && t3.length > 0 && this.translateTagSet(t3, this.skip);
+        }
+        this.applyInheritables(i3);
+      } else true === i3 || false === i3 ? this.parse = this.enabled = i3 : g2("Invalid options argument: ".concat(i3));
     }
     applyInheritables(e3) {
       let t2, i3;
-      for (t2 of K)
-        i3 = e3[t2], void 0 !== i3 && (this[t2] = i3);
+      for (t2 of K) i3 = e3[t2], void 0 !== i3 && (this[t2] = i3);
     }
     translateTagSet(e3, t2) {
       if (this.dict) {
         let i3, n3, { tagKeys: s2, tagValues: r2 } = this.dict;
-        for (i3 of e3)
-          "string" == typeof i3 ? (n3 = r2.indexOf(i3), -1 === n3 && (n3 = s2.indexOf(Number(i3))), -1 !== n3 && t2.add(Number(s2[n3]))) : t2.add(i3);
-      } else
-        for (let i3 of e3)
-          t2.add(i3);
+        for (i3 of e3) "string" == typeof i3 ? (n3 = r2.indexOf(i3), -1 === n3 && (n3 = s2.indexOf(Number(i3))), -1 !== n3 && t2.add(Number(s2[n3]))) : t2.add(i3);
+      } else for (let i3 of e3) t2.add(i3);
     }
     finalizeFilters() {
       !this.enabled && this.deps.size > 0 ? (this.enabled = true, ee(this.pick, this.deps)) : this.enabled && this.pick.size > 0 && ee(this.pick, this.deps);
@@ -52569,55 +51054,37 @@
     }
     setupFromUndefined() {
       let e3;
-      for (e3 of G)
-        this[e3] = $2[e3];
-      for (e3 of X)
-        this[e3] = $2[e3];
-      for (e3 of W)
-        this[e3] = $2[e3];
-      for (e3 of j)
-        this[e3] = new Y(e3, $2[e3], void 0, this);
+      for (e3 of G) this[e3] = $2[e3];
+      for (e3 of X) this[e3] = $2[e3];
+      for (e3 of W) this[e3] = $2[e3];
+      for (e3 of j) this[e3] = new Y(e3, $2[e3], void 0, this);
     }
     setupFromTrue() {
       let e3;
-      for (e3 of G)
-        this[e3] = $2[e3];
-      for (e3 of X)
-        this[e3] = $2[e3];
-      for (e3 of W)
-        this[e3] = true;
-      for (e3 of j)
-        this[e3] = new Y(e3, true, void 0, this);
+      for (e3 of G) this[e3] = $2[e3];
+      for (e3 of X) this[e3] = $2[e3];
+      for (e3 of W) this[e3] = true;
+      for (e3 of j) this[e3] = new Y(e3, true, void 0, this);
     }
     setupFromArray(e3) {
       let t2;
-      for (t2 of G)
-        this[t2] = $2[t2];
-      for (t2 of X)
-        this[t2] = $2[t2];
-      for (t2 of W)
-        this[t2] = $2[t2];
-      for (t2 of j)
-        this[t2] = new Y(t2, false, void 0, this);
+      for (t2 of G) this[t2] = $2[t2];
+      for (t2 of X) this[t2] = $2[t2];
+      for (t2 of W) this[t2] = $2[t2];
+      for (t2 of j) this[t2] = new Y(t2, false, void 0, this);
       this.setupGlobalFilters(e3, void 0, H);
     }
     setupFromObject(e3) {
       let t2;
-      for (t2 of (H.ifd0 = H.ifd0 || H.image, H.ifd1 = H.ifd1 || H.thumbnail, Object.assign(this, e3), G))
-        this[t2] = Z(e3[t2], $2[t2]);
-      for (t2 of X)
-        this[t2] = Z(e3[t2], $2[t2]);
-      for (t2 of W)
-        this[t2] = Z(e3[t2], $2[t2]);
-      for (t2 of z)
-        this[t2] = new Y(t2, $2[t2], e3[t2], this);
-      for (t2 of H)
-        this[t2] = new Y(t2, $2[t2], e3[t2], this.tiff);
+      for (t2 of (H.ifd0 = H.ifd0 || H.image, H.ifd1 = H.ifd1 || H.thumbnail, Object.assign(this, e3), G)) this[t2] = Z(e3[t2], $2[t2]);
+      for (t2 of X) this[t2] = Z(e3[t2], $2[t2]);
+      for (t2 of W) this[t2] = Z(e3[t2], $2[t2]);
+      for (t2 of z) this[t2] = new Y(t2, $2[t2], e3[t2], this);
+      for (t2 of H) this[t2] = new Y(t2, $2[t2], e3[t2], this.tiff);
       this.setupGlobalFilters(e3.pick, e3.skip, H, j), true === e3.tiff ? this.batchEnableWithBool(H, true) : false === e3.tiff ? this.batchEnableWithUserValue(H, e3) : Array.isArray(e3.tiff) ? this.setupGlobalFilters(e3.tiff, void 0, H) : "object" == typeof e3.tiff && this.setupGlobalFilters(e3.tiff.pick, e3.tiff.skip, H);
     }
     batchEnableWithBool(e3, t2) {
-      for (let i3 of e3)
-        this[i3].enabled = t2;
+      for (let i3 of e3) this[i3].enabled = t2;
     }
     batchEnableWithUserValue(e3, t2) {
       for (let i3 of e3) {
@@ -52627,15 +51094,12 @@
     }
     setupGlobalFilters(e3, t2, i3, n3 = i3) {
       if (e3 && e3.length) {
-        for (let e4 of n3)
-          this[e4].enabled = false;
+        for (let e4 of n3) this[e4].enabled = false;
         let t3 = Q(e3, i3);
-        for (let [e4, i4] of t3)
-          ee(this[e4].pick, i4), this[e4].enabled = true;
+        for (let [e4, i4] of t3) ee(this[e4].pick, i4), this[e4].enabled = true;
       } else if (t2 && t2.length) {
         let e4 = Q(t2, i3);
-        for (let [t3, i4] of e4)
-          ee(this[t3].skip, i4);
+        for (let [t3, i4] of e4) ee(this[t3].skip, i4);
       }
     }
     filterNestedSegmentTags() {
@@ -52645,22 +51109,19 @@
     traverseTiffDependencyTree() {
       let { ifd0: e3, exif: t2, gps: i3, interop: n3 } = this;
       n3.needed && (t2.deps.add(40965), e3.deps.add(40965)), t2.needed && e3.deps.add(34665), i3.needed && e3.deps.add(34853), this.tiff.enabled = H.some((e4) => true === this[e4].enabled) || this.makerNote || this.userComment;
-      for (let e4 of H)
-        this[e4].finalizeFilters();
+      for (let e4 of H) this[e4].finalizeFilters();
     }
     get onlyTiff() {
       return !V.map((e3) => this[e3].enabled).some((e3) => true === e3) && this.tiff.enabled;
     }
     checkLoadedPlugins() {
-      for (let e3 of z)
-        this[e3].enabled && !T.has(e3) && P("segment parser", e3);
+      for (let e3 of z) this[e3].enabled && !T.has(e3) && P("segment parser", e3);
     }
   };
   function Q(e3, t2) {
     let i3, n3, s2, r2, a2 = [];
     for (s2 of t2) {
-      for (r2 of (i3 = E.get(s2), n3 = [], i3))
-        (e3.includes(r2[0]) || e3.includes(r2[1])) && n3.push(r2[0]);
+      for (r2 of (i3 = E.get(s2), n3 = [], i3)) (e3.includes(r2[0]) || e3.includes(r2[1])) && n3.push(r2[0]);
       n3.length && a2.push([s2, n3]);
     }
     return a2;
@@ -52669,8 +51130,7 @@
     return void 0 !== e3 ? e3 : void 0 !== t2 ? t2 : void 0;
   }
   function ee(e3, t2) {
-    for (let i3 of t2)
-      e3.add(i3);
+    for (let i3 of t2) e3.add(i3);
   }
   c(q, "default", $2);
   var te = class {
@@ -52681,12 +51141,9 @@
       this.file = await D(e3, this.options);
     }
     setup() {
-      if (this.fileParser)
-        return;
+      if (this.fileParser) return;
       let { file: e3 } = this, t2 = e3.getUint16(0);
-      for (let [i3, n3] of w)
-        if (n3.canHandle(e3, t2))
-          return this.fileParser = new n3(this.options, this.file, this.parsers), e3[i3] = true;
+      for (let [i3, n3] of w) if (n3.canHandle(e3, t2)) return this.fileParser = new n3(this.options, this.file, this.parsers), e3[i3] = true;
       this.file.close && this.file.close(), g2("Unknown file format");
     }
     async parse() {
@@ -52706,8 +51163,7 @@
       this.setup();
       let { options: e3, file: t2 } = this, i3 = T.get("tiff", e3);
       var n3;
-      if (t2.tiff ? n3 = { start: 0, type: "tiff" } : t2.jpeg && (n3 = await this.fileParser.getOrFindSegment("tiff")), void 0 === n3)
-        return;
+      if (t2.tiff ? n3 = { start: 0, type: "tiff" } : t2.jpeg && (n3 = await this.fileParser.getOrFindSegment("tiff")), void 0 === n3) return;
       let s2 = await this.fileParser.ensureSegmentChunk(n3), r2 = this.parsers.tiff = new i3(s2, e3, t2), a2 = await r2.extractThumbnail();
       return t2.close && t2.close(), a2;
     }
@@ -52721,17 +51177,13 @@
     constructor(e3, t2, i3) {
       c(this, "errors", []), c(this, "ensureSegmentChunk", async (e4) => {
         let t3 = e4.start, i4 = e4.size || 65536;
-        if (this.file.chunked)
-          if (this.file.available(t3, i4))
-            e4.chunk = this.file.subarray(t3, i4);
-          else
-            try {
-              e4.chunk = await this.file.readChunk(t3, i4);
-            } catch (t4) {
-              g2("Couldn't read segment: ".concat(JSON.stringify(e4), ". ").concat(t4.message));
-            }
-        else
-          this.file.byteLength > t3 + i4 ? e4.chunk = this.file.subarray(t3, i4) : void 0 === e4.size ? e4.chunk = this.file.subarray(t3) : g2("Segment unreachable: " + JSON.stringify(e4));
+        if (this.file.chunked) if (this.file.available(t3, i4)) e4.chunk = this.file.subarray(t3, i4);
+        else try {
+          e4.chunk = await this.file.readChunk(t3, i4);
+        } catch (t4) {
+          g2("Couldn't read segment: ".concat(JSON.stringify(e4), ". ").concat(t4.message));
+        }
+        else this.file.byteLength > t3 + i4 ? e4.chunk = this.file.subarray(t3, i4) : void 0 === e4.size ? e4.chunk = this.file.subarray(t3) : g2("Segment unreachable: " + JSON.stringify(e4));
         return e4.chunk;
       }), this.extendOptions && this.extendOptions(e3), this.options = e3, this.file = t2, this.parsers = i3;
     }
@@ -52769,8 +51221,7 @@
     }
     constructor(e3, t2 = {}, i3) {
       c(this, "errors", []), c(this, "raw", /* @__PURE__ */ new Map()), c(this, "handleError", (e4) => {
-        if (!this.options.silentErrors)
-          throw e4;
+        if (!this.options.silentErrors) throw e4;
         this.errors.push(e4.message);
       }), this.chunk = this.normalizeInput(e3), this.file = i3, this.type = this.constructor.type, this.globalOptions = this.options = t2, this.localOptions = t2[this.type], this.canTranslate = this.localOptions && this.localOptions.translate;
     }
@@ -52782,8 +51233,7 @@
     }
     translateBlock(e3, t2) {
       let i3 = N.get(t2), n3 = B.get(t2), s2 = E.get(t2), r2 = this.options[t2], a2 = r2.reviveValues && !!i3, o2 = r2.translateValues && !!n3, l2 = r2.translateKeys && !!s2, h2 = {};
-      for (let [t3, r3] of e3)
-        a2 && i3.has(t3) ? r3 = i3.get(t3)(r3) : o2 && n3.has(t3) && (r3 = this.translateValue(r3, n3.get(t3))), l2 && s2.has(t3) && (t3 = s2.get(t3) || t3), h2[t3] = r3;
+      for (let [t3, r3] of e3) a2 && i3.has(t3) ? r3 = i3.get(t3)(r3) : o2 && n3.has(t3) && (r3 = this.translateValue(r3, n3.get(t3))), l2 && s2.has(t3) && (t3 = s2.get(t3) || t3), h2[t3] = r3;
       return h2;
     }
     translateValue(e3, t2) {
@@ -52793,8 +51243,7 @@
       this.assignObjectToOutput(e3, this.constructor.type, t2);
     }
     assignObjectToOutput(e3, t2, i3) {
-      if (this.globalOptions.mergeOutput)
-        return Object.assign(e3, i3);
+      if (this.globalOptions.mergeOutput) return Object.assign(e3, i3);
       e3[t2] ? Object.assign(e3[t2], i3) : e3[t2] = i3;
     }
   };
@@ -52806,9 +51255,7 @@
     return e3 >= 224 && e3 <= 239;
   }
   function le(e3, t2, i3) {
-    for (let [n3, s2] of T)
-      if (s2.canHandle(e3, t2, i3))
-        return n3;
+    for (let [n3, s2] of T) if (s2.canHandle(e3, t2, i3)) return n3;
   }
   var he = class extends se {
     constructor(...e3) {
@@ -52833,35 +51280,29 @@
         let t3 = false;
         for (; r2.size > 0 && !t3 && (i3.canReadNextChunk || this.unfinishedMultiSegment); ) {
           let { nextChunkOffset: n4 } = i3, s3 = this.appSegments.some((e4) => !this.file.available(e4.offset || e4.start, e4.length || e4.size));
-          if (t3 = e3 > n4 && !s3 ? !await i3.readNextChunk(e3) : !await i3.readNextChunk(n4), void 0 === (e3 = this.findAppSegmentsInRange(e3, i3.byteLength)))
-            return;
+          if (t3 = e3 > n4 && !s3 ? !await i3.readNextChunk(e3) : !await i3.readNextChunk(n4), void 0 === (e3 = this.findAppSegmentsInRange(e3, i3.byteLength))) return;
         }
       }
     }
     findAppSegmentsInRange(e3, t2) {
       t2 -= 2;
       let i3, n3, s2, r2, a2, o2, { file: l2, findAll: h2, wanted: u2, remaining: c2, options: f2 } = this;
-      for (; e3 < t2; e3++)
-        if (255 === l2.getUint8(e3)) {
-          if (i3 = l2.getUint8(e3 + 1), oe(i3)) {
-            if (n3 = l2.getUint16(e3 + 2), s2 = le(l2, e3, n3), s2 && u2.has(s2) && (r2 = T.get(s2), a2 = r2.findPosition(l2, e3), o2 = f2[s2], a2.type = s2, this.appSegments.push(a2), !h2 && (r2.multiSegment && o2.multiSegment ? (this.unfinishedMultiSegment = a2.chunkNumber < a2.chunkCount, this.unfinishedMultiSegment || c2.delete(s2)) : c2.delete(s2), 0 === c2.size)))
-              break;
-            f2.recordUnknownSegments && (a2 = re2.findPosition(l2, e3), a2.marker = i3, this.unknownSegments.push(a2)), e3 += n3 + 1;
-          } else if (ae(i3)) {
-            if (n3 = l2.getUint16(e3 + 2), 218 === i3 && false !== f2.stopAfterSos)
-              return;
-            f2.recordJpegSegments && this.jpegSegments.push({ offset: e3, length: n3, marker: i3 }), e3 += n3 + 1;
-          }
+      for (; e3 < t2; e3++) if (255 === l2.getUint8(e3)) {
+        if (i3 = l2.getUint8(e3 + 1), oe(i3)) {
+          if (n3 = l2.getUint16(e3 + 2), s2 = le(l2, e3, n3), s2 && u2.has(s2) && (r2 = T.get(s2), a2 = r2.findPosition(l2, e3), o2 = f2[s2], a2.type = s2, this.appSegments.push(a2), !h2 && (r2.multiSegment && o2.multiSegment ? (this.unfinishedMultiSegment = a2.chunkNumber < a2.chunkCount, this.unfinishedMultiSegment || c2.delete(s2)) : c2.delete(s2), 0 === c2.size))) break;
+          f2.recordUnknownSegments && (a2 = re2.findPosition(l2, e3), a2.marker = i3, this.unknownSegments.push(a2)), e3 += n3 + 1;
+        } else if (ae(i3)) {
+          if (n3 = l2.getUint16(e3 + 2), 218 === i3 && false !== f2.stopAfterSos) return;
+          f2.recordJpegSegments && this.jpegSegments.push({ offset: e3, length: n3, marker: i3 }), e3 += n3 + 1;
         }
+      }
       return e3;
     }
     mergeMultiSegments() {
-      if (!this.appSegments.some((e4) => e4.multiSegment))
-        return;
+      if (!this.appSegments.some((e4) => e4.multiSegment)) return;
       let e3 = function(e4, t2) {
         let i3, n3, s2, r2 = /* @__PURE__ */ new Map();
-        for (let a2 = 0; a2 < e4.length; a2++)
-          i3 = e4[a2], n3 = i3[t2], r2.has(n3) ? s2 = r2.get(n3) : r2.set(n3, s2 = []), s2.push(i3);
+        for (let a2 = 0; a2 < e4.length; a2++) i3 = e4[a2], n3 = i3[t2], r2.has(n3) ? s2 = r2.get(n3) : r2.set(n3, s2 = []), s2.push(i3);
         return Array.from(r2);
       }(this.appSegments, "type");
       this.mergedAppSegments = e3.map(([e4, t2]) => {
@@ -52895,24 +51336,18 @@
       for (let l2 = 0; l2 < o2; l2++) {
         let o3 = this.chunk.getUint16(e3);
         if (r2) {
-          if (n3.has(o3) && (i3.set(o3, this.parseTag(e3, o3, t2)), n3.delete(o3), 0 === n3.size))
-            break;
-        } else
-          !a2 && s2.has(o3) || i3.set(o3, this.parseTag(e3, o3, t2));
+          if (n3.has(o3) && (i3.set(o3, this.parseTag(e3, o3, t2)), n3.delete(o3), 0 === n3.size)) break;
+        } else !a2 && s2.has(o3) || i3.set(o3, this.parseTag(e3, o3, t2));
         e3 += 12;
       }
       return i3;
     }
     parseTag(e3, t2, i3) {
       let { chunk: n3 } = this, s2 = n3.getUint16(e3 + 2), r2 = n3.getUint32(e3 + 4), a2 = ue[s2];
-      if (a2 * r2 <= 4 ? e3 += 8 : e3 = n3.getUint32(e3 + 8), (s2 < 1 || s2 > 13) && g2("Invalid TIFF value type. block: ".concat(i3.toUpperCase(), ", tag: ").concat(t2.toString(16), ", type: ").concat(s2, ", offset ").concat(e3)), e3 > n3.byteLength && g2("Invalid TIFF value offset. block: ".concat(i3.toUpperCase(), ", tag: ").concat(t2.toString(16), ", type: ").concat(s2, ", offset ").concat(e3, " is outside of chunk size ").concat(n3.byteLength)), 1 === s2)
-        return n3.getUint8Array(e3, r2);
-      if (2 === s2)
-        return m(n3.getString(e3, r2));
-      if (7 === s2)
-        return n3.getUint8Array(e3, r2);
-      if (1 === r2)
-        return this.parseTagValue(s2, e3);
+      if (a2 * r2 <= 4 ? e3 += 8 : e3 = n3.getUint32(e3 + 8), (s2 < 1 || s2 > 13) && g2("Invalid TIFF value type. block: ".concat(i3.toUpperCase(), ", tag: ").concat(t2.toString(16), ", type: ").concat(s2, ", offset ").concat(e3)), e3 > n3.byteLength && g2("Invalid TIFF value offset. block: ".concat(i3.toUpperCase(), ", tag: ").concat(t2.toString(16), ", type: ").concat(s2, ", offset ").concat(e3, " is outside of chunk size ").concat(n3.byteLength)), 1 === s2) return n3.getUint8Array(e3, r2);
+      if (2 === s2) return m(n3.getString(e3, r2));
+      if (7 === s2) return n3.getUint8Array(e3, r2);
+      if (1 === r2) return this.parseTagValue(s2, e3);
       {
         let t3 = new (function(e4) {
           switch (e4) {
@@ -52940,8 +51375,7 @@
               return Array;
           }
         }(s2))(r2), i4 = a2;
-        for (let n4 = 0; n4 < r2; n4++)
-          t3[n4] = this.parseTagValue(s2, e3), e3 += i4;
+        for (let n4 = 0; n4 < r2; n4++) t3[n4] = this.parseTagValue(s2, e3), e3 += i4;
         return t3;
       }
     }
@@ -53003,18 +51437,15 @@
       return this[t2] = i3, this.parseTags(e3, t2, i3), i3;
     }
     async parseIfd0Block() {
-      if (this.ifd0)
-        return;
+      if (this.ifd0) return;
       let { file: e3 } = this;
       this.findIfd0Offset(), this.ifd0Offset < 8 && g2("Malformed EXIF data"), !e3.chunked && this.ifd0Offset > e3.byteLength && g2("IFD0 offset points to outside of file.\nthis.ifd0Offset: ".concat(this.ifd0Offset, ", file.byteLength: ").concat(e3.byteLength)), e3.tiff && await e3.ensureChunk(this.ifd0Offset, S(this.options));
       let t2 = this.parseBlock(this.ifd0Offset, "ifd0");
       return 0 !== t2.size ? (this.exifOffset = t2.get(34665), this.interopOffset = t2.get(40965), this.gpsOffset = t2.get(34853), this.xmp = t2.get(700), this.iptc = t2.get(33723), this.icc = t2.get(34675), this.options.sanitize && (t2.delete(34665), t2.delete(40965), t2.delete(34853), t2.delete(700), t2.delete(33723), t2.delete(34675)), t2) : void 0;
     }
     async parseExifBlock() {
-      if (this.exif)
-        return;
-      if (this.ifd0 || await this.parseIfd0Block(), void 0 === this.exifOffset)
-        return;
+      if (this.exif) return;
+      if (this.ifd0 || await this.parseIfd0Block(), void 0 === this.exifOffset) return;
       this.file.tiff && await this.file.ensureChunk(this.exifOffset, S(this.options));
       let e3 = this.parseBlock(this.exifOffset, "exif");
       return this.interopOffset || (this.interopOffset = e3.get(40965)), this.makerNote = e3.get(37500), this.userComment = e3.get(37510), this.options.sanitize && (e3.delete(40965), e3.delete(37500), e3.delete(37510)), this.unpack(e3, 41728), this.unpack(e3, 41729), e3;
@@ -53024,24 +51455,19 @@
       i3 && 1 === i3.length && e3.set(t2, i3[0]);
     }
     async parseGpsBlock() {
-      if (this.gps)
-        return;
-      if (this.ifd0 || await this.parseIfd0Block(), void 0 === this.gpsOffset)
-        return;
+      if (this.gps) return;
+      if (this.ifd0 || await this.parseIfd0Block(), void 0 === this.gpsOffset) return;
       let e3 = this.parseBlock(this.gpsOffset, "gps");
       return e3 && e3.has(2) && e3.has(4) && (e3.set("latitude", de(...e3.get(2), e3.get(1))), e3.set("longitude", de(...e3.get(4), e3.get(3)))), e3;
     }
     async parseInteropBlock() {
-      if (!this.interop && (this.ifd0 || await this.parseIfd0Block(), void 0 !== this.interopOffset || this.exif || await this.parseExifBlock(), void 0 !== this.interopOffset))
-        return this.parseBlock(this.interopOffset, "interop");
+      if (!this.interop && (this.ifd0 || await this.parseIfd0Block(), void 0 !== this.interopOffset || this.exif || await this.parseExifBlock(), void 0 !== this.interopOffset)) return this.parseBlock(this.interopOffset, "interop");
     }
     async parseThumbnailBlock(e3 = false) {
-      if (!this.ifd1 && !this.ifd1Parsed && (!this.options.mergeOutput || e3))
-        return this.findIfd1Offset(), this.ifd1Offset > 0 && (this.parseBlock(this.ifd1Offset, "ifd1"), this.ifd1Parsed = true), this.ifd1;
+      if (!this.ifd1 && !this.ifd1Parsed && (!this.options.mergeOutput || e3)) return this.findIfd1Offset(), this.ifd1Offset > 0 && (this.parseBlock(this.ifd1Offset, "ifd1"), this.ifd1Parsed = true), this.ifd1;
     }
     async extractThumbnail() {
-      if (this.headerParsed || this.parseHeader(), this.ifd1Parsed || await this.parseThumbnailBlock(true), void 0 === this.ifd1)
-        return;
+      if (this.headerParsed || this.parseHeader(), this.ifd1Parsed || await this.parseThumbnailBlock(true), void 0 === this.ifd1) return;
       let e3 = this.ifd1.get(513), t2 = this.ifd1.get(514);
       return this.chunk.getUint8Array(e3, t2);
     }
@@ -53053,22 +51479,15 @@
     }
     createOutput() {
       let e3, t2, i3, n3 = {};
-      for (t2 of H)
-        if (e3 = this[t2], !p(e3))
-          if (i3 = this.canTranslate ? this.translateBlock(e3, t2) : Object.fromEntries(e3), this.options.mergeOutput) {
-            if ("ifd1" === t2)
-              continue;
-            Object.assign(n3, i3);
-          } else
-            n3[t2] = i3;
+      for (t2 of H) if (e3 = this[t2], !p(e3)) if (i3 = this.canTranslate ? this.translateBlock(e3, t2) : Object.fromEntries(e3), this.options.mergeOutput) {
+        if ("ifd1" === t2) continue;
+        Object.assign(n3, i3);
+      } else n3[t2] = i3;
       return this.makerNote && (n3.makerNote = this.makerNote), this.userComment && (n3.userComment = this.userComment), n3;
     }
     assignToOutput(e3, t2) {
-      if (this.globalOptions.mergeOutput)
-        Object.assign(e3, t2);
-      else
-        for (let [i3, n3] of Object.entries(t2))
-          this.assignObjectToOutput(e3, i3, n3);
+      if (this.globalOptions.mergeOutput) Object.assign(e3, t2);
+      else for (let [i3, n3] of Object.entries(t2)) this.assignObjectToOutput(e3, i3, n3);
     }
   };
   function de(e3, t2, i3, n3) {
@@ -53107,8 +51526,7 @@
     let t2 = new te(Ie);
     await t2.read(e3);
     let i3 = await t2.parse();
-    if (i3 && i3.ifd0)
-      return i3.ifd0[274];
+    if (i3 && i3.ifd0) return i3.ifd0[274];
   }
   var ke = Object.freeze({ 1: { dimensionSwapped: false, scaleX: 1, scaleY: 1, deg: 0, rad: 0 }, 2: { dimensionSwapped: false, scaleX: -1, scaleY: 1, deg: 0, rad: 0 }, 3: { dimensionSwapped: false, scaleX: 1, scaleY: 1, deg: 180, rad: 180 * Math.PI / 180 }, 4: { dimensionSwapped: false, scaleX: -1, scaleY: 1, deg: 180, rad: 180 * Math.PI / 180 }, 5: { dimensionSwapped: true, scaleX: 1, scaleY: -1, deg: 90, rad: 90 * Math.PI / 180 }, 6: { dimensionSwapped: true, scaleX: 1, scaleY: 1, deg: 90, rad: 90 * Math.PI / 180 }, 7: { dimensionSwapped: true, scaleX: 1, scaleY: -1, deg: 270, rad: 270 * Math.PI / 180 }, 8: { dimensionSwapped: true, scaleX: 1, scaleY: 1, deg: 270, rad: 270 * Math.PI / 180 } });
   var we = true;
@@ -53187,8 +51605,7 @@
         e3 = Math.min(e3, ...s2.map((e4) => e4.offset)), n3 = Math.max(n3, ...s2.map((e4) => e4.end)), t2 = n3 - e3;
         let i4 = s2.shift();
         i4.offset = e3, i4.length = t2, i4.end = n3, this.list = this.list.filter((e4) => !s2.includes(e4));
-      } else
-        this.list.push({ offset: e3, length: t2, end: n3 });
+      } else this.list.push({ offset: e3, length: t2, end: n3 });
     }
     available(e3, t2) {
       let i3 = e3 + t2;
@@ -53209,21 +51626,18 @@
       this.chunked = true, await this.readChunk(0, this.options.firstChunkSize);
     }
     async readNextChunk(e3 = this.nextChunkOffset) {
-      if (this.fullyRead)
-        return this.chunksRead++, false;
+      if (this.fullyRead) return this.chunksRead++, false;
       let t2 = this.options.chunkSize, i3 = await this.readChunk(e3, t2);
       return !!i3 && i3.byteLength === t2;
     }
     async readChunk(e3, t2) {
-      if (this.chunksRead++, 0 !== (t2 = this.safeWrapAddress(e3, t2)))
-        return this._readChunk(e3, t2);
+      if (this.chunksRead++, 0 !== (t2 = this.safeWrapAddress(e3, t2))) return this._readChunk(e3, t2);
     }
     safeWrapAddress(e3, t2) {
       return void 0 !== this.size && e3 + t2 > this.size ? Math.max(0, this.size - e3) : t2;
     }
     get nextChunkOffset() {
-      if (0 !== this.ranges.list.length)
-        return this.ranges.list[0].length;
+      if (0 !== this.ranges.list.length) return this.ranges.list[0].length;
     }
     get canReadNextChunk() {
       return this.chunksRead < this.options.chunkLimit;
@@ -53266,8 +51680,7 @@
       let i3 = t2 ? e3 + t2 - 1 : void 0, n3 = this.options.httpHeaders || {};
       (e3 || i3) && (n3.range = "bytes=".concat([e3, i3].join("-")));
       let s2 = await h(this.input, { headers: n3 }), r2 = await s2.arrayBuffer(), a2 = r2.byteLength;
-      if (416 !== s2.status)
-        return a2 !== t2 && (this.size = e3 + a2), this.set(r2, e3, true);
+      if (416 !== s2.status) return a2 !== t2 && (this.size = e3 + a2), this.set(r2, e3, true);
     }
   });
   I.prototype.getUint64 = function(e3) {
@@ -53279,8 +51692,7 @@
       let t2 = [];
       for (; e3 < this.file.byteLength - 4; ) {
         let i3 = this.parseBoxHead(e3);
-        if (t2.push(i3), 0 === i3.length)
-          break;
+        if (t2.push(i3), 0 === i3.length) break;
         e3 += i3.length;
       }
       return t2;
@@ -53296,28 +51708,23 @@
       return 1 === t2 && (t2 = this.file.getUint64(e3 + 8), n3 += 8), { offset: e3, length: t2, kind: i3, start: n3 };
     }
     parseBoxFullHead(e3) {
-      if (void 0 !== e3.version)
-        return;
+      if (void 0 !== e3.version) return;
       let t2 = this.file.getUint32(e3.start);
       e3.version = t2 >> 24, e3.start += 4;
     }
   };
   var Le = class extends Re {
     static canHandle(e3, t2) {
-      if (0 !== t2)
-        return false;
+      if (0 !== t2) return false;
       let i3 = e3.getUint16(2);
-      if (i3 > 50)
-        return false;
+      if (i3 > 50) return false;
       let n3 = 16, s2 = [];
-      for (; n3 < i3; )
-        s2.push(e3.getString(n3, 4)), n3 += 4;
+      for (; n3 < i3; ) s2.push(e3.getString(n3, 4)), n3 += 4;
       return s2.includes(this.type);
     }
     async parse() {
       let e3 = this.file.getUint32(0), t2 = this.parseBoxHead(e3);
-      for (; "meta" !== t2.kind; )
-        e3 += t2.length, await this.file.ensureChunk(e3, 16), t2 = this.parseBoxHead(e3);
+      for (; "meta" !== t2.kind; ) e3 += t2.length, await this.file.ensureChunk(e3, 16), t2 = this.parseBoxHead(e3);
       await this.file.ensureChunk(t2.offset, t2.length), this.parseBoxFullHead(t2), this.parseSubBoxes(t2), this.options.icc.enabled && await this.findIcc(t2), this.options.tiff.enabled && await this.findExif(t2);
     }
     async registerSegment(e3, t2, i3) {
@@ -53327,24 +51734,19 @@
     }
     async findIcc(e3) {
       let t2 = this.findBox(e3, "iprp");
-      if (void 0 === t2)
-        return;
+      if (void 0 === t2) return;
       let i3 = this.findBox(t2, "ipco");
-      if (void 0 === i3)
-        return;
+      if (void 0 === i3) return;
       let n3 = this.findBox(i3, "colr");
       void 0 !== n3 && await this.registerSegment("icc", n3.offset + 12, n3.length);
     }
     async findExif(e3) {
       let t2 = this.findBox(e3, "iinf");
-      if (void 0 === t2)
-        return;
+      if (void 0 === t2) return;
       let i3 = this.findBox(e3, "iloc");
-      if (void 0 === i3)
-        return;
+      if (void 0 === i3) return;
       let n3 = this.findExifLocIdInIinf(t2), s2 = this.findExtentInIloc(i3, n3);
-      if (void 0 === s2)
-        return;
+      if (void 0 === s2) return;
       let [r2, a2] = s2;
       await this.file.ensureChunk(r2, a2);
       let o2 = 4 + this.file.getUint32(r2);
@@ -53354,8 +51756,7 @@
       this.parseBoxFullHead(e3);
       let t2, i3, n3, s2, r2 = e3.start, a2 = this.file.getUint16(r2);
       for (r2 += 2; a2--; ) {
-        if (t2 = this.parseBoxHead(r2), this.parseBoxFullHead(t2), i3 = t2.start, t2.version >= 2 && (n3 = 3 === t2.version ? 4 : 2, s2 = this.file.getString(i3 + n3 + 2, 4), "Exif" === s2))
-          return this.file.getUintBytes(i3, n3);
+        if (t2 = this.parseBoxHead(r2), this.parseBoxFullHead(t2), i3 = t2.start, t2.version >= 2 && (n3 = 3 === t2.version ? 4 : 2, s2 = this.file.getString(i3 + n3 + 2, 4), "Exif" === s2)) return this.file.getUintBytes(i3, n3);
         r2 += t2.length;
       }
     }
@@ -53370,8 +51771,7 @@
         let e4 = this.file.getUintBytes(i3, o2);
         i3 += o2 + l2 + 2 + r2;
         let u3 = this.file.getUint16(i3);
-        if (i3 += 2, e4 === t2)
-          return u3 > 1 && console.warn("ILOC box has more than one extent but we're only processing one\nPlease create an issue at https://github.com/MikeKovarik/exifr with this file"), [this.file.getUintBytes(i3 + a2, n3), this.file.getUintBytes(i3 + a2 + n3, s2)];
+        if (i3 += 2, e4 === t2) return u3 > 1 && console.warn("ILOC box has more than one extent but we're only processing one\nPlease create an issue at https://github.com/MikeKovarik/exifr with this file"), [this.file.getUintBytes(i3 + a2, n3), this.file.getUintBytes(i3 + a2 + n3, s2)];
         i3 += u3 * h2;
       }
     }
@@ -53400,15 +51800,10 @@
     }
   }
   function He(e3) {
-    if ("string" == typeof e3)
-      return e3;
+    if ("string" == typeof e3) return e3;
     let t2 = [];
-    if (0 === e3[1] && 0 === e3[e3.length - 1])
-      for (let i3 = 0; i3 < e3.length; i3 += 2)
-        t2.push(je(e3[i3 + 1], e3[i3]));
-    else
-      for (let i3 = 0; i3 < e3.length; i3 += 2)
-        t2.push(je(e3[i3], e3[i3 + 1]));
+    if (0 === e3[1] && 0 === e3[e3.length - 1]) for (let i3 = 0; i3 < e3.length; i3 += 2) t2.push(je(e3[i3 + 1], e3[i3]));
+    else for (let i3 = 0; i3 < e3.length; i3 += 2) t2.push(je(e3[i3], e3[i3 + 1]));
     return m(String.fromCodePoint(...t2));
   }
   function je(e3, t2) {
@@ -53435,12 +51830,10 @@
       return "string" == typeof e3 ? e3 : I.from(e3).getString();
     }
     parse(e3 = this.chunk) {
-      if (!this.localOptions.parse)
-        return e3;
+      if (!this.localOptions.parse) return e3;
       e3 = function(e4) {
         let t3 = {}, i4 = {};
-        for (let e6 of Ze)
-          t3[e6] = [], i4[e6] = 0;
+        for (let e6 of Ze) t3[e6] = [], i4[e6] = 0;
         return e4.replace(et, (e6, n4, s2) => {
           if ("<" === n4) {
             let n5 = ++i4[s2];
@@ -53452,33 +51845,27 @@
       let t2 = Xe.findAll(e3, "rdf", "Description");
       0 === t2.length && t2.push(new Xe("rdf", "Description", void 0, e3));
       let i3, n3 = {};
-      for (let e4 of t2)
-        for (let t3 of e4.properties)
-          i3 = Je(t3.ns, n3), _e(t3, i3);
+      for (let e4 of t2) for (let t3 of e4.properties) i3 = Je(t3.ns, n3), _e(t3, i3);
       return function(e4) {
         let t3;
-        for (let i4 in e4)
-          t3 = e4[i4] = f(e4[i4]), void 0 === t3 && delete e4[i4];
+        for (let i4 in e4) t3 = e4[i4] = f(e4[i4]), void 0 === t3 && delete e4[i4];
         return f(e4);
       }(n3);
     }
     assignToOutput(e3, t2) {
-      if (this.localOptions.parse)
-        for (let [i3, n3] of Object.entries(t2))
-          switch (i3) {
-            case "tiff":
-              this.assignObjectToOutput(e3, "ifd0", n3);
-              break;
-            case "exif":
-              this.assignObjectToOutput(e3, "exif", n3);
-              break;
-            case "xmlns":
-              break;
-            default:
-              this.assignObjectToOutput(e3, i3, n3);
-          }
-      else
-        e3.xmp = t2;
+      if (this.localOptions.parse) for (let [i3, n3] of Object.entries(t2)) switch (i3) {
+        case "tiff":
+          this.assignObjectToOutput(e3, "ifd0", n3);
+          break;
+        case "exif":
+          this.assignObjectToOutput(e3, "exif", n3);
+          break;
+        case "xmlns":
+          break;
+        default:
+          this.assignObjectToOutput(e3, i3, n3);
+      }
+      else e3.xmp = t2;
     }
   };
   c(We, "type", "xmp"), c(We, "multiSegment", true), T.set("xmp", We);
@@ -53502,8 +51889,7 @@
       if (void 0 !== t2 || void 0 !== i3) {
         t2 = t2 || "[\\w\\d-]+", i3 = i3 || "[\\w\\d-]+";
         var n3 = new RegExp("<(".concat(t2, "):(").concat(i3, ")(#\\d+)?((\\s+?[\\w\\d-:]+=(\"[^\"]*\"|'[^']*'))*\\s*)(\\/>|>([\\s\\S]*?)<\\/\\1:\\2\\3>)"), "gm");
-      } else
-        n3 = /<([\w\d-]+):([\w\d-]+)(#\d+)?((\s+?[\w\d-:]+=("[^"]*"|'[^']*'))*\s*)(\/>|>([\s\S]*?)<\/\1:\2\3>)/gm;
+      } else n3 = /<([\w\d-]+):([\w\d-]+)(#\d+)?((\s+?[\w\d-:]+=("[^"]*"|'[^']*'))*\s*)(\/>|>([\s\S]*?)<\/\1:\2\3>)/gm;
       return qe(e3, n3).map(_Xe.unpackMatch);
     }
     static unpackMatch(e3) {
@@ -53527,19 +51913,13 @@
       return "rdf" === this.ns && "li" === this.name;
     }
     serialize() {
-      if (0 === this.properties.length && void 0 === this.value)
-        return;
-      if (this.isPrimitive)
-        return this.value;
-      if (this.isListContainer)
-        return this.children[0].serialize();
-      if (this.isList)
-        return $e(this.children.map(Ye));
-      if (this.isListItem && 1 === this.children.length && 0 === this.attrs.length)
-        return this.children[0].serialize();
+      if (0 === this.properties.length && void 0 === this.value) return;
+      if (this.isPrimitive) return this.value;
+      if (this.isListContainer) return this.children[0].serialize();
+      if (this.isList) return $e(this.children.map(Ye));
+      if (this.isListItem && 1 === this.children.length && 0 === this.attrs.length) return this.children[0].serialize();
       let e3 = {};
-      for (let t2 of this.properties)
-        _e(t2, e3);
+      for (let t2 of this.properties) _e(t2, e3);
       return void 0 !== this.value && (e3.value = this.value), f(e3);
     }
   };
@@ -53552,20 +51932,16 @@
   var Je = (e3, t2) => t2[e3] ? t2[e3] : t2[e3] = {};
   function qe(e3, t2) {
     let i3, n3 = [];
-    if (!e3)
-      return n3;
-    for (; null !== (i3 = t2.exec(e3)); )
-      n3.push(i3);
+    if (!e3) return n3;
+    for (; null !== (i3 = t2.exec(e3)); ) n3.push(i3);
     return n3;
   }
   function Qe(e3) {
     if (function(e4) {
       return null == e4 || "null" === e4 || "undefined" === e4 || "" === e4 || "" === e4.trim();
-    }(e3))
-      return;
+    }(e3)) return;
     let t2 = Number(e3);
-    if (!Number.isNaN(t2))
-      return t2;
+    if (!Number.isNaN(t2)) return t2;
     let i3 = e3.toLowerCase();
     return "true" === i3 || "false" !== i3 && e3.trim();
   }
@@ -53617,8 +51993,7 @@
       }
       {
         let t3 = this.subarray(e3, h2, true), i4 = atob(r2), s2 = t3.toUint8();
-        for (let e4 = 0; e4 < h2; e4++)
-          s2[e4] = i4.charCodeAt(n3 + e4);
+        for (let e4 = 0; e4 < h2; e4++) s2[e4] = i4.charCodeAt(n3 + e4);
         return t3;
       }
     }
@@ -53693,11 +52068,9 @@
     }
     async findIcc() {
       let e3 = this.metaChunks.find((e4) => "iccp" === e4.type);
-      if (!e3)
-        return;
+      if (!e3) return;
       let { chunk: t2 } = e3, i3 = t2.getUint8Array(0, 81), s2 = 0;
-      for (; s2 < 80 && 0 !== i3[s2]; )
-        s2++;
+      for (; s2 < 80 && 0 !== i3[s2]; ) s2++;
       let r2 = s2 + 2, a2 = t2.getString(0, s2);
       if (this.injectKeyValToIhdr("ProfileName", a2), n2) {
         let e4 = await lt, i4 = t2.getUint8Array(r2);
@@ -53741,11 +52114,9 @@
       return function(e4) {
         let t2 = function(e6) {
           let t3 = e6[0].constructor, i3 = 0;
-          for (let t4 of e6)
-            i3 += t4.length;
+          for (let t4 of e6) i3 += t4.length;
           let n3 = new t3(i3), s2 = 0;
-          for (let t4 of e6)
-            n3.set(t4, s2), s2 += t4.length;
+          for (let t4 of e6) n3.set(t4, s2), s2 += t4.length;
           return n3;
         }(e4.map((e6) => e6.chunk.toUint8()));
         return new I(t2);
@@ -53766,8 +52137,7 @@
     parseTags() {
       let e3, t2, i3, n3, s2, { raw: r2 } = this, a2 = this.chunk.getUint32(128), o2 = 132, l2 = this.chunk.byteLength;
       for (; a2--; ) {
-        if (e3 = this.chunk.getString(o2, 4), t2 = this.chunk.getUint32(o2 + 4), i3 = this.chunk.getUint32(o2 + 8), n3 = this.chunk.getString(t2, 4), t2 + i3 > l2)
-          return void console.warn("reached the end of the first ICC chunk. Enable options.tiff.multiSegment to read all ICC segments.");
+        if (e3 = this.chunk.getString(o2, 4), t2 = this.chunk.getUint32(o2 + 4), i3 = this.chunk.getUint32(o2 + 8), n3 = this.chunk.getString(t2, 4), t2 + i3 > l2) return void console.warn("reached the end of the first ICC chunk. Enable options.tiff.multiSegment to read all ICC segments.");
         s2 = this.parseTag(n3, t2, i3), void 0 !== s2 && "\0\0\0\0" !== s2 && r2.set(e3, s2), o2 += 12;
       }
     }
@@ -53782,8 +52152,7 @@
         case "sig ":
           return this.parseSig(t2);
       }
-      if (!(t2 + i3 > this.chunk.byteLength))
-        return this.chunk.getUint8Array(t2, i3);
+      if (!(t2 + i3 > this.chunk.byteLength)) return this.chunk.getUint8Array(t2, i3);
     }
     parseDesc(e3) {
       let t2 = this.chunk.getUint32(e3 + 8) - 1;
@@ -53827,26 +52196,21 @@
     }
     static headerLength(e3, t2, i3) {
       let n3, s2 = this.containsIptc8bim(e3, t2, i3);
-      if (void 0 !== s2)
-        return n3 = e3.getUint8(t2 + s2 + 7), n3 % 2 != 0 && (n3 += 1), 0 === n3 && (n3 = 4), s2 + 8 + n3;
+      if (void 0 !== s2) return n3 = e3.getUint8(t2 + s2 + 7), n3 % 2 != 0 && (n3 += 1), 0 === n3 && (n3 = 4), s2 + 8 + n3;
     }
     static containsIptc8bim(e3, t2, i3) {
-      for (let n3 = 0; n3 < i3; n3++)
-        if (this.isIptcSegmentHead(e3, t2 + n3))
-          return n3;
+      for (let n3 = 0; n3 < i3; n3++) if (this.isIptcSegmentHead(e3, t2 + n3)) return n3;
     }
     static isIptcSegmentHead(e3, t2) {
       return 56 === e3.getUint8(t2) && 943868237 === e3.getUint32(t2) && 1028 === e3.getUint16(t2 + 4);
     }
     parse() {
       let { raw: e3 } = this, t2 = this.chunk.byteLength - 1, i3 = false;
-      for (let n3 = 0; n3 < t2; n3++)
-        if (28 === this.chunk.getUint8(n3) && 2 === this.chunk.getUint8(n3 + 1)) {
-          i3 = true;
-          let t3 = this.chunk.getUint16(n3 + 3), s2 = this.chunk.getUint8(n3 + 2), r2 = this.chunk.getLatin1String(n3 + 5, t3);
-          e3.set(s2, this.pluralizeValue(e3.get(s2), r2)), n3 += 4 + t3;
-        } else if (i3)
-          break;
+      for (let n3 = 0; n3 < t2; n3++) if (28 === this.chunk.getUint8(n3) && 2 === this.chunk.getUint8(n3 + 1)) {
+        i3 = true;
+        let t3 = this.chunk.getUint16(n3 + 3), s2 = this.chunk.getUint8(n3 + 2), r2 = this.chunk.getLatin1String(n3 + 5, t3);
+        e3.set(s2, this.pluralizeValue(e3.get(s2), r2)), n3 += 4 + t3;
+      } else if (i3) break;
       return this.translate(), this.output;
     }
     pluralizeValue(e3, t2) {
@@ -53934,8 +52298,7 @@
     let _idAutoinc = 0;
     let _photoFrame;
     function init2() {
-      if (_initialized2)
-        return;
+      if (_initialized2) return;
       _enabled2 = true;
       function over(d3_event) {
         d3_event.stopPropagation();
@@ -53945,8 +52308,7 @@
       context.container().attr("dropzone", "copy").on("drop.svgLocalPhotos", function(d3_event) {
         d3_event.stopPropagation();
         d3_event.preventDefault();
-        if (!detected.filedrop)
-          return;
+        if (!detected.filedrop) return;
         drawPhotos.fileList(d3_event.dataTransfer.files, (loaded) => {
           if (loaded.length > 0) {
             drawPhotos.fitZoom(false);
@@ -54010,9 +52372,9 @@
       const viewfields = markers.selectAll(".viewfield").data(showViewfields ? [0] : []);
       viewfields.exit().remove();
       viewfields.enter().insert("path", "circle").attr("class", "viewfield").attr("transform", function() {
-        var _a2;
+        var _a3;
         const d2 = this.parentNode.__data__;
-        return "rotate(".concat(Math.round((_a2 = d2.direction) != null ? _a2 : 0), ",0,0),scale(1.5,1.5),translate(-8,-13)");
+        return "rotate(".concat(Math.round((_a3 = d2.direction) != null ? _a3 : 0), ",0,0),scale(1.5,1.5),translate(-8,-13)");
       }).attr("d", "M 6,9 C 8,8.4 8,8.4 10,9 L 16,-2 C 12,-5 4,-5 0,-2 z").style("visibility", function() {
         const d2 = this.parentNode.__data__;
         return isNumber_default(d2.direction) ? "visible" : "hidden";
@@ -54064,8 +52426,7 @@
         } catch {
         }
       }
-      if (typeof callback === "function")
-        callback(loaded);
+      if (typeof callback === "function") callback(loaded);
       dispatch14.call("change");
     }
     drawPhotos.setFiles = function(fileList, callback) {
@@ -54073,11 +52434,9 @@
       return this;
     };
     drawPhotos.fileList = function(fileList, callback) {
-      if (!arguments.length)
-        return _fileList;
+      if (!arguments.length) return _fileList;
       _fileList = fileList;
-      if (!fileList || !fileList.length)
-        return this;
+      if (!fileList || !fileList.length) return this;
       drawPhotos.setFiles(_fileList, callback);
       return this;
     };
@@ -54092,8 +52451,7 @@
     drawPhotos.openPhoto = click;
     drawPhotos.fitZoom = function(force) {
       const coords = _photos.map((image) => image.loc).filter((l2) => isArray_default(l2) && isNumber_default(l2[0]) && isNumber_default(l2[1]));
-      if (coords.length === 0)
-        return;
+      if (coords.length === 0) return;
       const extent = coords.map((l2) => geoExtent(l2, l2)).reduce((a2, b2) => a2.extend(b2));
       const map2 = context.map();
       var viewport = map2.trimmedExtent().polygon();
@@ -54114,8 +52472,7 @@
       });
     }
     drawPhotos.enabled = function(val) {
-      if (!arguments.length)
-        return _enabled2;
+      if (!arguments.length) return _enabled2;
       _enabled2 = val;
       if (_enabled2) {
         showLayer();
@@ -54181,8 +52538,7 @@
       });
     }
     function updateMarkers() {
-      if (!layerVisible || !_layerEnabled2)
-        return;
+      if (!layerVisible || !_layerEnabled2) return;
       const service = getService();
       const selectedID = context.selectedErrorID();
       const data = service ? service.getItems(projection2) : [];
@@ -54195,8 +52551,7 @@
       markersEnter.append("polygon").attr("fill", "currentColor").call(markerPath, "qaItem-fill");
       markersEnter.append("use").attr("class", "icon-annotation").attr("transform", "translate(-6, -22)").attr("width", "12px").attr("height", "12px").attr("xlink:href", (d2) => d2.icon ? "#" + d2.icon : "");
       markers.merge(markersEnter).sort(sortY).classed("selected", (d2) => d2.id === selectedID).attr("transform", getTransform);
-      if (touchLayer.empty())
-        return;
+      if (touchLayer.empty()) return;
       const fillClass = context.getDebug("target") ? "pink " : "nocolor ";
       const targets = touchLayer.selectAll(".qaItem.improveOSM").data(data, (d2) => d2.id);
       targets.exit().remove();
@@ -54225,8 +52580,7 @@
       }
     }
     drawImproveOSM.enabled = function(val) {
-      if (!arguments.length)
-        return _layerEnabled2;
+      if (!arguments.length) return _layerEnabled2;
       _layerEnabled2 = val;
       if (_layerEnabled2) {
         layerOn();
@@ -54292,8 +52646,7 @@
       });
     }
     function updateMarkers() {
-      if (!layerVisible || !_layerEnabled3)
-        return;
+      if (!layerVisible || !_layerEnabled3) return;
       const service = getService();
       const selectedID = context.selectedErrorID();
       const data = service ? service.getItems(projection2) : [];
@@ -54306,8 +52659,7 @@
       markersEnter.append("polygon").attr("fill", (d2) => service.getColor(d2.item)).call(markerPath, "qaItem-fill");
       markersEnter.append("use").attr("class", "icon-annotation").attr("transform", "translate(-6, -22)").attr("width", "12px").attr("height", "12px").attr("xlink:href", (d2) => d2.icon ? "#" + d2.icon : "");
       markers.merge(markersEnter).sort(sortY).classed("selected", (d2) => d2.id === selectedID).attr("transform", getTransform);
-      if (touchLayer.empty())
-        return;
+      if (touchLayer.empty()) return;
       const fillClass = context.getDebug("target") ? "pink" : "nocolor";
       const targets = touchLayer.selectAll(".qaItem.osmose").data(data, (d2) => d2.id);
       targets.exit().remove();
@@ -54336,8 +52688,7 @@
       }
     }
     drawOsmose.enabled = function(val) {
-      if (!arguments.length)
-        return _layerEnabled3;
+      if (!arguments.length) return _layerEnabled3;
       _layerEnabled3 = val;
       if (_layerEnabled3) {
         getService().loadStrings().then(layerOn).catch((err) => {
@@ -54369,8 +52720,7 @@
     var _selectedSequence = null;
     var _streetside;
     function init2() {
-      if (svgStreetside.initialized)
-        return;
+      if (svgStreetside.initialized) return;
       svgStreetside.enabled = false;
       svgStreetside.initialized = true;
     }
@@ -54385,8 +52735,7 @@
     }
     function showLayer() {
       var service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       editOn();
       layer.style("opacity", 0).transition().duration(250).style("opacity", 1).on("end", function() {
         dispatch14.call("change");
@@ -54405,8 +52754,7 @@
     }
     function click(d3_event, d2) {
       var service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       if (d2.sequenceKey !== _selectedSequence) {
         _viewerYaw = 0;
       }
@@ -54418,13 +52766,11 @@
     }
     function mouseover(d3_event, d2) {
       var service = getService();
-      if (service)
-        service.setStyles(context, d2);
+      if (service) service.setStyles(context, d2);
     }
     function mouseout() {
       var service = getService();
-      if (service)
-        service.setStyles(context, null);
+      if (service) service.setStyles(context, null);
     }
     function transform2(d2) {
       var t2 = svgPointTransform(projection2)(d2);
@@ -54436,14 +52782,11 @@
     }
     function viewerChanged() {
       var service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       var viewer = service.viewer();
-      if (!viewer)
-        return;
+      if (!viewer) return;
       _viewerYaw = viewer.getYaw();
-      if (context.map().isTransformed())
-        return;
+      if (context.map().isTransformed()) return;
       layer.selectAll(".viewfield-group.currentView").attr("transform", transform2);
     }
     function filterBubbles(bubbles) {
@@ -54554,8 +52897,7 @@
       }
     }
     drawImages.enabled = function(_2) {
-      if (!arguments.length)
-        return svgStreetside.enabled;
+      if (!arguments.length) return svgStreetside.enabled;
       svgStreetside.enabled = _2;
       if (svgStreetside.enabled) {
         showLayer();
@@ -54587,8 +52929,7 @@
     let _viewerYaw = 0;
     let _vegbilder;
     function init2() {
-      if (svgVegbilder.initialized)
-        return;
+      if (svgVegbilder.initialized) return;
       svgVegbilder.enabled = false;
       svgVegbilder.initialized = true;
     }
@@ -54603,8 +52944,7 @@
     }
     function showLayer() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       editOn();
       layer.style("opacity", 0).transition().duration(250).style("opacity", 1).on("end", () => dispatch14.call("change"));
     }
@@ -54621,8 +52961,7 @@
     }
     function click(d3_event, d2) {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.ensureViewerLoaded(context).then(() => {
         service.selectImage(context, d2.key).showViewer(context);
       });
@@ -54630,13 +52969,11 @@
     }
     function mouseover(d3_event, d2) {
       const service = getService();
-      if (service)
-        service.setStyles(context, d2);
+      if (service) service.setStyles(context, d2);
     }
     function mouseout() {
       const service = getService();
-      if (service)
-        service.setStyles(context, null);
+      if (service) service.setStyles(context, null);
     }
     function transform2(d2, selected) {
       let t2 = svgPointTransform(projection2)(d2);
@@ -54651,12 +52988,10 @@
     }
     function viewerChanged() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       const frame2 = service.photoFrame();
       _viewerYaw = frame2.getYaw();
-      if (context.map().isTransformed())
-        return;
+      if (context.map().isTransformed()) return;
       layer.selectAll(".viewfield-group.currentView").attr("transform", (d2) => transform2(d2, d2));
     }
     function filterImages(images) {
@@ -54762,8 +53097,7 @@
       }
     }
     drawImages.enabled = function(_2) {
-      if (!arguments.length)
-        return svgVegbilder.enabled;
+      if (!arguments.length) return svgVegbilder.enabled;
       svgVegbilder.enabled = _2;
       if (svgVegbilder.enabled) {
         showLayer();
@@ -54799,8 +53133,7 @@
     let layer = select_default2(null);
     let _mapillary;
     function init2() {
-      if (svgMapillaryImages.initialized)
-        return;
+      if (svgMapillaryImages.initialized) return;
       svgMapillaryImages.enabled = false;
       svgMapillaryImages.initialized = true;
     }
@@ -54815,8 +53148,7 @@
     }
     function showLayer() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       editOn();
       layer.style("opacity", 0).transition().duration(250).style("opacity", 1).on("end", function() {
         dispatch14.call("change");
@@ -54835,8 +53167,7 @@
     }
     function click(d3_event, image) {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.ensureViewerLoaded(context).then(function() {
         service.selectImage(context, image.id).showViewer(context);
       });
@@ -54844,13 +53175,11 @@
     }
     function mouseover(d3_event, image) {
       const service = getService();
-      if (service)
-        service.setStyles(context, image);
+      if (service) service.setStyles(context, image);
     }
     function mouseout() {
       const service = getService();
-      if (service)
-        service.setStyles(context, null);
+      if (service) service.setStyles(context, null);
     }
     function transform2(d2) {
       let t2 = svgPointTransform(projection2)(d2);
@@ -54866,8 +53195,7 @@
       const toDate = context.photos().toDate();
       if (!showsPano || !showsFlat) {
         images = images.filter(function(image) {
-          if (image.is_pano)
-            return showsPano;
+          if (image.is_pano) return showsPano;
           return showsFlat;
         });
       }
@@ -54891,8 +53219,7 @@
       if (!showsPano || !showsFlat) {
         sequences = sequences.filter(function(sequence) {
           if (sequence.properties.hasOwnProperty("is_pano")) {
-            if (sequence.properties.is_pano)
-              return showsPano;
+            if (sequence.properties.is_pano) return showsPano;
             return showsFlat;
           }
           return false;
@@ -54968,8 +53295,7 @@
       }
     }
     drawImages.enabled = function(_2) {
-      if (!arguments.length)
-        return svgMapillaryImages.enabled;
+      if (!arguments.length) return svgMapillaryImages.enabled;
       svgMapillaryImages.enabled = _2;
       if (svgMapillaryImages.enabled) {
         showLayer();
@@ -55002,8 +53328,7 @@
     let _mapillary;
     let viewerCompassAngle;
     function init2() {
-      if (svgMapillaryPosition.initialized)
-        return;
+      if (svgMapillaryPosition.initialized) return;
       svgMapillaryPosition.initialized = true;
     }
     function getService() {
@@ -55012,8 +53337,7 @@
         _mapillary.event.on("imageChanged", throttledRedraw);
         _mapillary.event.on("bearingChanged", function(e3) {
           viewerCompassAngle = e3.bearing;
-          if (context.map().isTransformed())
-            return;
+          if (context.map().isTransformed()) return;
           layer.selectAll(".viewfield-group.currentView").filter(function(d2) {
             return d2.is_pano;
           }).attr("transform", transform2);
@@ -55093,8 +53417,7 @@
     let layer = select_default2(null);
     let _mapillary;
     function init2() {
-      if (svgMapillarySigns.initialized)
-        return;
+      if (svgMapillarySigns.initialized) return;
       svgMapillarySigns.enabled = false;
       svgMapillarySigns.initialized = true;
     }
@@ -55109,8 +53432,7 @@
     }
     function showLayer() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.loadSignResources(context);
       editOn();
     }
@@ -55127,8 +53449,7 @@
     }
     function click(d3_event, d2) {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       context.map().centerEase(d2.loc);
       const selectedImageId = service.getActiveImage() && service.getActiveImage().id;
       service.getDetections(d2.id).then((detections) => {
@@ -55197,8 +53518,7 @@
       }
     }
     drawSigns.enabled = function(_2) {
-      if (!arguments.length)
-        return svgMapillarySigns.enabled;
+      if (!arguments.length) return svgMapillarySigns.enabled;
       svgMapillarySigns.enabled = _2;
       if (svgMapillarySigns.enabled) {
         showLayer();
@@ -55229,8 +53549,7 @@
     let layer = select_default2(null);
     let _mapillary;
     function init2() {
-      if (svgMapillaryMapFeatures.initialized)
-        return;
+      if (svgMapillaryMapFeatures.initialized) return;
       svgMapillaryMapFeatures.enabled = false;
       svgMapillaryMapFeatures.initialized = true;
     }
@@ -55245,8 +53564,7 @@
     }
     function showLayer() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.loadObjectResources(context);
       editOn();
     }
@@ -55263,8 +53581,7 @@
     }
     function click(d3_event, d2) {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       context.map().centerEase(d2.loc);
       const selectedImageId = service.getActiveImage() && service.getActiveImage().id;
       service.getDetections(d2.id).then((detections) => {
@@ -55338,8 +53655,7 @@
       }
     }
     drawMapFeatures.enabled = function(_2) {
-      if (!arguments.length)
-        return svgMapillaryMapFeatures.enabled;
+      if (!arguments.length) return svgMapillaryMapFeatures.enabled;
       svgMapillaryMapFeatures.enabled = _2;
       if (svgMapillaryMapFeatures.enabled) {
         showLayer();
@@ -55372,8 +53688,7 @@
     var layer = select_default2(null);
     var _kartaview;
     function init2() {
-      if (svgKartaviewImages.initialized)
-        return;
+      if (svgKartaviewImages.initialized) return;
       svgKartaviewImages.enabled = false;
       svgKartaviewImages.initialized = true;
     }
@@ -55388,8 +53703,7 @@
     }
     function showLayer() {
       var service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       editOn();
       layer.style("opacity", 0).transition().duration(250).style("opacity", 1).on("end", function() {
         dispatch14.call("change");
@@ -55408,8 +53722,7 @@
     }
     function click(d3_event, d2) {
       var service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.ensureViewerLoaded(context).then(function() {
         service.selectImage(context, d2.key).showViewer(context);
       });
@@ -55417,13 +53730,11 @@
     }
     function mouseover(d3_event, d2) {
       var service = getService();
-      if (service)
-        service.setStyles(context, d2);
+      if (service) service.setStyles(context, d2);
     }
     function mouseout() {
       var service = getService();
-      if (service)
-        service.setStyles(context, null);
+      if (service) service.setStyles(context, null);
     }
     function transform2(d2) {
       var t2 = svgPointTransform(projection2)(d2);
@@ -55531,8 +53842,7 @@
       }
     }
     drawImages.enabled = function(_2) {
-      if (!arguments.length)
-        return svgKartaviewImages.enabled;
+      if (!arguments.length) return svgKartaviewImages.enabled;
       svgKartaviewImages.enabled = _2;
       if (svgKartaviewImages.enabled) {
         showLayer();
@@ -55564,8 +53874,7 @@
     let _mapilio;
     const viewFieldZoomLevel = 18;
     function init2() {
-      if (svgMapilioImages.initialized)
-        return;
+      if (svgMapilioImages.initialized) return;
       svgMapilioImages.enabled = false;
       svgMapilioImages.initialized = true;
     }
@@ -55580,8 +53889,7 @@
     }
     function showLayer() {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       editOn();
       layer.style("opacity", 0).transition().duration(250).style("opacity", 1).on("end", function() {
         dispatch14.call("change");
@@ -55607,8 +53915,7 @@
     }
     function click(d3_event, image) {
       const service = getService();
-      if (!service)
-        return;
+      if (!service) return;
       service.ensureViewerLoaded(context, image.id).then(function() {
         service.selectImage(context, image.id).showViewer(context);
       });
@@ -55616,13 +53923,11 @@
     }
     function mouseover(d3_event, image) {
       const service = getService();
-      if (service)
-        service.setStyles(context, image);
+      if (service) service.setStyles(context, image);
     }
     function mouseout() {
       const service = getService();
-      if (service)
-        service.setStyles(context, null);
+      if (service) service.setStyles(context, null);
     }
     function update() {
       const z2 = ~~context.map().zoom();
@@ -55677,8 +53982,7 @@
       }
     }
     drawImages.enabled = function(_2) {
-      if (!arguments.length)
-        return svgMapilioImages.enabled;
+      if (!arguments.length) return svgMapilioImages.enabled;
       svgMapilioImages.enabled = _2;
       if (svgMapilioImages.enabled) {
         showLayer();
@@ -55727,8 +54031,7 @@
       });
     }
     drawOsm.enabled = function(val) {
-      if (!arguments.length)
-        return enabled;
+      if (!arguments.length) return enabled;
       enabled = val;
       if (enabled) {
         showLayer();
@@ -55797,8 +54100,7 @@
       });
     }
     function updateMarkers() {
-      if (!_notesVisible || !_notesEnabled)
-        return;
+      if (!_notesVisible || !_notesEnabled) return;
       var service = getService();
       var selectedID = context.selectedNoteID();
       var data = service ? service.notes(projection2) : [];
@@ -55818,10 +54120,8 @@
       notesEnter.selectAll(".icon-annotation").data(function(d2) {
         return [d2];
       }).enter().append("use").attr("class", "icon-annotation").attr("width", "10px").attr("height", "10px").attr("x", "-3px").attr("y", "-19px").attr("xlink:href", function(d2) {
-        if (d2.id < 0)
-          return "#iD-icon-plus";
-        if (d2.status === "open")
-          return "#iD-icon-close";
+        if (d2.id < 0) return "#iD-icon-plus";
+        if (d2.status === "open") return "#iD-icon-close";
         return "#iD-icon-apply";
       });
       notes.merge(notesEnter).sort(sortY).classed("selected", function(d2) {
@@ -55829,8 +54129,7 @@
         var isMoving = mode && mode.id === "drag-note";
         return !isMoving && d2.id === selectedID;
       }).attr("transform", getTransform);
-      if (touchLayer.empty())
-        return;
+      if (touchLayer.empty()) return;
       var fillClass = context.getDebug("target") ? "pink " : "nocolor ";
       var targets = touchLayer.selectAll(".note").data(data, function(d2) {
         return d2.id;
@@ -55841,10 +54140,8 @@
         return "note target note-" + d2.id + " " + fillClass + newClass;
       }).attr("transform", getTransform);
       function sortY(a2, b2) {
-        if (a2.id === selectedID)
-          return 1;
-        if (b2.id === selectedID)
-          return -1;
+        if (a2.id === selectedID) return 1;
+        if (b2.id === selectedID) return -1;
         return b2.loc[1] - a2.loc[1];
       }
     }
@@ -55868,8 +54165,7 @@
       }
     }
     drawNotes.enabled = function(val) {
-      if (!arguments.length)
-        return _notesEnabled;
+      if (!arguments.length) return _notesEnabled;
       _notesEnabled = val;
       if (_notesEnabled) {
         layerOn();
@@ -55995,8 +54291,7 @@
       return this;
     };
     drawLayers.dimensions = function(val) {
-      if (!arguments.length)
-        return utilGetDimensions(svg2);
+      if (!arguments.length) return utilGetDimensions(svg2);
       utilSetDimensions(svg2, val);
       return this;
     };
@@ -56267,12 +54562,9 @@
       var midpoints = {};
       for (var i3 = 0; i3 < entities.length; i3++) {
         var entity = entities[i3];
-        if (entity.type !== "way")
-          continue;
-        if (!filter2(entity))
-          continue;
-        if (context.selectedIDs().indexOf(entity.id) < 0)
-          continue;
+        if (entity.type !== "way") continue;
+        if (!filter2(entity)) continue;
+        if (context.selectedIDs().indexOf(entity.id) < 0) continue;
         var nodes = graph.childNodes(entity);
         for (var j2 = 0; j2 < nodes.length - 1; j2++) {
           var a2 = nodes[j2];
@@ -56307,8 +54599,7 @@
         }
       }
       function midpointFilter(d2) {
-        if (midpoints[d2.id])
-          return true;
+        if (midpoints[d2.id]) return true;
         for (var i4 = 0; i4 < d2.parents.length; i4++) {
           if (filter2(d2.parents[i4])) {
             return true;
@@ -56361,8 +54652,7 @@
       var activeID = context.activeID();
       var data = [];
       entities.forEach(function(node) {
-        if (activeID === node.id)
-          return;
+        if (activeID === node.id) return;
         data.push({
           type: "Feature",
           id: node.id,
@@ -56426,10 +54716,8 @@
   function svgTurns(projection2, context) {
     function icon2(turn) {
       var u2 = turn.u ? "-u" : "";
-      if (turn.no)
-        return "#iD-turn-no" + u2;
-      if (turn.only)
-        return "#iD-turn-only" + u2;
+      if (turn.no) return "#iD-turn-no" + u2;
+      if (turn.only) return "#iD-turn-only" + u2;
       return "#iD-turn-yes" + u2;
     }
     function drawTurns(selection2, graph, turns) {
@@ -56532,14 +54820,12 @@
       var base = context.history().base();
       function getIcon(d2) {
         var entity = graph.entity(d2.id);
-        if (entity.id in icons)
-          return icons[entity.id];
+        if (entity.id in icons) return icons[entity.id];
         icons[entity.id] = entity.hasInterestingTags() && _mainPresetIndex.match(entity, graph).icon;
         return icons[entity.id];
       }
       function getDirections(entity) {
-        if (entity.id in directions)
-          return directions[entity.id];
+        if (entity.id in directions) return directions[entity.id];
         var angles = entity.directions(graph, projection2);
         directions[entity.id] = angles.length ? angles : false;
         return angles;
@@ -56612,8 +54898,7 @@
       var activeID = context.activeID();
       var data = { targets: [], nopes: [] };
       entities.forEach(function(node) {
-        if (activeID === node.id)
-          return;
+        if (activeID === node.id) return;
         var vertexType = svgPassiveVertex(node, graph, activeID);
         if (vertexType !== 0) {
           data.targets.push({
@@ -56674,8 +54959,7 @@
       var results = {};
       var seenIds = {};
       function addChildVertices(entity) {
-        if (seenIds[entity.id])
-          return;
+        if (seenIds[entity.id]) return;
         seenIds[entity.id] = true;
         var geometry = entity.geometry(graph);
         if (!context.features().isHiddenFeature(entity, graph, geometry)) {
@@ -56701,8 +54985,7 @@
       }
       ids.forEach(function(id2) {
         var entity = graph.hasEntity(id2);
-        if (!entity)
-          return;
+        if (!entity) return;
         if (entity.type === "node") {
           if (renderAsVertex(entity, graph, wireframe, zoom)) {
             results[entity.id] = entity;
@@ -56775,8 +55058,7 @@
         _currSelected = {};
         context.selectedIDs().forEach(function(id2) {
           var entity = graph.hasEntity(id2);
-          if (!entity)
-            return;
+          if (!entity) return;
           if (entity.type === "node") {
             if (renderAsVertex(entity, graph, wireframe, zoom)) {
               _currSelected[entity.id] = entity;
@@ -56792,8 +55074,7 @@
       drawVertices(selection2, graph, Object.values(_prevSelected), filter2, extent, false);
     };
     drawVertices.drawHover = function(selection2, graph, target, extent) {
-      if (target === _currHoverTarget)
-        return;
+      if (target === _currHoverTarget) return;
       var wireframe = context.surface().classed("fill-wireframe");
       var zoom = geoScaleToZoom(projection2.scale());
       _prevHover = _currHover || {};
@@ -56942,12 +55223,9 @@
         return this;
       },
       zoom: function(d3_event, key, transform2) {
-        if (this.mouse && key !== "mouse")
-          this.mouse[1] = transform2.invert(this.mouse[0]);
-        if (this.pointer0 && key !== "touch")
-          this.pointer0[1] = transform2.invert(this.pointer0[0]);
-        if (this.pointer1 && key !== "touch")
-          this.pointer1[1] = transform2.invert(this.pointer1[0]);
+        if (this.mouse && key !== "mouse") this.mouse[1] = transform2.invert(this.mouse[0]);
+        if (this.pointer0 && key !== "touch") this.pointer0[1] = transform2.invert(this.pointer0[0]);
+        if (this.pointer1 && key !== "touch") this.pointer1[1] = transform2.invert(this.pointer1[0]);
         _transform = transform2;
         dispatch14.call("zoom", this, d3_event, key, transform2);
         return this;
@@ -56961,8 +55239,7 @@
       }
     };
     function wheeled(d3_event) {
-      if (!filter2.apply(this, arguments))
-        return;
+      if (!filter2.apply(this, arguments)) return;
       var g3 = gesture(this, arguments), t2 = _transform, k2 = Math.max(scaleExtent[0], Math.min(scaleExtent[1], t2.k * Math.pow(2, wheelDelta.apply(this, arguments)))), p2 = utilFastMouse(this)(d3_event);
       if (g3.wheel) {
         if (g3.mouse[0][0] !== p2[0] || g3.mouse[0][1] !== p2[1]) {
@@ -56987,8 +55264,7 @@
     var _pointerLocGetter;
     function pointerdown(d3_event) {
       _downPointerIDs.add(d3_event.pointerId);
-      if (!filter2.apply(this, arguments))
-        return;
+      if (!filter2.apply(this, arguments)) return;
       var g3 = gesture(this, arguments, _downPointerIDs.size === 1);
       var started;
       d3_event.stopImmediatePropagation();
@@ -57007,18 +55283,14 @@
       }
     }
     function pointermove(d3_event) {
-      if (!_downPointerIDs.has(d3_event.pointerId))
-        return;
-      if (!_activeGesture || !_pointerLocGetter)
-        return;
+      if (!_downPointerIDs.has(d3_event.pointerId)) return;
+      if (!_activeGesture || !_pointerLocGetter) return;
       var g3 = gesture(this, arguments);
       var isPointer0 = g3.pointer0 && g3.pointer0[2] === d3_event.pointerId;
       var isPointer1 = !isPointer0 && g3.pointer1 && g3.pointer1[2] === d3_event.pointerId;
       if ((isPointer0 || isPointer1) && "buttons" in d3_event && !d3_event.buttons) {
-        if (g3.pointer0)
-          _downPointerIDs.delete(g3.pointer0[2]);
-        if (g3.pointer1)
-          _downPointerIDs.delete(g3.pointer1[2]);
+        if (g3.pointer0) _downPointerIDs.delete(g3.pointer0[2]);
+        if (g3.pointer1) _downPointerIDs.delete(g3.pointer1[2]);
         g3.end(d3_event);
         return;
       }
@@ -57026,10 +55298,8 @@
       d3_event.stopImmediatePropagation();
       var loc = _pointerLocGetter(d3_event);
       var t2, p2, l2;
-      if (isPointer0)
-        g3.pointer0[0] = loc;
-      else if (isPointer1)
-        g3.pointer1[0] = loc;
+      if (isPointer0) g3.pointer0[0] = loc;
+      else if (isPointer1) g3.pointer1[0] = loc;
       t2 = _transform;
       if (g3.pointer1) {
         var p02 = g3.pointer0[0], l0 = g3.pointer0[1], p1 = g3.pointer1[0], l1 = g3.pointer1[1], dp = (dp = p1[0] - p02[0]) * dp + (dp = p1[1] - p02[1]) * dp, dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
@@ -57045,17 +55315,13 @@
       g3.zoom(d3_event, "touch", constrain(translate(t2, p2, l2), g3.extent, translateExtent));
     }
     function pointerup(d3_event) {
-      if (!_downPointerIDs.has(d3_event.pointerId))
-        return;
+      if (!_downPointerIDs.has(d3_event.pointerId)) return;
       _downPointerIDs.delete(d3_event.pointerId);
-      if (!_activeGesture)
-        return;
+      if (!_activeGesture) return;
       var g3 = gesture(this, arguments);
       d3_event.stopImmediatePropagation();
-      if (g3.pointer0 && g3.pointer0[2] === d3_event.pointerId)
-        delete g3.pointer0;
-      else if (g3.pointer1 && g3.pointer1[2] === d3_event.pointerId)
-        delete g3.pointer1;
+      if (g3.pointer0 && g3.pointer0[2] === d3_event.pointerId) delete g3.pointer0;
+      else if (g3.pointer1 && g3.pointer1[2] === d3_event.pointerId) delete g3.pointer1;
       if (g3.pointer1 && !g3.pointer0) {
         g3.pointer0 = g3.pointer1;
         delete g3.pointer1;
@@ -57104,8 +55370,7 @@
       geoVecLength(_pointer.startLoc, loc) <= _maxDistance;
     }
     function pointerdown(d3_event) {
-      if (d3_event.ctrlKey || d3_event.button === 2)
-        return;
+      if (d3_event.ctrlKey || d3_event.button === 2) return;
       var loc = [d3_event.clientX, d3_event.clientY];
       if (_pointer && !pointerIsValidFor(loc)) {
         _pointer = void 0;
@@ -57122,10 +55387,8 @@
       }
     }
     function pointerup(d3_event) {
-      if (d3_event.ctrlKey || d3_event.button === 2)
-        return;
-      if (!_pointer || _pointer.pointerId !== d3_event.pointerId)
-        return;
+      if (d3_event.ctrlKey || d3_event.button === 2) return;
+      if (!_pointer || _pointer.pointerId !== d3_event.pointerId) return;
       _pointer.upCount += 1;
       if (_pointer.upCount === 2) {
         var loc = [d3_event.clientX, d3_event.clientY];
@@ -57215,8 +55478,7 @@
       }
       function didUndoOrRedo(targetTransform) {
         var mode = context.mode().id;
-        if (mode !== "browse" && mode !== "select")
-          return;
+        if (mode !== "browse" && mode !== "select") return;
         if (targetTransform) {
           map2.transformEase(targetTransform);
         }
@@ -57276,11 +55538,9 @@
       }
       updateAreaFill();
       _doubleUpHandler.on("doubleUp.map", function(d3_event, p02) {
-        if (!_dblClickZoomEnabled)
-          return;
+        if (!_dblClickZoomEnabled) return;
         if (typeof d3_event.target.__data__ === "object" && // or area fills
-        !select_default2(d3_event.target).classed("fill"))
-          return;
+        !select_default2(d3_event.target).classed("fill")) return;
         var zoomOut2 = d3_event.shiftKey;
         var t2 = projection2.transform();
         var p1 = t2.invert(p02);
@@ -57293,10 +55553,8 @@
         if (!map2.editableDataEnabled(
           true
           /* skip zoom check */
-        ))
-          return;
-        if (_isTransformed)
-          return;
+        )) return;
+        if (_isTransformed) return;
         var graph = context.graph();
         var selectedAndParents = {};
         context.selectedIDs().forEach(function(id2) {
@@ -57363,8 +55621,7 @@
         data = [];
         utilEntityAndDeepMemberIDs(mode.selectedIDs(), context.graph()).forEach(function(id2) {
           var entity = context.hasEntity(id2);
-          if (entity)
-            data.push(entity);
+          if (entity) data.push(entity);
         });
         fullRedraw = true;
         filter2 = utilFunctor(true);
@@ -57459,8 +55716,7 @@
       var y2 = eventTransform.y;
       var k2 = eventTransform.k;
       if (source && source.type === "wheel") {
-        if (_pointerDown)
-          return;
+        if (_pointerDown) return;
         var detected = utilDetect();
         var dX = source.deltaX;
         var dY = source.deltaY;
@@ -57574,8 +55830,7 @@
       }
     }
     function resetTransform() {
-      if (!_isTransformed)
-        return false;
+      if (!_isTransformed) return false;
       utilSetTransform(supersurface, 0, 0);
       _isTransformed = false;
       if (context.inIntro()) {
@@ -57584,8 +55839,7 @@
       return true;
     }
     function redraw(difference2, extent) {
-      if (surface.empty() || !_redrawEnabled)
-        return;
+      if (surface.empty() || !_redrawEnabled) return;
       if (resetTransform()) {
         difference2 = extent = void 0;
       }
@@ -57611,8 +55865,7 @@
       return map2;
     }
     var immediateRedraw = function(difference2, extent) {
-      if (!difference2 && !extent)
-        cancelPendingRedraw();
+      if (!difference2 && !extent) cancelPendingRedraw();
       redraw(difference2, extent);
     };
     map2.lastPointerEvent = function() {
@@ -57634,14 +55887,12 @@
       return projection2.invert(coord2);
     };
     map2.dblclickZoomEnable = function(val) {
-      if (!arguments.length)
-        return _dblClickZoomEnabled;
+      if (!arguments.length) return _dblClickZoomEnabled;
       _dblClickZoomEnabled = val;
       return map2;
     };
     map2.redrawEnable = function(val) {
-      if (!arguments.length)
-        return _redrawEnabled;
+      if (!arguments.length) return _redrawEnabled;
       _redrawEnabled = val;
       return map2;
     };
@@ -57650,8 +55901,7 @@
     };
     function setTransform(t2, duration, force) {
       var t3 = projection2.transform();
-      if (!force && t2.k === t3.k && t2.x === t3.x && t2.y === t3.y)
-        return false;
+      if (!force && t2.k === t3.k && t2.x === t3.x && t2.y === t3.y) return false;
       if (duration) {
         _selection.transition().duration(duration).on("start", function() {
           map2.startEase();
@@ -57666,8 +55916,7 @@
     function setCenterZoom(loc2, z2, duration, force) {
       var c2 = map2.center();
       var z3 = map2.zoom();
-      if (loc2[0] === c2[0] && loc2[1] === c2[1] && z2 === z3 && !force)
-        return false;
+      if (loc2[0] === c2[0] && loc2[1] === c2[1] && z2 === z3 && !force) return false;
       var proj = geoRawMercator().transform(projection2.transform());
       var k2 = clamp2(geoZoomToScale(z2, TILESIZE), kMin, kMax);
       proj.scale(k2);
@@ -57697,8 +55946,7 @@
       return map2;
     };
     map2.dimensions = function(val) {
-      if (!arguments.length)
-        return _dimensions;
+      if (!arguments.length) return _dimensions;
       _dimensions = val;
       drawLayers.dimensions(_dimensions);
       context.background().dimensions(_dimensions);
@@ -57781,8 +56029,7 @@
     };
     map2.zoomTo = function(entity) {
       var extent = entity.extent(context.graph());
-      if (!isFinite(extent.area()))
-        return map2;
+      if (!isFinite(extent.area())) return map2;
       var z2 = clamp2(map2.trimmedExtentZoom(extent), 0, 20);
       return map2.centerZoom(extent.center(), z2);
     };
@@ -57825,8 +56072,7 @@
       } else {
         extent = obj.extent(context.graph());
       }
-      if (!isFinite(extent.area()))
-        return map2;
+      if (!isFinite(extent.area())) return map2;
       var z2 = clamp2(map2.trimmedExtentZoom(extent), 0, 20);
       return map2.centerZoomEase(extent.center(), z2, duration);
     };
@@ -57892,19 +56138,16 @@
     };
     map2.editableDataEnabled = function(skipZoomCheck) {
       var layer = context.layers().layer("osm");
-      if (!layer || !layer.enabled())
-        return false;
+      if (!layer || !layer.enabled()) return false;
       return skipZoomCheck || map2.withinEditableZoom();
     };
     map2.notesEditable = function() {
       var layer = context.layers().layer("notes");
-      if (!layer || !layer.enabled())
-        return false;
+      if (!layer || !layer.enabled()) return false;
       return map2.withinEditableZoom();
     };
     map2.minzoom = function(val) {
-      if (!arguments.length)
-        return _minzoom;
+      if (!arguments.length) return _minzoom;
       _minzoom = val;
       return map2;
     };
@@ -57915,8 +56158,7 @@
     };
     map2.areaFillOptions = ["wireframe", "partial", "full"];
     map2.activeAreaFill = function(val) {
-      if (!arguments.length)
-        return corePreferences("area-fill") || "partial";
+      if (!arguments.length) return corePreferences("area-fill") || "partial";
       corePreferences("area-fill", val);
       if (val !== "wireframe") {
         corePreferences("area-fill-toggle", val);
@@ -57961,8 +56203,7 @@
     function photos() {
     }
     function updateStorage() {
-      if (window.mocha)
-        return;
+      if (window.mocha) return;
       var hash = utilStringQs(window.location.hash);
       var enabled = context.layers().all().filter(function(d2) {
         return _layerIDs.indexOf(d2.id) !== -1 && d2.layer && d2.layer.supported() && d2.layer.enabled();
@@ -58017,8 +56258,7 @@
       }
     };
     photos.setUsernameFilter = function(val, updateUrl) {
-      if (val && typeof val === "string")
-        val = val.replace(/;/g, ",").split(",");
+      if (val && typeof val === "string") val = val.replace(/;/g, ",").split(",");
       if (val) {
         val = val.map((d2) => d2.trim()).filter(Boolean);
         if (!val.length) {
@@ -58039,12 +56279,10 @@
       if (!window.mocha) {
         var hash = utilStringQs(window.location.hash);
         if (val) {
-          if (hash[property] === val)
-            return;
+          if (hash[property] === val) return;
           hash[property] = val;
         } else {
-          if (!(property in hash))
-            return;
+          if (!(property in hash)) return;
           delete hash[property];
         }
         window.location.replace("#" + utilQsString(hash, true));
@@ -58064,8 +56302,7 @@
       return !showsLayer("mapillary") && showsLayer("kartaview") && !showsLayer("streetside");
     };
     photos.showsPhotoType = function(val) {
-      if (!photos.shouldFilterByPhotoType())
-        return true;
+      if (!photos.shouldFilterByPhotoType()) return true;
       return _shownPhotoTypes.indexOf(val) !== -1;
     };
     photos.showsFlat = function() {
@@ -58106,11 +56343,9 @@
       if (hash.photo_overlay) {
         var hashOverlayIDs = hash.photo_overlay.replace(/;/g, ",").split(",");
         hashOverlayIDs.forEach(function(id2) {
-          if (id2 === "openstreetcam")
-            id2 = "kartaview";
+          if (id2 === "openstreetcam") id2 = "kartaview";
           var layer2 = _layerIDs.indexOf(id2) !== -1 && context.layers().layer(id2);
-          if (layer2 && !layer2.enabled())
-            layer2.enabled(true);
+          if (layer2 && !layer2.enabled()) layer2.enabled(true);
         });
       }
       if (hash.photo) {
@@ -58119,22 +56354,19 @@
         var results = /(.*)\/(.*)/g.exec(photoId);
         if (results && results.length >= 3) {
           var serviceId = results[1];
-          if (serviceId === "openstreetcam")
-            serviceId = "kartaview";
+          if (serviceId === "openstreetcam") serviceId = "kartaview";
           var photoKey = results[2];
           var service = services[serviceId];
           if (service && service.ensureViewerLoaded) {
             var layer = _layerIDs.indexOf(serviceId) !== -1 && context.layers().layer(serviceId);
-            if (layer && !layer.enabled())
-              layer.enabled(true);
+            if (layer && !layer.enabled()) layer.enabled(true);
             var baselineTime = Date.now();
             service.on("loadedImages.rendererPhotos", function() {
               if (Date.now() - baselineTime > 45e3) {
                 service.on("loadedImages.rendererPhotos", null);
                 return;
               }
-              if (!service.cachedImage(photoKey))
-                return;
+              if (!service.cachedImage(photoKey)) return;
               service.on("loadedImages.rendererPhotos", null);
               service.ensureViewerLoaded(context).then(function() {
                 service.selectImage(context, photoKey).showViewer(context);
@@ -58152,8 +56384,7 @@
   function uiAccount(context) {
     const osm = context.connection();
     function updateUserDetails(selection2) {
-      if (!osm)
-        return;
+      if (!osm) return;
       if (!osm.authenticated()) {
         render(selection2, null);
       } else {
@@ -58186,8 +56417,7 @@
       }
     }
     function tryLogout() {
-      if (!osm)
-        return;
+      if (!osm) return;
       const url = osm.getUrlRoot() + "/logout?referer=%2Flogin";
       const w2 = 600;
       const h2 = 550;
@@ -58200,8 +56430,7 @@
       window.open(url, "_blank", settings);
     }
     return function(selection2) {
-      if (!osm)
-        return;
+      if (!osm) return;
       selection2.append("li").attr("class", "userInfo").classed("hide", true);
       selection2.append("li").attr("class", "loginLogout").classed("hide", true).append("a").attr("href", "#");
       osm.on("change.account", () => updateUserDetails(selection2));
@@ -58265,12 +56494,10 @@
       update();
     }, 1e3), limit = 4, hidden = false, wrap2 = select_default2(null);
     function update() {
-      if (!osm)
-        return;
+      if (!osm) return;
       var users = {}, entities = context.history().intersects(context.map().extent());
       entities.forEach(function(entity) {
-        if (entity && entity.user)
-          users[entity.user] = true;
+        if (entity && entity.user) users[entity.user] = true;
       });
       var u2 = Object.keys(users), subset = u2.slice(0, u2.length > limit ? limit - 1 : limit);
       wrap2.html("").call(svgIcon("#iD-icon-nearby", "pre-text light"));
@@ -58296,8 +56523,7 @@
       }
     }
     return function(selection2) {
-      if (!osm)
-        return;
+      if (!osm) return;
       wrap2 = selection2;
       update();
       osm.on("loaded.contributors", debouncedUpdate);
@@ -58418,8 +56644,7 @@
               return;
             }
           }
-          if (d3_event.buttons !== 0)
-            return;
+          if (d3_event.buttons !== 0) return;
           show.apply(this, arguments);
         }).on(_pointerPrefix + "leave.popover", function() {
           hide.apply(this, arguments);
@@ -58582,20 +56807,17 @@
     var _heading = utilFunctor(null);
     var _keys = utilFunctor(null);
     tooltip.title = function(val) {
-      if (!arguments.length)
-        return _title;
+      if (!arguments.length) return _title;
       _title = utilFunctor(val);
       return tooltip;
     };
     tooltip.heading = function(val) {
-      if (!arguments.length)
-        return _heading;
+      if (!arguments.length) return _heading;
       _heading = utilFunctor(val);
       return tooltip;
     };
     tooltip.keys = function(val) {
-      if (!arguments.length)
-        return _keys;
+      if (!arguments.length) return _keys;
       _keys = utilFunctor(val);
       return tooltip;
     };
@@ -58648,8 +56870,7 @@
       var ops = _operations.filter(function(op) {
         return !isTouchMenu || !op.mouseOnly;
       });
-      if (!ops.length)
-        return;
+      if (!ops.length) return;
       _tooltips = [];
       _menuTop = isTouchMenu;
       var showLabels = isTouchMenu;
@@ -58669,12 +56890,10 @@
       }).style("height", buttonHeight + "px").on("click", click).on("pointerup", pointerup).on("pointerdown mousedown", function pointerdown(d3_event) {
         d3_event.stopPropagation();
       }).on("mouseenter.highlight", function(d3_event, d2) {
-        if (!d2.relatedEntityIds || select_default2(this).classed("disabled"))
-          return;
+        if (!d2.relatedEntityIds || select_default2(this).classed("disabled")) return;
         utilHighlightEntities(d2.relatedEntityIds(), true, context);
       }).on("mouseleave.highlight", function(d3_event, d2) {
-        if (!d2.relatedEntityIds)
-          return;
+        if (!d2.relatedEntityIds) return;
         utilHighlightEntities(d2.relatedEntityIds(), false, context);
       });
       buttonsEnter.each(function(d2) {
@@ -58697,8 +56916,7 @@
           editMenu.close();
         }
       }).on("drawn.edit-menu", function(info) {
-        if (info.full)
-          updatePosition();
+        if (info.full) updatePosition();
       });
       var lastPointerUpType;
       function pointerup(d3_event) {
@@ -58725,8 +56943,7 @@
       dispatch14.call("toggled", this, true);
     };
     function updatePosition() {
-      if (!_menu || _menu.empty())
-        return;
+      if (!_menu || _menu.empty()) return;
       var anchorLoc = context.projection(_anchorLocLonLat);
       var viewport = context.surfaceRect();
       if (anchorLoc[0] < 0 || anchorLoc[0] > viewport.width || anchorLoc[1] < 0 || anchorLoc[1] > viewport.height) {
@@ -58795,21 +57012,18 @@
       dispatch14.call("toggled", this, false);
     };
     editMenu.anchorLoc = function(val) {
-      if (!arguments.length)
-        return _anchorLoc;
+      if (!arguments.length) return _anchorLoc;
       _anchorLoc = val;
       _anchorLocLonLat = context.projection.invert(_anchorLoc);
       return editMenu;
     };
     editMenu.triggerType = function(val) {
-      if (!arguments.length)
-        return _triggerType;
+      if (!arguments.length) return _triggerType;
       _triggerType = val;
       return editMenu;
     };
     editMenu.operations = function(val) {
-      if (!arguments.length)
-        return _operations;
+      if (!arguments.length) return _operations;
       _operations = val;
       return editMenu;
     };
@@ -58888,14 +57102,12 @@
       return content;
     }
     flash.duration = function(_2) {
-      if (!arguments.length)
-        return _duration;
+      if (!arguments.length) return _duration;
       _duration = _2;
       return flash;
     };
     flash.label = function(_2) {
-      if (!arguments.length)
-        return _label;
+      if (!arguments.length) return _label;
       if (typeof _2 !== "function") {
         _label = (selection2) => selection2.text(_2);
       } else {
@@ -58904,14 +57116,12 @@
       return flash;
     };
     flash.iconName = function(_2) {
-      if (!arguments.length)
-        return _iconName;
+      if (!arguments.length) return _iconName;
       _iconName = _2;
       return flash;
     };
     flash.iconClass = function(_2) {
-      if (!arguments.length)
-        return _iconClass;
+      if (!arguments.length) return _iconClass;
       _iconClass = _2;
       return flash;
     };
@@ -58958,8 +57168,7 @@
       }
     }
     return function() {
-      if (!isSupported())
-        return;
+      if (!isSupported()) return;
       var detected = utilDetect();
       var keys2 = detected.os === "mac" ? [uiCmd("\u2303\u2318F"), "f11"] : ["f11"];
       context.keybinding().on(keys2, fullScreen);
@@ -58982,8 +57191,7 @@
     var _timeoutID;
     var _button = select_default2(null);
     function click() {
-      if (context.inIntro())
-        return;
+      if (context.inIntro()) return;
       if (!_layer.enabled() && !_locating.isShown()) {
         _timeoutID = setTimeout(
           error,
@@ -59032,8 +57240,7 @@
       _button.attr("aria-pressed", _layer.enabled());
     }
     return function(selection2) {
-      if (!navigator.geolocation || !navigator.geolocation.getCurrentPosition)
-        return;
+      if (!navigator.geolocation || !navigator.geolocation.getCurrentPosition) return;
       _button = selection2.append("button").on("click", click).attr("aria-pressed", false).call(svgIcon("#iD-icon-geolocate", "light")).call(
         uiTooltip().placement(_mainLocalizer.textDirection() === "rtl" ? "right" : "left").title(() => _t.append("geolocate.title")).keys([_t("geolocate.key")])
       );
@@ -59057,8 +57264,7 @@
     var debouncedRedraw = debounce_default(redraw, 250);
     function redraw(selection2) {
       var source = background.baseLayerSource();
-      if (!source)
-        return;
+      if (!source) return;
       var isDG = source.id.match(/^DigitalGlobe/i) !== null;
       var sourceLabel = source.label();
       if (_currSourceName !== sourceLabel) {
@@ -59069,8 +57275,7 @@
       var list2 = selection2.append("ul").attr("class", "background-info");
       list2.append("li").call(_currSourceName);
       _metadataKeys.forEach(function(k2) {
-        if (isDG && k2 === "vintage")
-          return;
+        if (isDG && k2 === "vintage") return;
         list2.append("li").attr("class", "background-info-list-" + k2).classed("hide", !_metadata[k2]).call(_t.append("info_panels.background." + k2, { suffix: ":" })).append("span").attr("class", "background-info-span-" + k2).text(_metadata[k2]);
       });
       debouncedGetMetadata(selection2);
@@ -59104,25 +57309,21 @@
     var debouncedGetMetadata = debounce_default(getMetadata, 250);
     function getMetadata(selection2) {
       var tile = context.container().select(".layer-background img.tile-center");
-      if (tile.empty())
-        return;
+      if (tile.empty()) return;
       var sourceName = _currSourceName;
       var d2 = tile.datum();
       var zoom = d2 && d2.length >= 3 && d2[2] || Math.floor(context.map().zoom());
       var center = context.map().center();
       _metadata.zoom = String(zoom);
       selection2.selectAll(".background-info-list-zoom").classed("hide", false).selectAll(".background-info-span-zoom").text(_metadata.zoom);
-      if (!d2 || !d2.length >= 3)
-        return;
+      if (!d2 || !d2.length >= 3) return;
       background.baseLayerSource().getMetadata(center, d2, function(err, result) {
-        if (err || _currSourceName !== sourceName)
-          return;
+        if (err || _currSourceName !== sourceName) return;
         var vintage = result.vintage;
         _metadata.vintage = vintage && vintage.range || _t("info_panels.background.unknown");
         selection2.selectAll(".background-info-list-vintage").classed("hide", false).selectAll(".background-info-span-vintage").text(_metadata.vintage);
         _metadataKeys.forEach(function(k2) {
-          if (k2 === "zoom" || k2 === "vintage")
-            return;
+          if (k2 === "zoom" || k2 === "vintage") return;
           var val = result[k2];
           _metadata[k2] = val;
           selection2.selectAll(".background-info-list-" + k2).classed("hide", !val).selectAll(".background-info-span-" + k2).text(val);
@@ -59150,8 +57351,7 @@
   function uiPanelHistory(context) {
     var osm;
     function displayTimestamp(timestamp) {
-      if (!timestamp)
-        return _t("info_panels.history.unknown");
+      if (!timestamp) return _t("info_panels.history.unknown");
       var options2 = {
         day: "numeric",
         month: "short",
@@ -59161,8 +57361,7 @@
         second: "numeric"
       };
       var d2 = new Date(timestamp);
-      if (isNaN(d2.getTime()))
-        return _t("info_panels.history.unknown");
+      if (isNaN(d2.getTime())) return _t("info_panels.history.unknown");
       return d2.toLocaleString(_mainLocalizer.localeCode(), options2);
     }
     function displayUser(selection2, userName) {
@@ -59212,8 +57411,7 @@
       } else {
         selection2.append("h4").attr("class", "history-heading").call(_t.append("info_panels.selected", { n: selected.length }));
       }
-      if (!singular)
-        return;
+      if (!singular) return;
       if (entity) {
         selection2.call(redrawEntity, entity);
       } else if (note) {
@@ -59320,8 +57518,7 @@
       return r2 / (4 * Math.PI) * 510065621724e3;
     }
     function toLineString(feature3) {
-      if (feature3.type === "LineString")
-        return feature3;
+      if (feature3.type === "LineString") return feature3;
       var result = { type: "LineString", coordinates: [] };
       if (feature3.type === "Polygon") {
         result.coordinates = feature3.coordinates[0];
@@ -59542,8 +57739,7 @@
       });
       ids.forEach(function(k2) {
         var key = _t("info_panels." + k2 + ".key", { default: null });
-        if (!key)
-          return;
+        if (!key) return;
         context.keybinding().on(uiCmd("\u2318\u21E7" + key), function(d3_event) {
           d3_event.stopImmediatePropagation();
           d3_event.preventDefault();
@@ -59698,12 +57894,10 @@
   var missingStrings = {};
   function checkKey(key, text) {
     if (_t(key, { default: void 0 }) === void 0) {
-      if (missingStrings.hasOwnProperty(key))
-        return;
+      if (missingStrings.hasOwnProperty(key)) return;
       missingStrings[key] = text;
       var missing = key + ": " + text;
-      if (typeof console !== "undefined")
-        console.log(missing);
+      if (typeof console !== "undefined") console.log(missing);
     }
   }
   function localize(obj) {
@@ -59784,8 +57978,7 @@
     return function(selection2) {
       selection2.style("opacity", show ? 0 : 1).classed("hide", false).transition().style("opacity", show ? 1 : 0).on("end", function() {
         select_default2(this).classed("hide", !show).style("opacity", null);
-        if (callback)
-          callback.apply(this);
+        if (callback) callback.apply(this);
       });
     };
   }
@@ -59933,8 +58126,7 @@
         var containerWidth = containerNode.clientWidth;
         var containerHeight = containerNode.clientHeight;
         var string = "M 0,0 L 0," + containerHeight + " L " + containerWidth + "," + containerHeight + "L" + containerWidth + ",0 Z";
-        if (!d2)
-          return string;
+        if (!d2) return string;
         return string + "M" + d2.left + "," + d2.top + "L" + d2.left + "," + (d2.top + d2.height) + "L" + (d2.left + d2.width) + "," + (d2.top + d2.height) + "L" + (d2.left + d2.width) + "," + d2.top + "Z";
       });
     };
@@ -60148,27 +58340,23 @@
       context.enter(modeBrowse(context));
       context.history().reset("initial");
       var entity = context.hasEntity(hallId);
-      if (!entity)
-        return;
+      if (!entity) return;
       reveal(null, null, { duration: 0 });
       context.map().centerZoomEase(entity.loc, 19, 500);
       timeout2(function() {
         var entity2 = context.hasEntity(hallId);
-        if (!entity2)
-          return;
+        if (!entity2) return;
         var box = pointBox(entity2.loc, context);
         var textId = context.lastPointerType() === "mouse" ? "click_townhall" : "tap_townhall";
         reveal(box, helpHtml("intro.navigation." + textId));
         context.map().on("move.intro drawn.intro", function() {
           var entity3 = context.hasEntity(hallId);
-          if (!entity3)
-            return;
+          if (!entity3) return;
           var box2 = pointBox(entity3.loc, context);
           reveal(box2, helpHtml("intro.navigation." + textId), { duration: 0 });
         });
         context.on("enter.intro", function() {
-          if (isTownHallSelected())
-            continueTo(selectedTownHall);
+          if (isTownHallSelected()) continueTo(selectedTownHall);
         });
       }, 550);
       context.history().on("change.intro", function() {
@@ -60184,11 +58372,9 @@
       }
     }
     function selectedTownHall() {
-      if (!isTownHallSelected())
-        return clickTownHall();
+      if (!isTownHallSelected()) return clickTownHall();
       var entity = context.hasEntity(hallId);
-      if (!entity)
-        return clickTownHall();
+      if (!entity) return clickTownHall();
       var box = pointBox(entity.loc, context);
       var onClick = function() {
         continueTo(editorTownHall);
@@ -60200,8 +58386,7 @@
       );
       context.map().on("move.intro drawn.intro", function() {
         var entity2 = context.hasEntity(hallId);
-        if (!entity2)
-          return;
+        if (!entity2) return;
         var box2 = pointBox(entity2.loc, context);
         reveal(
           box2,
@@ -60221,8 +58406,7 @@
       }
     }
     function editorTownHall() {
-      if (!isTownHallSelected())
-        return clickTownHall();
+      if (!isTownHallSelected()) return clickTownHall();
       context.container().select(".inspector-wrap").on("wheel.intro", eventCancel);
       var onClick = function() {
         continueTo(presetTownHall);
@@ -60248,8 +58432,7 @@
       }
     }
     function presetTownHall() {
-      if (!isTownHallSelected())
-        return clickTownHall();
+      if (!isTownHallSelected()) return clickTownHall();
       context.container().select(".inspector-wrap .panewrap").style("right", "0%");
       context.container().select(".inspector-wrap").on("wheel.intro", eventCancel);
       var entity = context.entity(context.selectedIDs()[0]);
@@ -60278,8 +58461,7 @@
       }
     }
     function fieldsTownHall() {
-      if (!isTownHallSelected())
-        return clickTownHall();
+      if (!isTownHallSelected()) return clickTownHall();
       context.container().select(".inspector-wrap .panewrap").style("right", "0%");
       context.container().select(".inspector-wrap").on("wheel.intro", eventCancel);
       var onClick = function() {
@@ -60306,8 +58488,7 @@
       }
     }
     function closeTownHall() {
-      if (!isTownHallSelected())
-        return clickTownHall();
+      if (!isTownHallSelected()) return clickTownHall();
       var selector = ".entity-editor-pane button.close svg use";
       var href = select_default2(selector).attr("href") || "#iD-icon-close";
       reveal(
@@ -60387,8 +58568,7 @@
       timeout2(function() {
         context.map().on("move.intro drawn.intro", function() {
           var entity2 = context.hasEntity(springStreetEndId);
-          if (!entity2)
-            return;
+          if (!entity2) return;
           var box2 = pointBox(entity2.loc, context);
           box2.height = 500;
           reveal(
@@ -60517,8 +58697,7 @@
         _pointID = null;
         tooltip.selectAll(".popover-inner").insert("svg", "span").attr("class", "tooltip-illustration").append("use").attr("xlink:href", "#iD-graphic-points");
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "add-point")
-            return;
+          if (mode.id !== "add-point") return;
           continueTo(placePoint);
         });
       }, msec + 100);
@@ -60539,8 +58718,7 @@
         reveal(pointBox2, helpHtml("intro.points." + textId), { duration: 0 });
       });
       context.on("enter.intro", function(mode) {
-        if (mode.id !== "select")
-          return chapter.restart();
+        if (mode.id !== "select") return chapter.restart();
         _pointID = context.mode().selectedIDs()[0];
         if (context.graph().geometry(_pointID) === "vertex") {
           context.map().on("move.intro drawn.intro", null);
@@ -60684,11 +58862,9 @@
       }
     }
     function reselectPoint() {
-      if (!_pointID)
-        return chapter.restart();
+      if (!_pointID) return chapter.restart();
       var entity = context.hasEntity(_pointID);
-      if (!entity)
-        return chapter.restart();
+      if (!entity) return chapter.restart();
       var oldPreset = _mainPresetIndex.match(entity, context.graph());
       context.replace(actionChangePreset(_pointID, oldPreset, cafePreset));
       context.enter(modeBrowse(context));
@@ -60703,15 +58879,13 @@
         timeout2(function() {
           context.map().on("move.intro drawn.intro", function() {
             var entity2 = context.hasEntity(_pointID);
-            if (!entity2)
-              return chapter.restart();
+            if (!entity2) return chapter.restart();
             var box2 = pointBox(entity2.loc, context);
             reveal(box2, helpHtml("intro.points.reselect"), { duration: 0 });
           });
         }, 600);
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "select")
-            return;
+          if (mode.id !== "select") return;
           continueTo(updatePoint);
         });
       }, msec + 100);
@@ -60765,11 +58939,9 @@
       }
     }
     function rightClickPoint() {
-      if (!_pointID)
-        return chapter.restart();
+      if (!_pointID) return chapter.restart();
       var entity = context.hasEntity(_pointID);
-      if (!entity)
-        return chapter.restart();
+      if (!entity) return chapter.restart();
       context.enter(modeBrowse(context));
       var box = pointBox(entity.loc, context);
       var textId = context.lastPointerType() === "mouse" ? "rightclick" : "edit_menu_touch";
@@ -60777,22 +58949,18 @@
       timeout2(function() {
         context.map().on("move.intro", function() {
           var entity2 = context.hasEntity(_pointID);
-          if (!entity2)
-            return chapter.restart();
+          if (!entity2) return chapter.restart();
           var box2 = pointBox(entity2.loc, context);
           reveal(box2, helpHtml("intro.points." + textId), { duration: 0 });
         });
       }, 600);
       context.on("enter.intro", function(mode) {
-        if (mode.id !== "select")
-          return;
+        if (mode.id !== "select") return;
         var ids = context.selectedIDs();
-        if (ids.length !== 1 || ids[0] !== _pointID)
-          return;
+        if (ids.length !== 1 || ids[0] !== _pointID) return;
         timeout2(function() {
           var node = selectMenuItem(context, "delete").node();
-          if (!node)
-            return;
+          if (!node) return;
           continueTo(enterDelete);
         }, 50);
       });
@@ -60803,11 +58971,9 @@
       }
     }
     function enterDelete() {
-      if (!_pointID)
-        return chapter.restart();
+      if (!_pointID) return chapter.restart();
       var entity = context.hasEntity(_pointID);
-      if (!entity)
-        return chapter.restart();
+      if (!entity) return chapter.restart();
       var node = selectMenuItem(context, "delete").node();
       if (!node) {
         return continueTo(rightClickPoint);
@@ -60827,11 +58993,9 @@
         });
       }, 300);
       context.on("exit.intro", function() {
-        if (!_pointID)
-          return chapter.restart();
+        if (!_pointID) return chapter.restart();
         var entity2 = context.hasEntity(_pointID);
-        if (entity2)
-          return continueTo(rightClickPoint);
+        if (entity2) return continueTo(rightClickPoint);
       });
       context.history().on("change.intro", function(changed) {
         if (changed.deleted().length) {
@@ -60930,8 +59094,7 @@
         );
         tooltip.selectAll(".popover-inner").insert("svg", "span").attr("class", "tooltip-illustration").append("use").attr("xlink:href", "#iD-graphic-areas");
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "add-area")
-            return;
+          if (mode.id !== "add-area") return;
           continueTo(startPlayground);
         });
       }, msec + 100);
@@ -60963,8 +59126,7 @@
             );
           });
           context.on("enter.intro", function(mode) {
-            if (mode.id !== "draw-area")
-              return chapter.restart();
+            if (mode.id !== "draw-area") return chapter.restart();
             continueTo(continuePlayground);
           });
         }, 250);
@@ -61204,8 +59366,7 @@
         return continueTo(searchPresets);
       });
       function continueTo(nextStep) {
-        if (watcher)
-          window.clearInterval(watcher);
+        if (watcher) window.clearInterval(watcher);
         context.on("exit.intro", null);
         nextStep();
       }
@@ -61345,8 +59506,7 @@
         );
         tooltip.selectAll(".popover-inner").insert("svg", "span").attr("class", "tooltip-illustration").append("use").attr("xlink:href", "#iD-graphic-lines");
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "add-line")
-            return;
+          if (mode.id !== "add-line") return;
           continueTo(startLine);
         });
       }, msec + 100);
@@ -61356,8 +59516,7 @@
       }
     }
     function startLine() {
-      if (context.mode().id !== "add-line")
-        return chapter.restart();
+      if (context.mode().id !== "add-line") return chapter.restart();
       _tulipRoadID = null;
       var padding = 70 * Math.pow(2, context.map().zoom() - 18);
       var box = pad(tulipRoadStart, padding, context);
@@ -61372,8 +59531,7 @@
         reveal(box, startLineString, { duration: 0 });
       });
       context.on("enter.intro", function(mode) {
-        if (mode.id !== "draw-line")
-          return chapter.restart();
+        if (mode.id !== "draw-line") return chapter.restart();
         continueTo(drawLine);
       });
       function continueTo(nextStep) {
@@ -61383,8 +59541,7 @@
       }
     }
     function drawLine() {
-      if (context.mode().id !== "draw-line")
-        return chapter.restart();
+      if (context.mode().id !== "draw-line") return chapter.restart();
       _tulipRoadID = context.mode().selectedIDs()[0];
       context.map().centerEase(tulipRoadMidpoint, 500);
       timeout2(function() {
@@ -61430,8 +59587,7 @@
     }
     function isLineConnected() {
       var entity = _tulipRoadID && context.hasEntity(_tulipRoadID);
-      if (!entity)
-        return false;
+      if (!entity) return false;
       var drawNodes = context.graph().childNodes(entity);
       return drawNodes.some(function(node) {
         return context.graph().parentWays(node).some(function(parent) {
@@ -61449,11 +59605,9 @@
       timeout2(chapter.restart, 3e3);
     }
     function continueLine() {
-      if (context.mode().id !== "draw-line")
-        return chapter.restart();
+      if (context.mode().id !== "draw-line") return chapter.restart();
       var entity = _tulipRoadID && context.hasEntity(_tulipRoadID);
-      if (!entity)
-        return chapter.restart();
+      if (!entity) return chapter.restart();
       context.map().centerEase(tulipRoadIntersection, 500);
       var continueLineText = helpHtml("intro.lines.continue_line") + "{br}" + helpHtml("intro.lines.finish_line_" + (context.lastPointerType() === "mouse" ? "click" : "tap")) + helpHtml("intro.lines.finish_road");
       reveal(".surface", continueLineText);
@@ -61472,14 +59626,12 @@
       }
     }
     function chooseCategoryRoad() {
-      if (context.mode().id !== "select")
-        return chapter.restart();
+      if (context.mode().id !== "select") return chapter.restart();
       context.on("exit.intro", function() {
         return chapter.restart();
       });
       var button = context.container().select(".preset-category-road_minor .preset-list-button");
-      if (button.empty())
-        return chapter.restart();
+      if (button.empty()) return chapter.restart();
       context.container().select(".inspector-wrap").on("wheel.intro", eventCancel);
       timeout2(function() {
         context.container().select(".inspector-wrap .panewrap").style("right", "-100%");
@@ -61499,14 +59651,12 @@
       }
     }
     function choosePresetResidential() {
-      if (context.mode().id !== "select")
-        return chapter.restart();
+      if (context.mode().id !== "select") return chapter.restart();
       context.on("exit.intro", function() {
         return chapter.restart();
       });
       var subgrid = context.container().select(".preset-category-road_minor .subgrid");
-      if (subgrid.empty())
-        return chapter.restart();
+      if (subgrid.empty()) return chapter.restart();
       subgrid.selectAll(":not(.preset-highway-residential) .preset-list-button").on("click.intro", function() {
         continueTo(retryPresetResidential);
       });
@@ -61527,8 +59677,7 @@
       }
     }
     function retryPresetResidential() {
-      if (context.mode().id !== "select")
-        return chapter.restart();
+      if (context.mode().id !== "select") return chapter.restart();
       context.on("exit.intro", function() {
         return chapter.restart();
       });
@@ -61844,15 +59993,12 @@
           );
         });
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "select")
-            return;
+          if (mode.id !== "select") return;
           var ids = context.selectedIDs();
-          if (ids.length !== 1 || ids[0] !== eleventhAvenueEndID)
-            return;
+          if (ids.length !== 1 || ids[0] !== eleventhAvenueEndID) return;
           timeout2(function() {
             var node = selectMenuItem(context, "split").node();
-            if (!node)
-              return;
+            if (!node) return;
             continueTo(splitIntersection);
           }, 50);
         });
@@ -62086,14 +60232,12 @@
         reveal(box2, rightClickString, { duration: 0 });
       });
       context.ui().editMenu().on("toggled.intro", function(open) {
-        if (!open)
-          return;
+        if (!open) return;
         timeout2(function() {
           var ids = context.selectedIDs();
           if (ids.length === 2 && ids.indexOf(twelfthAvenueID) !== -1 && ids.indexOf(_washingtonSegmentID) !== -1) {
             var node = selectMenuItem(context, "delete").node();
-            if (!node)
-              return;
+            if (!node) return;
             continueTo(multiDelete);
           } else if (ids.length === 1 && ids.indexOf(_washingtonSegmentID) !== -1) {
             return continueTo(multiSelect);
@@ -62119,8 +60263,7 @@
         return continueTo(rightClickIntersection);
       }
       var node = selectMenuItem(context, "delete").node();
-      if (!node)
-        return continueTo(multiRightClick);
+      if (!node) return continueTo(multiRightClick);
       reveal(
         ".edit-menu",
         helpHtml("intro.lines.multi_delete"),
@@ -62246,8 +60389,7 @@
         );
         tooltip.selectAll(".popover-inner").insert("svg", "span").attr("class", "tooltip-illustration").append("use").attr("xlink:href", "#iD-graphic-buildings");
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "add-area")
-            return;
+          if (mode.id !== "add-area") return;
           continueTo(startHouse);
         });
       }, msec + 100);
@@ -62269,8 +60411,7 @@
           revealHouse(house, startString, { duration: 0 });
         });
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "draw-area")
-            return chapter.restart();
+          if (mode.id !== "draw-area") return chapter.restart();
           continueTo(continueHouse);
         });
       }, 550);
@@ -62436,8 +60577,7 @@
       }
     }
     function rightClickHouse() {
-      if (!_houseID)
-        return chapter.restart();
+      if (!_houseID) return chapter.restart();
       context.enter(modeBrowse(context));
       context.history().reset("hasHouse");
       var zoom = context.map().zoom();
@@ -62446,15 +60586,12 @@
       }
       context.map().centerZoomEase(house, zoom, 500);
       context.on("enter.intro", function(mode) {
-        if (mode.id !== "select")
-          return;
+        if (mode.id !== "select") return;
         var ids = context.selectedIDs();
-        if (ids.length !== 1 || ids[0] !== _houseID)
-          return;
+        if (ids.length !== 1 || ids[0] !== _houseID) return;
         timeout2(function() {
           var node = selectMenuItem(context, "orthogonalize").node();
-          if (!node)
-            return;
+          if (!node) return;
           continueTo(clickSquare);
         }, 50);
       });
@@ -62473,11 +60610,9 @@
       }
     }
     function clickSquare() {
-      if (!_houseID)
-        return chapter.restart();
+      if (!_houseID) return chapter.restart();
       var entity = context.hasEntity(_houseID);
-      if (!entity)
-        return continueTo(rightClickHouse);
+      if (!entity) return continueTo(rightClickHouse);
       var node = selectMenuItem(context, "orthogonalize").node();
       if (!node) {
         return continueTo(rightClickHouse);
@@ -62563,8 +60698,7 @@
           helpHtml("intro.buildings.add_tank")
         );
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "add-area")
-            return;
+          if (mode.id !== "add-area") return;
           continueTo(startTank);
         });
       }, msec + 100);
@@ -62585,8 +60719,7 @@
           revealTank(tank, startString, { duration: 0 });
         });
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "draw-area")
-            return chapter.restart();
+          if (mode.id !== "draw-area") return chapter.restart();
           continueTo(continueTank);
         });
       }, 550);
@@ -62702,22 +60835,18 @@
       }
     }
     function rightClickTank() {
-      if (!_tankID)
-        return continueTo(addTank);
+      if (!_tankID) return continueTo(addTank);
       context.enter(modeBrowse(context));
       context.history().reset("hasTank");
       context.map().centerEase(tank, 500);
       timeout2(function() {
         context.on("enter.intro", function(mode) {
-          if (mode.id !== "select")
-            return;
+          if (mode.id !== "select") return;
           var ids = context.selectedIDs();
-          if (ids.length !== 1 || ids[0] !== _tankID)
-            return;
+          if (ids.length !== 1 || ids[0] !== _tankID) return;
           timeout2(function() {
             var node = selectMenuItem(context, "circularize").node();
-            if (!node)
-              return;
+            if (!node) return;
             continueTo(clickCircle);
           }, 50);
         });
@@ -62738,11 +60867,9 @@
       }
     }
     function clickCircle() {
-      if (!_tankID)
-        return chapter.restart();
+      if (!_tankID) return chapter.restart();
       var entity = context.hasEntity(_tankID);
-      if (!entity)
-        return continueTo(rightClickTank);
+      if (!entity) return continueTo(rightClickTank);
       var node = selectMenuItem(context, "circularize").node();
       if (!node) {
         return continueTo(rightClickTank);
@@ -63113,14 +61240,12 @@
       var _tCurr;
       var _timeoutID;
       function zoomStarted() {
-        if (_skipEvents)
-          return;
+        if (_skipEvents) return;
         _tStart = _tCurr = projection2.transform();
         _gesture = null;
       }
       function zoomed(d3_event) {
-        if (_skipEvents)
-          return;
+        if (_skipEvents) return;
         var x2 = d3_event.transform.x;
         var y2 = d3_event.transform.y;
         var k2 = d3_event.transform.k;
@@ -63154,10 +61279,8 @@
         queueRedraw();
       }
       function zoomEnded() {
-        if (_skipEvents)
-          return;
-        if (_gesture !== "pan")
-          return;
+        if (_skipEvents) return;
+        if (_gesture !== "pan") return;
         updateProjection();
         _gesture = null;
         context.map().center(projection2.invert(_cMini));
@@ -63187,8 +61310,7 @@
       }
       function redraw() {
         clearTimeout(_timeoutID);
-        if (_isHidden)
-          return;
+        if (_isHidden) return;
         updateProjection();
         var zMini = geoScaleToZoom(projection2.scale());
         tiles = wrap2.selectAll(".map-in-map-tiles").data([0]);
@@ -63200,8 +61322,7 @@
         var activeOverlayLayers = [];
         for (var i3 = 0; i3 < overlaySources.length; i3++) {
           if (overlaySources[i3].validZoom(zMini)) {
-            if (!overlayLayers[i3])
-              overlayLayers[i3] = rendererTileLayer(context);
+            if (!overlayLayers[i3]) overlayLayers[i3] = rendererTileLayer(context);
             activeOverlayLayers.push(overlayLayers[i3].source(overlaySources[i3]).projection(projection2).dimensions(_dMini));
           }
         }
@@ -63235,8 +61356,7 @@
         }, 750);
       }
       function toggle(d3_event) {
-        if (d3_event)
-          d3_event.preventDefault();
+        if (d3_event) d3_event.preventDefault();
         _isHidden = !_isHidden;
         context.container().select(".minimap-toggle-item").classed("active", !_isHidden).select("input").property("checked", !_isHidden);
         if (_isHidden) {
@@ -63333,8 +61453,7 @@
         var startWidth;
         var startHeight;
         function startResize(d3_event) {
-          if (pointerId !== (d3_event.pointerId || "mouse"))
-            return;
+          if (pointerId !== (d3_event.pointerId || "mouse")) return;
           d3_event.preventDefault();
           d3_event.stopPropagation();
           var mapSize = context.map().dimensions();
@@ -63354,8 +61473,7 @@
           return Math.max(min3, Math.min(num, max3));
         }
         function stopResize(d3_event) {
-          if (pointerId !== (d3_event.pointerId || "mouse"))
-            return;
+          if (pointerId !== (d3_event.pointerId || "mouse")) return;
           d3_event.preventDefault();
           d3_event.stopPropagation();
           select_default2(window).on("." + eventName, null);
@@ -63402,8 +61520,7 @@
   // modules/ui/restore.js
   function uiRestore(context) {
     return function(selection2) {
-      if (!context.history().hasRestorableChanges())
-        return;
+      if (!context.history().hasRestorableChanges()) return;
       let modalSelection = uiModal(selection2, true);
       modalSelection.select(".modal").attr("class", "modal fillL");
       let introModal = modalSelection.select(".content");
@@ -63488,8 +61605,7 @@
       });
     }
     function render(selection2) {
-      if (!_dataShortcuts)
-        return;
+      if (!_dataShortcuts) return;
       var wrapper = selection2.selectAll(".wrapper").data([0]);
       var wrapperEnter = wrapper.enter().append("div").attr("class", "wrapper modal-section");
       var tabsBar = wrapperEnter.append("div").attr("class", "tabs-bar");
@@ -63638,8 +61754,7 @@
       headerEnter.append("div").attr("class", "data-header-label").call(_t.append("map_data.layers.custom.title"));
     }
     dataHeader.datum = function(val) {
-      if (!arguments.length)
-        return _datum;
+      if (!arguments.length) return _datum;
       _datum = val;
       return this;
     };
@@ -63674,8 +61789,7 @@
       }));
     };
     var combobox = function(input, attachTo) {
-      if (!input || input.empty())
-        return;
+      if (!input || input.empty()) return;
       input.classed("combobox-input", true).on("focus.combo-input", focus).on("blur.combo-input", blur).on("keydown.combo-input", keydown).on("keyup.combo-input", keyup).on("input.combo-input", change).on("mousedown.combo-input", mousedown).each(function() {
         var parent = this.parentNode;
         var sibling = this.nextSibling;
@@ -63693,10 +61807,8 @@
         });
       });
       function mousedown(d3_event) {
-        if (d3_event.button !== 0)
-          return;
-        if (input.classed("disabled"))
-          return;
+        if (d3_event.button !== 0) return;
+        if (input.classed("disabled")) return;
         _tDown = +/* @__PURE__ */ new Date();
         var start2 = input.property("selectionStart");
         var end = input.property("selectionEnd");
@@ -63709,22 +61821,17 @@
       }
       function mouseup(d3_event) {
         input.on("mouseup.combo-input", null);
-        if (d3_event.button !== 0)
-          return;
-        if (input.classed("disabled"))
-          return;
-        if (input.node() !== document.activeElement)
-          return;
+        if (d3_event.button !== 0) return;
+        if (input.classed("disabled")) return;
+        if (input.node() !== document.activeElement) return;
         var start2 = input.property("selectionStart");
         var end = input.property("selectionEnd");
-        if (start2 !== end)
-          return;
+        if (start2 !== end) return;
         var combo = container.selectAll(".combobox");
         if (combo.empty() || combo.datum() !== input.node()) {
           var tOrig = _tDown;
           window.setTimeout(function() {
-            if (tOrig !== _tDown)
-              return;
+            if (tOrig !== _tDown) return;
             fetchComboData("", function() {
               show();
               render();
@@ -63780,8 +61887,7 @@
             accept(d3_event);
             break;
           case 38:
-            if (tagName === "textarea" && !shown)
-              return;
+            if (tagName === "textarea" && !shown) return;
             d3_event.preventDefault();
             if (tagName === "input" && !shown) {
               show();
@@ -63789,8 +61895,7 @@
             nav(-1);
             break;
           case 40:
-            if (tagName === "textarea" && !shown)
-              return;
+            if (tagName === "textarea" && !shown) return;
             d3_event.preventDefault();
             if (tagName === "input" && !shown) {
               show();
@@ -63807,8 +61912,7 @@
         }
       }
       function change(doAutoComplete) {
-        if (doAutoComplete === void 0)
-          doAutoComplete = true;
+        if (doAutoComplete === void 0) doAutoComplete = true;
         fetchComboData(value(), function(skipAutosuggest) {
           _selected = null;
           var val = input.property("value");
@@ -63850,8 +61954,7 @@
       }
       function ensureVisible() {
         var combo = container.selectAll(".combobox");
-        if (combo.empty())
-          return;
+        if (combo.empty()) return;
         var containerRect = container.node().getBoundingClientRect();
         var comboRect = combo.node().getBoundingClientRect();
         if (comboRect.bottom > containerRect.bottom) {
@@ -63876,8 +61979,7 @@
       function fetchComboData(v2, cb) {
         _cancelFetch = false;
         _fetcher.call(input, v2, function(results, skipAutosuggest) {
-          if (_cancelFetch)
-            return;
+          if (_cancelFetch) return;
           _suggestions = results;
           results.forEach(function(d2) {
             _fetched[d2.value] = d2;
@@ -63888,13 +61990,10 @@
         });
       }
       function tryAutocomplete() {
-        if (!_canAutocomplete)
-          return;
+        if (!_canAutocomplete) return;
         var val = _caseSensitive ? value() : value().toLowerCase();
-        if (!val)
-          return;
-        if (isFinite(val))
-          return;
+        if (!val) return;
+        if (isFinite(val)) return;
         const suggestionValues = [];
         _suggestions.forEach((s2) => {
           suggestionValues.push(s2.value);
@@ -63927,8 +62026,7 @@
           return;
         }
         var shown = !container.selectAll(".combobox").empty();
-        if (!shown)
-          return;
+        if (!shown) return;
         var combo = container.selectAll(".combobox");
         var options2 = combo.selectAll(".combobox-option").data(_suggestions, function(d2) {
           return d2.value;
@@ -63979,44 +62077,37 @@
       }
     };
     combobox.canAutocomplete = function(val) {
-      if (!arguments.length)
-        return _canAutocomplete;
+      if (!arguments.length) return _canAutocomplete;
       _canAutocomplete = val;
       return combobox;
     };
     combobox.caseSensitive = function(val) {
-      if (!arguments.length)
-        return _caseSensitive;
+      if (!arguments.length) return _caseSensitive;
       _caseSensitive = val;
       return combobox;
     };
     combobox.data = function(val) {
-      if (!arguments.length)
-        return _data;
+      if (!arguments.length) return _data;
       _data = val;
       return combobox;
     };
     combobox.fetcher = function(val) {
-      if (!arguments.length)
-        return _fetcher;
+      if (!arguments.length) return _fetcher;
       _fetcher = val;
       return combobox;
     };
     combobox.minItems = function(val) {
-      if (!arguments.length)
-        return _minItems;
+      if (!arguments.length) return _minItems;
       _minItems = val;
       return combobox;
     };
     combobox.itemsMouseEnter = function(val) {
-      if (!arguments.length)
-        return _mouseEnterHandler;
+      if (!arguments.length) return _mouseEnterHandler;
       _mouseEnterHandler = val;
       return combobox;
     };
     combobox.itemsMouseLeave = function(val) {
-      if (!arguments.length)
-        return _mouseLeaveHandler;
+      if (!arguments.length) return _mouseLeaveHandler;
       _mouseLeaveHandler = val;
       return combobox;
     };
@@ -64080,26 +62171,22 @@
       }
     };
     disclosure.label = function(val) {
-      if (!arguments.length)
-        return _label;
+      if (!arguments.length) return _label;
       _label = utilFunctor(val);
       return disclosure;
     };
     disclosure.expanded = function(val) {
-      if (!arguments.length)
-        return _expanded;
+      if (!arguments.length) return _expanded;
       _expanded = val;
       return disclosure;
     };
     disclosure.updatePreference = function(val) {
-      if (!arguments.length)
-        return _updatePreference;
+      if (!arguments.length) return _updatePreference;
       _updatePreference = val;
       return disclosure;
     };
     disclosure.content = function(val) {
-      if (!arguments.length)
-        return _content;
+      if (!arguments.length) return _content;
       _content = val;
       return disclosure;
     };
@@ -64121,44 +62208,37 @@
       id: id2
     };
     section.classes = function(val) {
-      if (!arguments.length)
-        return _classes;
+      if (!arguments.length) return _classes;
       _classes = utilFunctor(val);
       return section;
     };
     section.label = function(val) {
-      if (!arguments.length)
-        return _label;
+      if (!arguments.length) return _label;
       _label = utilFunctor(val);
       return section;
     };
     section.expandedByDefault = function(val) {
-      if (!arguments.length)
-        return _expandedByDefault;
+      if (!arguments.length) return _expandedByDefault;
       _expandedByDefault = utilFunctor(val);
       return section;
     };
     section.shouldDisplay = function(val) {
-      if (!arguments.length)
-        return _shouldDisplay;
+      if (!arguments.length) return _shouldDisplay;
       _shouldDisplay = utilFunctor(val);
       return section;
     };
     section.content = function(val) {
-      if (!arguments.length)
-        return _content;
+      if (!arguments.length) return _content;
       _content = val;
       return section;
     };
     section.disclosureContent = function(val) {
-      if (!arguments.length)
-        return _disclosureContent;
+      if (!arguments.length) return _disclosureContent;
       _disclosureContent = val;
       return section;
     };
     section.disclosureExpanded = function(val) {
-      if (!arguments.length)
-        return _disclosureExpanded;
+      if (!arguments.length) return _disclosureExpanded;
       _disclosureExpanded = val;
       return section;
     };
@@ -64213,8 +62293,7 @@
     var _loaded;
     var _showing;
     function load() {
-      if (!wikibase)
-        return;
+      if (!wikibase) return;
       _button.classed("tag-reference-loading", true);
       wikibase.getDocs(what, gotDocs);
     }
@@ -64301,8 +62380,7 @@
       }
     };
     tagReference.showing = function(val) {
-      if (!arguments.length)
-        return _showing;
+      if (!arguments.length) return _showing;
       _showing = val;
       return tagReference;
     };
@@ -64400,8 +62478,7 @@
       }
     }
     fieldHelp.button = function(selection2) {
-      if (_body.empty())
-        return;
+      if (_body.empty()) return;
       var button = selection2.selectAll(".field-help-button").data([0]);
       button.enter().append("button").attr("class", "field-help-button").call(svgIcon("#iD-icon-help")).merge(button).on("click", function(d3_event) {
         d3_event.stopPropagation();
@@ -64422,11 +62499,9 @@
     }
     fieldHelp.body = function(selection2) {
       _wrap = selection2.selectAll(".form-field-input-wrap");
-      if (_wrap.empty())
-        return;
+      if (_wrap.empty()) return;
       _inspector = context.container().select(".sidebar .entity-editor-pane .inspector-body");
-      if (_inspector.empty())
-        return;
+      if (_inspector.empty()) return;
       _body = _inspector.selectAll(".field-help-body").data([0]);
       var enter = _body.enter().append("div").attr("class", "field-help-body hide");
       var titleEnter = enter.append("div").attr("class", "field-help-title cf");
@@ -64500,14 +62575,12 @@
       }
     }
     function reverserHidden() {
-      if (!context.container().select("div.inspector-hover").empty())
-        return true;
+      if (!context.container().select("div.inspector-hover").empty()) return true;
       return !(_value === "yes" || _impliedYes && !_value);
     }
     function reverserSetText(selection2) {
       var entity = _entityIDs.length && context.hasEntity(_entityIDs[0]);
-      if (reverserHidden() || !entity)
-        return selection2;
+      if (reverserHidden() || !entity) return selection2;
       var first = entity.first();
       var last = entity.isClosed() ? entity.nodes[entity.nodes.length - 2] : entity.last();
       var pseudoDirection = first < last;
@@ -64564,8 +62637,7 @@
       }
     };
     check.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return check;
     };
@@ -64575,8 +62647,7 @@
         return val !== "no" && val !== "" && val !== void 0 && val !== null;
       }
       function textFor(val) {
-        if (val === "")
-          val = void 0;
+        if (val === "") val = void 0;
         var index = values.indexOf(val);
         return index !== -1 ? texts[index] : '"' + val + '"';
       }
@@ -64617,8 +62688,7 @@
       const strLen = utilUnicodeCharsCount(utilCleanOsmString(val, Number.POSITIVE_INFINITY));
       let indicator = _wrap.selectAll("span.length-indicator").data([strLen]);
       indicator.enter().append("span").merge(indicator).classed("length-indicator", true).classed("limit-reached", (d2) => d2 > maxChars).style("border-right-width", (d2) => "".concat(Math.abs(maxChars - d2) * 2, "px")).style("margin-right", (d2) => d2 > maxChars ? "".concat((maxChars - d2) * 2, "px") : 0).style("opacity", (d2) => d2 > maxChars * 0.8 ? Math.min(1, (d2 / maxChars - 0.8) / (1 - 0.8)) : 0).style("pointer-events", (d2) => d2 > maxChars * 0.8 ? null : "none");
-      if (_silent)
-        return;
+      if (_silent) return;
       if (strLen > maxChars) {
         _tooltip.show();
       } else {
@@ -64626,8 +62696,7 @@
       }
     };
     lengthIndicator.silent = function(val) {
-      if (!arguments.length)
-        return _silent;
+      if (!arguments.length) return _silent;
       _silent = val;
       return lengthIndicator;
     };
@@ -64675,8 +62744,7 @@
       var found = getOptions(true).find(function(o2) {
         return o2.key && clean2(o2.value) === dval;
       });
-      if (found)
-        return found.key;
+      if (found) return found.key;
       if (field.type === "typeCombo" && !dval) {
         return "yes";
       }
@@ -64739,8 +62807,7 @@
     }
     function getOptions(allOptions) {
       var stringsField = field.resolveReference("stringsCrossReference");
-      if (!(field.options || stringsField.options))
-        return [];
+      if (!(field.options || stringsField.options)) return [];
       let options2;
       if (allOptions !== true) {
         options2 = field.options || stringsField.options;
@@ -64768,8 +62835,7 @@
       }
       _comboData = objectDifference(_comboData, _multiData);
       _combobox.data(_comboData);
-      if (callback)
-        callback(_comboData);
+      if (callback) callback(_comboData);
     }
     function setTaginfoValues(q2, callback) {
       var queryFilter = (d2) => d2.value.toLowerCase().includes(q2.toLowerCase()) || d2.key.toLowerCase().includes(q2.toLowerCase());
@@ -64792,8 +62858,7 @@
         params.geometry = context.graph().geometry(_entityIDs[0]);
       }
       services.taginfo[fn](params, function(err, data) {
-        if (err)
-          return;
+        if (err) return;
         data = data.filter((d2) => field.type !== "typeCombo" || d2.value !== "yes");
         data = data.filter((d2) => {
           var value = d2.value;
@@ -64813,8 +62878,7 @@
         _container.classed("empty-combobox", data.length === 0);
         _comboData = data.concat(additionalOptions).map(function(d2) {
           var v2 = d2.value;
-          if (_isMulti)
-            v2 = v2.replace(field.key, "");
+          if (_isMulti) v2 = v2.replace(field.key, "");
           const labelId = getLabelId(stringsField, v2);
           var isLocalizable = stringsField.hasTextForStringId(labelId);
           var label = stringsField.t(labelId, { default: v2 });
@@ -64828,8 +62892,7 @@
         });
         _comboData = _comboData.filter(queryFilter);
         _comboData = objectDifference(_comboData, _multiData);
-        if (callback)
-          callback(_comboData, hasStaticValues());
+        if (callback) callback(_comboData, hasStaticValues());
       });
     }
     function addComboboxIcons(disp, value) {
@@ -64885,8 +62948,7 @@
           vals = val.split(";");
         }
         vals = vals.filter(Boolean);
-        if (!vals.length)
-          return;
+        if (!vals.length) return;
         _container.classed("active", false);
         utilGetSetValue(_input, "");
         if (_isMulti) {
@@ -64894,8 +62956,7 @@
             var key = (field.key || "") + v2;
             if (_tags) {
               var old = _tags[key];
-              if (typeof old === "string" && old.toLowerCase() !== "no")
-                return;
+              if (typeof old === "string" && old.toLowerCase() !== "no") return;
             }
             key = context.cleanTagKey(key);
             field.keys.push(key);
@@ -64913,8 +62974,7 @@
         }, 10);
       } else {
         var rawValue = utilGetSetValue(_input);
-        if (!rawValue && Array.isArray(_tags[field.key]))
-          return;
+        if (!rawValue && Array.isArray(_tags[field.key])) return;
         val = context.cleanTagValue(tagValue(rawValue));
         t2[field.key] = val || void 0;
       }
@@ -65037,10 +63097,8 @@
         var maxLength;
         if (_isMulti) {
           for (var k2 in tags) {
-            if (field.key && k2.indexOf(field.key) !== 0)
-              continue;
-            if (!field.key && field.keys.indexOf(k2) === -1)
-              continue;
+            if (field.key && k2.indexOf(field.key) !== 0) continue;
+            if (!field.key && field.keys.indexOf(k2) === -1) continue;
             var v2 = tags[k2];
             var suffix = field.key ? k2.slice(field.key.length) : k2;
             _multiData.push({
@@ -65103,8 +63161,7 @@
         field_buttons.append("a").attr("class", "remove");
         chips = chips.merge(enter).order().classed("raw-value", function(d2) {
           var k3 = d2.key;
-          if (_isMulti)
-            k3 = k3.replace(field.key, "");
+          if (_isMulti) k3 = k3.replace(field.key, "");
           return !stringsField.hasTextForStringId("options." + k3);
         }).classed("draggable", allowDragAndDrop).classed("mixed", function(d2) {
           return d2.isMixed;
@@ -65188,8 +63245,7 @@
         }).on("drag", function(d3_event) {
           var x2 = d3_event.x - dragOrigin.x, y2 = d3_event.y - dragOrigin.y;
           if (!select_default2(this).classed("dragging") && // don't display drag until dragging beyond a distance threshold
-          Math.sqrt(Math.pow(x2, 2) + Math.pow(y2, 2)) <= 5)
-            return;
+          Math.sqrt(Math.pow(x2, 2) + Math.pow(y2, 2)) <= 5) return;
           var index = selection2.nodes().indexOf(this);
           select_default2(this).classed("dragging", true);
           targetIndex = null;
@@ -65265,8 +63321,7 @@
       _input.node().focus();
     };
     combo.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return combo;
     };
@@ -65301,10 +63356,8 @@
     function calcLocked() {
       var isLocked = (field.id === "brand" || field.id === "network" || field.id === "operator" || field.id === "flag") && _entityIDs.length && _entityIDs.some(function(entityID) {
         var entity = context.graph().hasEntity(entityID);
-        if (!entity)
-          return false;
-        if (entity.tags.wikidata)
-          return true;
+        if (!entity) return false;
+        if (entity.tags.wikidata) return true;
         var preset = _mainPresetIndex.match(entity, context.graph());
         var isSuggestion = preset && preset.suggestion;
         var which = field.id;
@@ -65337,8 +63390,7 @@
         }).merge(buttons).on("click", function(d3_event, d2) {
           d3_event.preventDefault();
           var isMixed = Array.isArray(_tags[field.key]);
-          if (isMixed)
-            return;
+          if (isMixed) return;
           var raw_vals = input.node().value || "0";
           var vals = raw_vals.split(";");
           vals = vals.map(function(v2) {
@@ -65351,11 +63403,9 @@
                 num = compassDir;
               }
             }
-            if (!isFinite(num))
-              return v2;
+            if (!isFinite(num)) return v2;
             num = parseFloat(num);
-            if (!isFinite(num))
-              return v2;
+            if (!isFinite(num)) return v2;
             num += d2;
             if (isDirectionField) {
               num = (num % 360 + 360) % 360;
@@ -65390,8 +63440,7 @@
         outlinkButton.enter().append("button").call(svgIcon("#iD-icon-out-link")).attr("class", "form-field-button foreign-id-permalink").attr("title", () => _t("icons.visit_website")).on("click", function(d3_event) {
           d3_event.preventDefault();
           const value = validIdentifierValueForLink();
-          if (value)
-            window.open(value, "_blank");
+          if (value) window.open(value, "_blank");
         }).merge(outlinkButton);
       } else if (field.type === "colour") {
         input.attr("type", "text");
@@ -65413,8 +63462,7 @@
       colourSelector.enter().append("input").attr("type", "color").attr("class", "colour-selector").on("input", debounce_default(function(d3_event) {
         d3_event.preventDefault();
         var colour2 = this.value;
-        if (!isColourValid(colour2))
-          return;
+        if (!isColourValid(colour2)) return;
         utilGetSetValue(input, this.value);
         change()();
         updateColourPreview();
@@ -65453,8 +63501,7 @@
         dateSelector.enter().append("input").attr("type", "date").attr("class", "date-selector").on("input", debounce_default(function(d3_event) {
           d3_event.preventDefault();
           var date2 = this.value;
-          if (!isDateValid(date2))
-            return;
+          if (!isDateValid(date2)) return;
           utilGetSetValue(input, this.value);
           change()();
           updateDateField();
@@ -65466,16 +63513,14 @@
       }
     }
     function updatePhonePlaceholder() {
-      if (input.empty() || !Object.keys(_phoneFormats).length)
-        return;
+      if (input.empty() || !Object.keys(_phoneFormats).length) return;
       var extent = combinedEntityExtent();
       var countryCode = extent && iso1A2Code(extent.center());
       var format2 = countryCode && _phoneFormats[countryCode.toLowerCase()];
-      if (format2)
-        input.attr("placeholder", format2);
+      if (format2) input.attr("placeholder", format2);
     }
     function validIdentifierValueForLink() {
-      var _a2;
+      var _a3;
       const value = utilGetSetValue(input).trim();
       if (field.type === "url" && value) {
         try {
@@ -65485,7 +63530,7 @@
         }
       }
       if (field.type === "identifier" && field.pattern) {
-        return value && ((_a2 = value.match(new RegExp(field.pattern))) == null ? void 0 : _a2[0]);
+        return value && ((_a3 = value.match(new RegExp(field.pattern))) == null ? void 0 : _a3[0]);
       }
       return null;
     }
@@ -65511,10 +63556,8 @@
       return function() {
         var t2 = {};
         var val = utilGetSetValue(input);
-        if (!onInput)
-          val = context.cleanTagValue(val);
-        if (!val && getVals(_tags).size > 1)
-          return;
+        if (!onInput) val = context.cleanTagValue(val);
+        if (!val && getVals(_tags).size > 1) return;
         var displayVal = val;
         if (field.type === "number" && val) {
           var numbers2 = val.split(";");
@@ -65528,8 +63571,7 @@
           });
           val = numbers2.join(";");
         }
-        if (!onInput)
-          utilGetSetValue(input, displayVal);
+        if (!onInput) utilGetSetValue(input, displayVal);
         t2[field.key] = val || void 0;
         if (field.keys) {
           dispatch14.call("change", this, (tags) => {
@@ -65548,28 +63590,25 @@
       };
     }
     i3.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return i3;
     };
     i3.tags = function(tags) {
-      var _a2;
+      var _a3;
       _tags = tags;
       const vals = getVals(tags);
       const isMixed = vals.size > 1;
-      var val = vals.size === 1 ? (_a2 = [...vals][0]) != null ? _a2 : "" : "";
+      var val = vals.size === 1 ? (_a3 = [...vals][0]) != null ? _a3 : "" : "";
       var shouldUpdate;
       if (field.type === "number" && val) {
         var numbers2 = val.split(";");
         var oriNumbers = utilGetSetValue(input).split(";");
-        if (numbers2.length !== oriNumbers.length)
-          shouldUpdate = true;
+        if (numbers2.length !== oriNumbers.length) shouldUpdate = true;
         numbers2 = numbers2.map(function(v2) {
           v2 = v2.trim();
           var num = Number(v2);
-          if (!isFinite(num) || v2 === "")
-            return v2;
+          if (!isFinite(num) || v2 === "") return v2;
           const fractionDigits = v2.includes(".") ? v2.split(".")[1].length : 0;
           return formatFloat(num, fractionDigits);
         });
@@ -65593,12 +63632,9 @@
           buttons.attr("disabled", canIncDec ? null : "disabled").classed("disabled", !canIncDec);
         }
       }
-      if (field.type === "tel")
-        updatePhonePlaceholder();
-      if (field.type === "colour")
-        updateColourPreview();
-      if (field.type === "date")
-        updateDateField();
+      if (field.type === "tel") updatePhonePlaceholder();
+      if (field.type === "colour") updateColourPreview();
+      if (field.type === "date") updateDateField();
       if (outlinkButton && !outlinkButton.empty()) {
         var disabled = !validIdentifierValueForLink();
         outlinkButton.classed("disabled", disabled);
@@ -65609,8 +63645,7 @@
     };
     i3.focus = function() {
       var node = input.node();
-      if (node)
-        node.focus();
+      if (node) node.focus();
     };
     function combinedEntityExtent() {
       return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
@@ -65650,8 +63685,7 @@
     function change(d3_event, d2) {
       var tag2 = {};
       var value = context.cleanTagValue(utilGetSetValue(select_default2(this)));
-      if (!value && typeof _tags[d2] !== "string")
-        return;
+      if (!value && typeof _tags[d2] !== "string") return;
       tag2[d2] = value || void 0;
       dispatch14.call("change", this, tag2);
     }
@@ -65954,10 +63988,8 @@
     function getNearPlaces() {
       function isAddressable(d2) {
         if (d2.tags.name) {
-          if (d2.tags.place)
-            return true;
-          if (d2.tags.boundary === "administrative" && d2.tags.admin_level > 8)
-            return true;
+          if (d2.tags.place) return true;
+          if (d2.tags.boundary === "administrative" && d2.tags.admin_level > 8) return true;
         }
         return false;
       }
@@ -65966,15 +63998,11 @@
     function getNearCities() {
       function isAddressable(d2) {
         if (d2.tags.name) {
-          if (d2.tags.boundary === "administrative" && d2.tags.admin_level === "8")
-            return true;
-          if (d2.tags.border_type === "city")
-            return true;
-          if (d2.tags.place === "city" || d2.tags.place === "town" || d2.tags.place === "village")
-            return true;
+          if (d2.tags.boundary === "administrative" && d2.tags.admin_level === "8") return true;
+          if (d2.tags.border_type === "city") return true;
+          if (d2.tags.place === "city" || d2.tags.place === "town" || d2.tags.place === "village") return true;
         }
-        if (d2.tags["".concat(field.key, ":city")])
-          return true;
+        if (d2.tags["".concat(field.key, ":city")]) return true;
         return false;
       }
       return getNear(isAddressable, "city", 200, "".concat(field.key, ":city"));
@@ -65990,8 +64018,7 @@
       return getNear(hasTag, key, 200, tagKey);
     }
     function updateForCountryCode() {
-      if (!_countryCode)
-        return;
+      if (!_countryCode) return;
       var addressFormat;
       for (var i3 = 0; i3 < _addressFormats.length; i3++) {
         var format2 = _addressFormats[i3];
@@ -66049,8 +64076,7 @@
         return d2.width * 100 + "%";
       });
       function addDropdown(d2) {
-        if (dropdowns.indexOf(d2.id) === -1)
-          return;
+        if (dropdowns.indexOf(d2.id) === -1) return;
         var nearValues;
         switch (d2.id) {
           case "street":
@@ -66086,8 +64112,7 @@
       }
       _wrap.selectAll("input").on("blur", change()).on("change", change());
       _wrap.selectAll("input:not(.combobox-input)").on("input", change(true));
-      if (_tags)
-        updateTags(_tags);
+      if (_tags) updateTags(_tags);
     }
     function address(selection2) {
       _selection = selection2;
@@ -66115,10 +64140,8 @@
           _wrap.selectAll("input").each(function(subfield) {
             var key = field.key + ":" + subfield.id;
             var value = this.value;
-            if (!onInput)
-              value = context.cleanTagValue(value);
-            if (Array.isArray(_tags[key]) && !value)
-              return;
+            if (!onInput) value = context.cleanTagValue(value);
+            if (Array.isArray(_tags[key]) && !value) return;
             if (subfield.isAutoStreetPlace) {
               if (subfield.id === "street") {
                 tags["".concat(field.key, ":place")] = void 0;
@@ -66179,8 +64202,7 @@
       return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
     }
     address.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return address;
     };
@@ -66190,8 +64212,7 @@
     };
     address.focus = function() {
       var node = _wrap.selectAll("input").node();
-      if (node)
-        node.focus();
+      if (node) node.focus();
     };
     return utilRebind(address, dispatch14, "on");
   }
@@ -66268,8 +64289,7 @@
     };
     directionalCombo.focus = function() {
       var node = wrap2.selectAll("input").node();
-      if (node)
-        node.focus();
+      if (node) node.focus();
     };
     return utilRebind(directionalCombo, dispatch14, "on");
   }
@@ -66355,8 +64375,7 @@
     var _wikiTitles;
     var _entityIDs = [];
     function loadLanguagesArray(dataLanguages) {
-      if (_languagesArray.length !== 0)
-        return;
+      if (_languagesArray.length !== 0) return;
       var replacements = {
         sr: "sr-Cyrl",
         // in OSM, `sr` implies Cyrillic
@@ -66364,11 +64383,9 @@
         // `sr-Cyrl` isn't used in OSM
       };
       for (var code in dataLanguages) {
-        if (replacements[code] === false)
-          continue;
+        if (replacements[code] === false) continue;
         var metaCode = code;
-        if (replacements[code])
-          metaCode = replacements[code];
+        if (replacements[code]) metaCode = replacements[code];
         _languagesArray.push({
           localName: _mainLocalizer.languageName(metaCode, { localOnly: true }),
           nativeName: dataLanguages[metaCode].nativeName,
@@ -66380,12 +64397,9 @@
     function calcLocked() {
       var isLocked = field.id === "name" && _entityIDs.length && _entityIDs.some(function(entityID) {
         var entity = context.graph().hasEntity(entityID);
-        if (!entity)
-          return false;
-        if (entity.tags.wikidata)
-          return true;
-        if (entity.tags["name:etymology:wikidata"])
-          return true;
+        if (!entity) return false;
+        if (entity.tags.wikidata) return true;
+        if (entity.tags["name:etymology:wikidata"]) return true;
         var preset = _mainPresetIndex.match(entity, context.graph());
         if (preset) {
           var isSuggestion = preset.suggestion;
@@ -66451,8 +64465,7 @@
       selection2.selectAll(".combobox-caret").classed("nope", true);
       function addNew(d3_event) {
         d3_event.preventDefault();
-        if (field.locked())
-          return;
+        if (field.locked()) return;
         var defaultLang = _mainLocalizer.languageCode().toLowerCase();
         var langExists = _multilingual.find(function(datum2) {
           return datum2.lang === defaultLang;
@@ -66476,10 +64489,8 @@
             return;
           }
           var val = utilGetSetValue(select_default2(this));
-          if (!onInput)
-            val = context.cleanTagValue(val);
-          if (!val && Array.isArray(_tags[field.key]))
-            return;
+          if (!onInput) val = context.cleanTagValue(val);
+          if (!val && Array.isArray(_tags[field.key])) return;
           var t2 = {};
           t2[field.key] = val || void 0;
           dispatch14.call("change", this, t2, onInput);
@@ -66495,8 +64506,7 @@
       var language = _languagesArray.find(function(d4) {
         return d4.label.toLowerCase() === lang || d4.localName && d4.localName.toLowerCase() === lang || d4.nativeName && d4.nativeName.toLowerCase() === lang;
       });
-      if (language)
-        lang = language.code;
+      if (language) lang = language.code;
       if (d2.lang && d2.lang !== lang) {
         tags[key(d2.lang)] = void 0;
       }
@@ -66511,11 +64521,9 @@
       dispatch14.call("change", this, tags);
     }
     function changeValue(d3_event, d2) {
-      if (!d2.lang)
-        return;
+      if (!d2.lang) return;
       var value = context.cleanTagValue(utilGetSetValue(select_default2(this))) || void 0;
-      if (!value && Array.isArray(d2.value))
-        return;
+      if (!value && Array.isArray(d2.value)) return;
       var t2 = {};
       t2[key(d2.lang)] = value;
       d2.value = value;
@@ -66532,8 +64540,7 @@
         var langItem = _languagesArray.find(function(item) {
           return item.code === code;
         });
-        if (langItem)
-          langItems.push(langItem);
+        if (langItem) langItems.push(langItem);
       });
       langItems = utilArrayUniq(langItems.concat(_languagesArray));
       cb(langItems.filter(function(d2) {
@@ -66555,8 +64562,7 @@
         text.append("span").attr("class", "label-textvalue").call(_t.append("translate.localized_translation_label"));
         text.append("span").attr("class", "label-textannotation");
         label.append("button").attr("class", "remove-icon-multilingual").attr("title", _t("icons.remove")).on("click", function(d3_event, d2) {
-          if (field.locked())
-            return;
+          if (field.locked()) return;
           d3_event.preventDefault();
           _multilingual.splice(_multilingual.indexOf(d2), 1);
           var langKey = d2.lang && key(d2.lang);
@@ -66582,8 +64588,7 @@
         var langItem = _languagesArray.find(function(item) {
           return item.code === d2.lang;
         });
-        if (langItem)
-          return langItem.label;
+        if (langItem) return langItem.label;
         return d2.lang;
       });
       utilGetSetValue(entries.select(".localized-value"), function(d2) {
@@ -66603,8 +64608,7 @@
         var wm = tags.wikipedia.match(/([^:]+):(.+)/);
         if (wm && wm[0] && wm[1]) {
           wikipedia.translations(wm[1], wm[2], function(err, d2) {
-            if (err || !d2)
-              return;
+            if (err || !d2) return;
             _wikiTitles = d2;
           });
         }
@@ -66621,8 +64625,7 @@
       input.node().focus();
     };
     localized.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       _multilingual = [];
       loadCountryCode();
@@ -66697,17 +64700,14 @@
       var tag2 = {};
       var primaryValue = utilGetSetValue(primaryInput).trim();
       var secondaryValue = utilGetSetValue(secondaryInput).trim();
-      if (!primaryValue && !secondaryValue && Array.isArray(_tags[field.key]))
-        return;
+      if (!primaryValue && !secondaryValue && Array.isArray(_tags[field.key])) return;
       if (!primaryValue && !secondaryValue) {
         tag2[field.key] = void 0;
       } else {
         var rawPrimaryValue = likelyRawNumberFormat.test(primaryValue) ? parseFloat(primaryValue) : parseLocaleFloat(primaryValue);
-        if (isNaN(rawPrimaryValue))
-          rawPrimaryValue = primaryValue;
+        if (isNaN(rawPrimaryValue)) rawPrimaryValue = primaryValue;
         var rawSecondaryValue = likelyRawNumberFormat.test(secondaryValue) ? parseFloat(secondaryValue) : parseLocaleFloat(secondaryValue);
-        if (isNaN(rawSecondaryValue))
-          rawSecondaryValue = secondaryValue;
+        if (isNaN(rawSecondaryValue)) rawSecondaryValue = secondaryValue;
         if (isNaN(rawPrimaryValue) || isNaN(rawSecondaryValue) || !_isImperial) {
           tag2[field.key] = context.cleanTagValue(rawPrimaryValue);
         } else {
@@ -66817,14 +64817,12 @@
     function change() {
       var tag2 = {};
       var value = utilGetSetValue(input).trim();
-      if (!value && Array.isArray(_tags[field.key]))
-        return;
+      if (!value && Array.isArray(_tags[field.key])) return;
       if (!value) {
         tag2[field.key] = void 0;
       } else {
         var rawValue = likelyRawNumberFormat.test(value) ? parseFloat(value) : parseLocaleFloat(value);
-        if (isNaN(rawValue))
-          rawValue = value;
+        if (isNaN(rawValue)) rawValue = value;
         if (isNaN(rawValue) || !_isImperial) {
           tag2[field.key] = context.cleanTagValue(rawValue);
         } else {
@@ -66954,8 +64952,7 @@
     }
     function changeType(t2, onInput) {
       var key = selectedKey();
-      if (!key)
-        return;
+      if (!key) return;
       var val = t2[key];
       if (val !== "no") {
         _oldType[key] = val;
@@ -66989,11 +64986,9 @@
       }
       radios.each(function(d2) {
         var active = select_default2(this).property("checked");
-        if (active)
-          activeKey = d2;
+        if (active) activeKey = d2;
         if (field.key) {
-          if (active)
-            t2[field.key] = d2;
+          if (active) t2[field.key] = d2;
         } else {
           var val = _oldType[activeKey] || "yes";
           t2[d2] = active ? val : void 0;
@@ -67055,8 +65050,7 @@
       radios.node().focus();
     };
     radio.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       _oldType = {};
       return radio;
@@ -67141,8 +65135,7 @@
       selection2.selectAll(".restriction-via-way-text").call(displayMaxVia(_maxViaWay));
     }
     function renderViewer(selection2) {
-      if (!_intersection)
-        return;
+      if (!_intersection) return;
       var vgraph = _intersection.graph;
       var filter2 = utilFunctor(true);
       var projection2 = geoRawMercator();
@@ -67226,8 +65219,7 @@
             _oldTurns = [];
             for (i4 = 0; i4 < turns.length; i4++) {
               var turn = turns[i4];
-              if (seen[turn.restrictionID])
-                continue;
+              if (seen[turn.restrictionID]) continue;
               if (turn.direct && turn.path[1] === datum2.path[1]) {
                 seen[turns[i4].restrictionID] = true;
                 turn.restrictionType = osmInferRestriction(vgraph, turn, projection2);
@@ -67434,8 +65426,7 @@
     restrictions.focus = function() {
     };
     restrictions.off = function(selection2) {
-      if (!_initialized3)
-        return;
+      if (!_initialized3) return;
       selection2.selectAll(".surface").call(breathe.off).on("click.restrictions", null).on("mouseover.restrictions", null);
       select_default2(window).on("resize.restrictions", null);
     };
@@ -67458,10 +65449,8 @@
       function change(onInput) {
         return function() {
           var val = utilGetSetValue(input);
-          if (!onInput)
-            val = context.cleanTagValue(val);
-          if (!val && Array.isArray(_tags[field.key]))
-            return;
+          if (!onInput) val = context.cleanTagValue(val);
+          if (!val && Array.isArray(_tags[field.key])) return;
           var t2 = {};
           t2[field.key] = val || void 0;
           dispatch14.call("change", this, t2, onInput);
@@ -67521,8 +65510,7 @@
       });
       searchRowEnter.append("button").attr("class", "form-field-button wiki-link").attr("title", _t("icons.view_on", { domain: "wikidata.org" })).call(svgIcon("#iD-icon-out-link")).on("click", function(d3_event) {
         d3_event.preventDefault();
-        if (_wikiURL)
-          window.open(_wikiURL, "_blank");
+        if (_wikiURL) window.open(_wikiURL, "_blank");
       });
       searchRow = searchRow.merge(searchRowEnter);
       _searchInput = searchRow.select("input");
@@ -67553,8 +65541,7 @@
       }
       wikidata.itemsForSearchQuery(q2, function(err, data) {
         if (err) {
-          if (err !== "No query")
-            console.error(err);
+          if (err !== "No query") console.error(err);
           return;
         }
         var result = data.map(function(item) {
@@ -67566,8 +65553,7 @@
             terms: item.aliases
           };
         });
-        if (callback)
-          callback(result);
+        if (callback) callback(result);
       });
     }
     function change() {
@@ -67577,19 +65563,14 @@
       var initGraph = context.graph();
       var initEntityIDs = _entityIDs;
       wikidata.entityByQID(_qid, function(err, entity) {
-        if (err)
-          return;
-        if (context.graph() !== initGraph)
-          return;
-        if (!entity.sitelinks)
-          return;
+        if (err) return;
+        if (context.graph() !== initGraph) return;
+        if (!entity.sitelinks) return;
         var langs = wikidata.languagesToQuery();
         ["labels", "descriptions"].forEach(function(key) {
-          if (!entity[key])
-            return;
+          if (!entity[key]) return;
           var valueLangs = Object.keys(entity[key]);
-          if (valueLangs.length === 0)
-            return;
+          if (valueLangs.length === 0) return;
           var valueLang = valueLangs[0];
           if (langs.indexOf(valueLang) === -1) {
             langs.push(valueLang);
@@ -67623,24 +65604,20 @@
         if (newWikipediaValue) {
           newWikipediaValue = context.cleanTagValue(newWikipediaValue);
         }
-        if (typeof newWikipediaValue === "undefined")
-          return;
+        if (typeof newWikipediaValue === "undefined") return;
         var actions = initEntityIDs.map(function(entityID) {
           var entity2 = context.hasEntity(entityID);
-          if (!entity2)
-            return null;
+          if (!entity2) return null;
           var currTags = Object.assign({}, entity2.tags);
           if (newWikipediaValue === null) {
-            if (!currTags[_wikipediaKey])
-              return null;
+            if (!currTags[_wikipediaKey]) return null;
             delete currTags[_wikipediaKey];
           } else {
             currTags[_wikipediaKey] = newWikipediaValue;
           }
           return actionChangeTags(entityID, currTags);
         }).filter(Boolean);
-        if (!actions.length)
-          return;
+        if (!actions.length) return;
         context.overwrite(
           function actionUpdateWikipediaTags(graph) {
             actions.forEach(function(action) {
@@ -67701,24 +65678,20 @@
       }
     };
     function entityPropertyForDisplay(wikidataEntity, propKey) {
-      if (!wikidataEntity[propKey])
-        return "";
+      if (!wikidataEntity[propKey]) return "";
       var propObj = wikidataEntity[propKey];
       var langKeys = Object.keys(propObj);
-      if (langKeys.length === 0)
-        return "";
+      if (langKeys.length === 0) return "";
       var langs = wikidata.languagesToQuery();
       for (var i3 in langs) {
         var lang = langs[i3];
         var valueObj = propObj[lang];
-        if (valueObj && valueObj.value && valueObj.value.length > 0)
-          return valueObj.value;
+        if (valueObj && valueObj.value && valueObj.value.length > 0) return valueObj.value;
       }
       return propObj[langKeys[0]].value;
     }
     wiki.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return wiki;
     };
@@ -67743,8 +65716,7 @@
     let _dataWikipedia = [];
     _mainFileFetcher.get("wmf_sitematrix").then((d2) => {
       _dataWikipedia = d2;
-      if (_tags)
-        updateForTags(_tags);
+      if (_tags) updateForTags(_tags);
     }).catch(() => {
     });
     const langCombo = uiCombobox(context, "wikipedia-lang").fetcher((value, callback) => {
@@ -67792,16 +65764,14 @@
       link3 = link3.enter().append("button").attr("class", "form-field-button wiki-link").attr("title", _t("icons.view_on", { domain })).call(svgIcon("#iD-icon-out-link")).merge(link3);
       link3.on("click", (d3_event) => {
         d3_event.preventDefault();
-        if (_wikiURL)
-          window.open(_wikiURL, "_blank");
+        if (_wikiURL) window.open(_wikiURL, "_blank");
       });
     }
     function defaultLanguageInfo(skipEnglishFallback) {
       const langCode = _mainLocalizer.languageCode().toLowerCase();
       for (let i3 in _dataWikipedia) {
         let d2 = _dataWikipedia[i3];
-        if (d2[2] === langCode)
-          return d2;
+        if (d2[2] === langCode) return d2;
       }
       return skipEnglishFallback ? ["", "", ""] : ["English", "English", "en"];
     }
@@ -67809,8 +65779,7 @@
       const value = utilGetSetValue(_langInput).toLowerCase();
       for (let i3 in _dataWikipedia) {
         let d2 = _dataWikipedia[i3];
-        if (d2[0].toLowerCase() === value || d2[1].toLowerCase() === value || d2[2] === value)
-          return d2;
+        if (d2[0].toLowerCase() === value || d2[1].toLowerCase() === value || d2[2] === value) return d2;
       }
       return defaultLanguageInfo(skipEnglishFallback);
     }
@@ -67841,15 +65810,12 @@
         syncTags.wikipedia = void 0;
       }
       dispatch14.call("change", this, syncTags);
-      if (skipWikidata || !value || !language()[2])
-        return;
+      if (skipWikidata || !value || !language()[2]) return;
       const initGraph = context.graph();
       const initEntityIDs = _entityIDs;
       wikidata.itemsByTitle(language()[2], value, (err, data) => {
-        if (err || !data || !Object.keys(data).length)
-          return;
-        if (context.graph() !== initGraph)
-          return;
+        if (err || !data || !Object.keys(data).length) return;
+        if (context.graph() !== initGraph) return;
         const qids = Object.keys(data);
         const value2 = qids && qids.find((id2) => id2.match(/^Q\d+$/));
         let actions = initEntityIDs.map((entityID) => {
@@ -67861,8 +65827,7 @@
           }
           return null;
         }).filter(Boolean);
-        if (!actions.length)
-          return;
+        if (!actions.length) return;
         context.overwrite(
           function actionUpdateWikidataTags(graph) {
             actions.forEach(function(action) {
@@ -67913,14 +65878,12 @@
       return "".concat(uriEncodedUnderscoredTitle).concat(uriEncodedAnchorFragment);
     };
     wiki.encodeURIAnchorFragment = (anchor) => {
-      if (!anchor)
-        return "";
+      if (!anchor) return "";
       const underscoredAnchor = anchor.replace(/ /g, "_");
       return "#" + encodeURIComponent(underscoredAnchor);
     };
     wiki.entityIDs = (val) => {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return wiki;
     };
@@ -68012,8 +65975,7 @@
       return keys2;
     }
     function isModified() {
-      if (!entityIDs || !entityIDs.length)
-        return false;
+      if (!entityIDs || !entityIDs.length) return false;
       return entityIDs.some(function(entityID) {
         var original = context.graph().base().entities[entityID];
         var latest = context.graph().entity(entityID);
@@ -68038,15 +66000,13 @@
     function revert(d3_event, d2) {
       d3_event.stopPropagation();
       d3_event.preventDefault();
-      if (!entityIDs || _locked)
-        return;
+      if (!entityIDs || _locked) return;
       dispatch14.call("revert", d2, allKeys());
     }
     function remove2(d3_event, d2) {
       d3_event.stopPropagation();
       d3_event.preventDefault();
-      if (_locked)
-        return;
+      if (_locked) return;
       var t2 = {};
       allKeys().forEach(function(key) {
         t2[key] = void 0;
@@ -68117,14 +66077,12 @@
       container.call(_locked ? _lockedTip : _lockedTip.destroy);
     };
     field.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       _state = val;
       return field;
     };
     field.tags = function(val) {
-      if (!arguments.length)
-        return _tags;
+      if (!arguments.length) return _tags;
       _tags = val;
       if (tagsContainFieldKey() && !_show) {
         _show = true;
@@ -68135,8 +66093,7 @@
       return field;
     };
     field.locked = function(val) {
-      if (!arguments.length)
-        return _locked;
+      if (!arguments.length) return _locked;
       _locked = val;
       return field;
     };
@@ -68155,16 +66112,13 @@
       return _show;
     };
     field.isAllowed = function() {
-      if (entityIDs && entityIDs.length > 1 && uiFields[field.type].supportsMultiselection === false)
-        return false;
+      if (entityIDs && entityIDs.length > 1 && uiFields[field.type].supportsMultiselection === false) return false;
       if (field.geometry && !entityIDs.every(function(entityID) {
         return field.matchGeometry(context.graph().geometry(entityID));
-      }))
-        return false;
+      })) return false;
       if (entityIDs && _entityExtent && field.locationSetID) {
         var validHere = _sharedLocationManager.locationSetsAt(_entityExtent.center());
-        if (!validHere[field.locationSetID])
-          return false;
+        if (!validHere[field.locationSetID]) return false;
       }
       var prerequisiteTag = field.prerequisiteTag;
       if (entityIDs && !tagsContainFieldKey() && // ignore tagging prerequisites if a value is already present
@@ -68173,8 +66127,7 @@
           var entity = context.graph().entity(entityID);
           if (prerequisiteTag.key) {
             var value = entity.tags[prerequisiteTag.key];
-            if (!value)
-              return false;
+            if (!value) return false;
             if (prerequisiteTag.valueNot) {
               return prerequisiteTag.valueNot !== value;
             }
@@ -68182,12 +66135,10 @@
               return prerequisiteTag.value === value;
             }
           } else if (prerequisiteTag.keyNot) {
-            if (entity.tags[prerequisiteTag.keyNot])
-              return false;
+            if (entity.tags[prerequisiteTag.keyNot]) return false;
           }
           return true;
-        }))
-          return false;
+        })) return false;
       }
       return true;
     };
@@ -68234,10 +66185,8 @@
         var title = field.title();
         titles.push(title);
         var terms = field.terms();
-        if (field.key)
-          terms.push(field.key);
-        if (field.keys)
-          terms = terms.concat(field.keys);
+        if (field.key) terms.push(field.key);
+        if (field.keys) terms = terms.concat(field.keys);
         return {
           display: field.label(),
           value: title,
@@ -68257,8 +66206,7 @@
       input = input.enter().append("input").attr("class", "value").attr("type", "text").attr("placeholder", placeholder).call(utilNoAuto).merge(input);
       input.call(utilGetSetValue, "").call(
         moreCombo.data(moreFields).on("accept", function(d2) {
-          if (!d2)
-            return;
+          if (!d2) return;
           var field = d2.field;
           field.show();
           selection2.call(formFields);
@@ -68271,20 +66219,17 @@
       }
     }
     formFields.fieldsArr = function(val) {
-      if (!arguments.length)
-        return _fieldsArr;
+      if (!arguments.length) return _fieldsArr;
       _fieldsArr = val || [];
       return formFields;
     };
     formFields.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       _state = val;
       return formFields;
     };
     formFields.klass = function(val) {
-      if (!arguments.length)
-        return _klass;
+      if (!arguments.length) return _klass;
       _klass = val;
       return formFields;
     };
@@ -68333,8 +66278,7 @@
         var osm = context.connection();
         if (osm) {
           osm.userChangesets(function(err, changesets) {
-            if (err)
-              return;
+            if (err) return;
             var comments = changesets.map(function(changeset) {
               var comment = changeset.tags.comment;
               return comment ? { title: comment, value: comment } : null;
@@ -68375,16 +66319,13 @@
       });
     }
     changesetEditor.tags = function(_2) {
-      if (!arguments.length)
-        return _tags;
+      if (!arguments.length) return _tags;
       _tags = _2;
       return changesetEditor;
     };
     changesetEditor.changesetID = function(_2) {
-      if (!arguments.length)
-        return _changesetID;
-      if (_changesetID === _2)
-        return changesetEditor;
+      if (!arguments.length) return _changesetID;
+      if (_changesetID === _2) return changesetEditor;
       _changesetID = _2;
       _fieldsArr = null;
       return changesetEditor;
@@ -68692,8 +66633,7 @@
     var commitWarnings = uiCommitWarnings(context);
     function commit(selection2) {
       _selection = selection2;
-      if (!context.changeset)
-        initChangeset();
+      if (!context.changeset) initChangeset();
       loadDerivedChangesetTags();
       selection2.call(render);
     }
@@ -68751,8 +66691,7 @@
     }
     function loadDerivedChangesetTags() {
       var osm = context.connection();
-      if (!osm)
-        return;
+      if (!osm) return;
       var tags = Object.assign({}, context.changeset.tags);
       var imageryUsed = context.cleanTagValue(context.history().imageryUsed().join(";"));
       tags.imagery_used = imageryUsed || "None";
@@ -68809,8 +66748,7 @@
     }
     function render(selection2) {
       var osm = context.connection();
-      if (!osm)
-        return;
+      if (!osm) return;
       var header = selection2.selectAll(".header").data([0]);
       var headerTitle = header.enter().append("div").attr("class", "header fillL");
       headerTitle.append("div").append("h2").call(_t.append("commit.title"));
@@ -68833,10 +66771,8 @@
       }
       prose = prose.enter().append("p").attr("class", "commit-info").call(_t.append("commit.upload_explanation")).merge(prose);
       osm.userDetails(function(err, user) {
-        if (err)
-          return;
-        if (_userDetails2 === user)
-          return;
+        if (err) return;
+        if (_userDetails2 === user) return;
         _userDetails2 = user;
         var userLink = select_default2(document.createElement("div"));
         if (user.image_url) {
@@ -68870,8 +66806,7 @@
         if (!select_default2(this).classed("disabled")) {
           this.blur();
           for (var key in context.changeset.tags) {
-            if (!key)
-              delete context.changeset.tags[key];
+            if (!key) delete context.changeset.tags[key];
           }
           context.uploader().save(context.changeset);
         }
@@ -68965,8 +66900,7 @@
     }
     function isReviewRequested(tags) {
       var rr = tags.review_requested;
-      if (rr === void 0)
-        return false;
+      if (rr === void 0) return false;
       rr = rr.trim().toLowerCase();
       return !(rr === "" || rr === "no");
     }
@@ -68975,8 +66909,7 @@
       Object.keys(changed).forEach(function(k2) {
         var v2 = changed[k2];
         k2 = context.cleanTagKey(k2);
-        if (readOnlyTags.indexOf(k2) !== -1)
-          return;
+        if (readOnlyTags.indexOf(k2) !== -1) return;
         if (v2 === void 0) {
           delete tags[k2];
         } else if (onInput) {
@@ -69149,8 +67082,7 @@
       });
     }
     function choose(d3_event, ul, datum2) {
-      if (d3_event)
-        d3_event.preventDefault();
+      if (d3_event) d3_event.preventDefault();
       select_default2(ul).selectAll("li").classed("active", function(d2) {
         return d2 === datum2;
       }).selectAll("input").property("checked", function(d2) {
@@ -69159,12 +67091,10 @@
       var extent = geoExtent();
       var entity;
       entity = context.graph().hasEntity(datum2.id);
-      if (entity)
-        extent._extend(entity.extent(context.graph()));
+      if (entity) extent._extend(entity.extent(context.graph()));
       datum2.action();
       entity = context.graph().hasEntity(datum2.id);
-      if (entity)
-        extent._extend(entity.extent(context.graph()));
+      if (entity) extent._extend(entity.extent(context.graph()));
       zoomToEntity(datum2.id, extent);
     }
     function zoomToEntity(id2, extent) {
@@ -69180,14 +67110,12 @@
       }
     }
     conflicts.conflictList = function(_2) {
-      if (!arguments.length)
-        return _conflictList;
+      if (!arguments.length) return _conflictList;
       _conflictList = _2;
       return conflicts;
     };
     conflicts.origChanges = function(_2) {
-      if (!arguments.length)
-        return _origChanges;
+      if (!arguments.length) return _origChanges;
       _origChanges = _2;
       return conflicts;
     };
@@ -69308,10 +67236,8 @@
       fixes.exit().remove();
       var fixesEnter = fixes.enter().append("li").attr("class", "issue-fix-item");
       var buttons = fixesEnter.append("button").on("click", function(d3_event, d2) {
-        if (select_default2(this).attr("disabled") || !d2.onClick)
-          return;
-        if (d2.issue.dateLastRanFix && /* @__PURE__ */ new Date() - d2.issue.dateLastRanFix < 1e3)
-          return;
+        if (select_default2(this).attr("disabled") || !d2.onClick) return;
+        if (d2.issue.dateLastRanFix && /* @__PURE__ */ new Date() - d2.issue.dateLastRanFix < 1e3) return;
         d2.issue.dateLastRanFix = /* @__PURE__ */ new Date();
         utilHighlightEntities(d2.issue.entityIds.concat(d2.entityIds), false, context);
         new Promise(function(resolve, reject) {
@@ -69349,8 +67275,7 @@
       });
     }
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       if (!_entityIDs || !val || !utilArrayIdentical(_entityIDs, val)) {
         _entityIDs = val;
         _activeIssueID = null;
@@ -69369,14 +67294,10 @@
       selection2.each(render);
     }
     function getIcon(p2, geom) {
-      if (p2.isFallback && p2.isFallback())
-        return geom === "vertex" ? "" : "iD-icon-" + p2.id;
-      if (p2.icon)
-        return p2.icon;
-      if (geom === "line")
-        return "iD-other-line";
-      if (geom === "vertex")
-        return "temaki-vertex";
+      if (p2.isFallback && p2.isFallback()) return geom === "vertex" ? "" : "iD-icon-" + p2.id;
+      if (p2.icon) return p2.icon;
+      if (geom === "line") return "iD-other-line";
+      if (geom === "vertex") return "temaki-vertex";
       return "maki-marker-stroked";
     }
     function renderPointBorder(container, drawPoint) {
@@ -69574,14 +67495,12 @@
       renderImageIcon(container, imageURL);
     }
     presetIcon.preset = function(val) {
-      if (!arguments.length)
-        return _preset;
+      if (!arguments.length) return _preset;
       _preset = utilFunctor(val);
       return presetIcon;
     };
     presetIcon.geometry = function(val) {
-      if (!arguments.length)
-        return _geometry;
+      if (!arguments.length) return _geometry;
       _geometry = utilFunctor(val);
       return presetIcon;
     };
@@ -69633,14 +67552,12 @@
       });
     }
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return section;
     };
     section.presets = function(val) {
-      if (!arguments.length)
-        return _presets;
+      if (!arguments.length) return _presets;
       if (!utilArrayIdentical(val, _presets)) {
         _presets = val;
         if (_presets.length === 1) {
@@ -69653,8 +67570,7 @@
       var counts = {};
       for (var i3 in _entityIDs) {
         var geometry = context.graph().geometry(_entityIDs[i3]);
-        if (!counts[geometry])
-          counts[geometry] = 0;
+        if (!counts[geometry]) counts[geometry] = 0;
         counts[geometry] += 1;
       }
       return Object.keys(counts).sort(function(geom1, geom2) {
@@ -69749,8 +67665,7 @@
       );
     }
     section.presets = function(val) {
-      if (!arguments.length)
-        return _presets;
+      if (!arguments.length) return _presets;
       if (!_presets || !val || !utilArrayIdentical(_presets, val)) {
         _presets = val;
         _fieldsArr = null;
@@ -69758,20 +67673,17 @@
       return section;
     };
     section.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       _state = val;
       return section;
     };
     section.tags = function(val) {
-      if (!arguments.length)
-        return _tags;
+      if (!arguments.length) return _tags;
       _tags = val;
       return section;
     };
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       if (!val || !_entityIDs || !utilArrayIdentical(_entityIDs, val)) {
         _entityIDs = val;
         _fieldsArr = null;
@@ -69784,14 +67696,12 @@
   // modules/ui/sections/raw_member_editor.js
   function uiSectionRawMemberEditor(context) {
     var section = uiSection("raw-member-editor", context).shouldDisplay(function() {
-      if (!_entityIDs || _entityIDs.length !== 1)
-        return false;
+      if (!_entityIDs || _entityIDs.length !== 1) return false;
       var entity = context.hasEntity(_entityIDs[0]);
       return entity && entity.type === "relation";
     }).label(function() {
       var entity = context.hasEntity(_entityIDs[0]);
-      if (!entity)
-        return "";
+      if (!entity) return "";
       var gt2 = entity.members.length > _maxMembers ? ">" : "";
       var count = gt2 + entity.members.slice(0, _maxMembers).length;
       return _t.append("inspector.title_count", { title: _t("inspector.members"), count });
@@ -69923,8 +67833,7 @@
         }).on("drag", function(d3_event) {
           var x2 = d3_event.x - dragOrigin.x, y2 = d3_event.y - dragOrigin.y;
           if (!select_default2(this).classed("dragging") && // don't display drag until dragging beyond a distance threshold
-          Math.sqrt(Math.pow(x2, 2) + Math.pow(y2, 2)) <= 5)
-            return;
+          Math.sqrt(Math.pow(x2, 2) + Math.pow(y2, 2)) <= 5) return;
           var index = items.nodes().indexOf(this);
           select_default2(this).classed("dragging", true);
           targetIndex = null;
@@ -69946,8 +67855,7 @@
             return null;
           });
         }).on("end", function(d3_event, d2) {
-          if (!select_default2(this).classed("dragging"))
-            return;
+          if (!select_default2(this).classed("dragging")) return;
           var index = items.nodes().indexOf(this);
           select_default2(this).classed("dragging", false);
           selection2.selectAll("li.member-row").style("transform", null);
@@ -69995,8 +67903,7 @@
               geometry,
               query: role2
             }, function(err, data) {
-              if (!err)
-                callback(sort(role2, data));
+              if (!err) callback(sort(role2, data));
             });
           }).on("cancel", function() {
             role.property("value", origValue);
@@ -70009,8 +67916,7 @@
       }
     }
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return section;
     };
@@ -70040,11 +67946,9 @@
     }).disclosureContent(renderDisclosureContent);
     var taginfo = services.taginfo;
     var nearbyCombo = uiCombobox(context, "parent-relation").minItems(1).fetcher(fetchNearbyRelations).itemsMouseEnter(function(d3_event, d2) {
-      if (d2.relation)
-        utilHighlightEntities([d2.relation.id], true, context);
+      if (d2.relation) utilHighlightEntities([d2.relation.id], true, context);
     }).itemsMouseLeave(function(d3_event, d2) {
-      if (d2.relation)
-        utilHighlightEntities([d2.relation.id], false, context);
+      if (d2.relation) utilHighlightEntities([d2.relation.id], false, context);
     });
     var _inChange = false;
     var _entityIDs = [];
@@ -70054,15 +67958,13 @@
       var parents = [];
       for (var i3 = 0; i3 < _entityIDs.length; i3++) {
         var entity = context.graph().hasEntity(_entityIDs[i3]);
-        if (!entity)
-          continue;
+        if (!entity) continue;
         if (i3 === 0) {
           parents = context.graph().parentRelations(entity);
         } else {
           parents = utilArrayIntersection(parents, context.graph().parentRelations(entity));
         }
-        if (!parents.length)
-          break;
+        if (!parents.length) break;
       }
       return parents;
     }
@@ -70094,15 +67996,13 @@
             }
           }
         }
-        if (membership.members.length)
-          memberships.push(membership);
+        if (membership.members.length) memberships.push(membership);
       }
       memberships.forEach(function(membership2) {
         membership2.domId = utilUniqueDomId("membership-" + membership2.relation.id);
         var roles = [];
         membership2.members.forEach(function(member2) {
-          if (roles.indexOf(member2.role) === -1)
-            roles.push(member2.role);
+          if (roles.indexOf(member2.role) === -1) roles.push(member2.role);
         });
         membership2.role = roles.length === 1 ? roles[0] : roles;
       });
@@ -70120,13 +68020,10 @@
       utilHighlightEntities([d2.relation.id], true, context);
     }
     function changeRole(d3_event, d2) {
-      if (d2 === 0)
-        return;
-      if (_inChange)
-        return;
+      if (d2 === 0) return;
+      if (_inChange) return;
       var newRole = context.cleanRelationRole(select_default2(this).property("value"));
-      if (!newRole.trim() && typeof d2.role !== "string")
-        return;
+      if (!newRole.trim() && typeof d2.role !== "string") return;
       var membersToUpdate = d2.members.filter(function(member) {
         return member.role !== newRole;
       });
@@ -70189,8 +68086,7 @@
     }
     function deleteMembership(d3_event, d2) {
       this.blur();
-      if (d2 === 0)
-        return;
+      if (d2 === 0) return;
       utilHighlightEntities([d2.relation.id], false, context);
       var indexes = d2.members.map(function(member) {
         return member.index;
@@ -70236,11 +68132,9 @@
         });
       } else {
         context.history().intersects(context.map().extent()).forEach(function(entity) {
-          if (entity.type !== "relation" || entity.id === entityID)
-            return;
+          if (entity.type !== "relation" || entity.id === entityID) return;
           var value = baseDisplayValue(entity);
-          if (q2 && (value + " " + entity.id).toLowerCase().indexOf(q2.toLowerCase()) === -1)
-            return;
+          if (q2 && (value + " " + entity.id).toLowerCase().indexOf(q2.toLowerCase()) === -1) return;
           result.push({
             relation: entity,
             value,
@@ -70345,8 +68239,7 @@
           cancelEntity();
           return;
         }
-        if (d2.relation)
-          utilHighlightEntities([d2.relation.id], false, context);
+        if (d2.relation) utilHighlightEntities([d2.relation.id], false, context);
         var role = context.cleanRelationRole(list2.selectAll(".member-row-new .member-role").property("value"));
         addMembership(d2, role);
       }
@@ -70380,8 +68273,7 @@
               geometry: context.graph().geometry(_entityIDs[0]),
               query: role2
             }, function(err, data) {
-              if (!err)
-                callback(sort(role2, data));
+              if (!err) callback(sort(role2, data));
             });
           }).on("cancel", function() {
             role.property("value", origValue);
@@ -70394,8 +68286,7 @@
       }
     }
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       _showBlank = false;
       return section;
@@ -70417,8 +68308,7 @@
       }
     });
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _selectedIDs;
+      if (!arguments.length) return _selectedIDs;
       _selectedIDs = val;
       return section;
     };
@@ -70528,16 +68418,12 @@
       });
       context.history().on("change.entity-editor", historyChanged);
       function historyChanged(difference2) {
-        if (selection2.selectAll(".entity-editor").empty())
-          return;
-        if (_state === "hide")
-          return;
+        if (selection2.selectAll(".entity-editor").empty()) return;
+        if (_state === "hide") return;
         var significant = !difference2 || difference2.didChange.properties || difference2.didChange.addition || difference2.didChange.deletion;
-        if (!significant)
-          return;
+        if (!significant) return;
         _entityIDs = _entityIDs.filter(context.hasEntity);
-        if (!_entityIDs.length)
-          return;
+        if (!_entityIDs.length) return;
         var priorActivePreset = _activePresets.length === 1 && _activePresets[0];
         loadActivePresets();
         var graph = context.graph();
@@ -70558,8 +68444,7 @@
           tags = changed(tags);
         } else {
           for (var k2 in changed) {
-            if (!k2)
-              continue;
+            if (!k2) continue;
             var v2 = changed[k2];
             if (typeof v2 === "object") {
               tags[k2] = tags[v2.oldKey];
@@ -70607,8 +68492,7 @@
         var entity = context.entity(entityID);
         var tags = Object.assign({}, entity.tags);
         for (var k2 in changed) {
-          if (!k2)
-            continue;
+          if (!k2) continue;
           var v2 = changed[k2];
           if (v2 !== void 0 || tags.hasOwnProperty(k2)) {
             tags[k2] = v2;
@@ -70637,31 +68521,26 @@
       context.validator().validate();
     }
     entityEditor.modified = function(val) {
-      if (!arguments.length)
-        return _modified;
+      if (!arguments.length) return _modified;
       _modified = val;
       return entityEditor;
     };
     entityEditor.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       _state = val;
       return entityEditor;
     };
     entityEditor.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _base = context.graph();
       _coalesceChanges = false;
-      if (val && _entityIDs && utilArrayIdentical(_entityIDs, val))
-        return entityEditor;
+      if (val && _entityIDs && utilArrayIdentical(_entityIDs, val)) return entityEditor;
       _entityIDs = val;
       loadActivePresets(true);
       return entityEditor.modified(false);
     };
     entityEditor.newFeature = function(val) {
-      if (!arguments.length)
-        return _newFeature;
+      if (!arguments.length) return _newFeature;
       _newFeature = val;
       return entityEditor;
     };
@@ -70670,11 +68549,9 @@
       var counts = {};
       for (var i3 in _entityIDs) {
         var entity = graph.hasEntity(_entityIDs[i3]);
-        if (!entity)
-          return;
+        if (!entity) return;
         var match = _mainPresetIndex.match(entity, graph);
-        if (!counts[match.id])
-          counts[match.id] = 0;
+        if (!counts[match.id]) counts[match.id] = 0;
         counts[match.id] += 1;
       }
       var matches = Object.keys(counts).sort(function(p1, p2) {
@@ -70684,14 +68561,12 @@
       });
       if (!isForNewSelection) {
         var weakPreset = _activePresets.length === 1 && !_activePresets[0].isFallback() && Object.keys(_activePresets[0].addTags || {}).length === 0;
-        if (weakPreset && matches.length === 1 && matches[0].isFallback())
-          return;
+        if (weakPreset && matches.length === 1 && matches[0].isFallback()) return;
       }
       entityEditor.presets(matches);
     }
     entityEditor.presets = function(val) {
-      if (!arguments.length)
-        return _activePresets;
+      if (!arguments.length) return _activePresets;
       if (!utilArrayIdentical(val, _activePresets)) {
         _activePresets = val;
       }
@@ -70734,8 +68609,7 @@
     var behavior = behaviorAddWay(context).on("start", start2).on("startFromWay", startFromWay).on("startFromNode", startFromNode);
     function defaultTags(loc) {
       var defaultTags2 = { area: "yes" };
-      if (mode.preset)
-        defaultTags2 = mode.preset.setTags(defaultTags2, "area", false, loc);
+      if (mode.preset) defaultTags2 = mode.preset.setTags(defaultTags2, "area", false, loc);
       return defaultTags2;
     }
     function actionClose(wayId) {
@@ -70793,8 +68667,7 @@
     var behavior = behaviorAddWay(context).on("start", start2).on("startFromWay", startFromWay).on("startFromNode", startFromNode);
     function defaultTags(loc) {
       var defaultTags2 = {};
-      if (mode.preset)
-        defaultTags2 = mode.preset.setTags(defaultTags2, "line", false, loc);
+      if (mode.preset) defaultTags2 = mode.preset.setTags(defaultTags2, "line", false, loc);
       return defaultTags2;
     }
     function start2(loc) {
@@ -70844,8 +68717,7 @@
     var behavior = behaviorDraw(context).on("click", add).on("clickWay", addWay).on("clickNode", addNode).on("cancel", cancel).on("finish", cancel);
     function defaultTags(loc) {
       var defaultTags2 = {};
-      if (mode.preset)
-        defaultTags2 = mode.preset.setTags(defaultTags2, "point", false, loc);
+      if (mode.preset) defaultTags2 = mode.preset.setTags(defaultTags2, "point", false, loc);
       return defaultTags2;
     }
     function add(loc) {
@@ -70901,8 +68773,7 @@
   function uiNoteComments() {
     var _note;
     function noteComments(selection2) {
-      if (_note.isNew())
-        return;
+      if (_note.isNew()) return;
       var comments = selection2.selectAll(".comments-container").data([0]);
       comments = comments.enter().append("div").attr("class", "comments-container").merge(comments);
       var commentEnter = comments.selectAll(".comment").data(_note.comments).enter().append("div").attr("class", "comment");
@@ -70934,34 +68805,28 @@
     function replaceAvatars(selection2) {
       var showThirdPartyIcons = corePreferences("preferences.privacy.thirdpartyicons") || "true";
       var osm = services.osm;
-      if (showThirdPartyIcons !== "true" || !osm)
-        return;
+      if (showThirdPartyIcons !== "true" || !osm) return;
       var uids = {};
       _note.comments.forEach(function(d2) {
-        if (d2.uid)
-          uids[d2.uid] = true;
+        if (d2.uid) uids[d2.uid] = true;
       });
       Object.keys(uids).forEach(function(uid) {
         osm.loadUser(uid, function(err, user) {
-          if (!user || !user.image_url)
-            return;
+          if (!user || !user.image_url) return;
           selection2.selectAll(".comment-avatar.user-" + uid).html("").append("img").attr("class", "icon comment-avatar-icon").attr("src", user.image_url).attr("alt", user.display_name);
         });
       });
     }
     function localeDateString2(s2) {
-      if (!s2)
-        return null;
+      if (!s2) return null;
       var options2 = { day: "numeric", month: "short", year: "numeric" };
       s2 = s2.replace(/-/g, "/");
       var d2 = new Date(s2);
-      if (isNaN(d2.getTime()))
-        return null;
+      if (isNaN(d2.getTime())) return null;
       return d2.toLocaleDateString(_mainLocalizer.localeCode(), options2);
     }
     noteComments.note = function(val) {
-      if (!arguments.length)
-        return _note;
+      if (!arguments.length) return _note;
       _note = val;
       return noteComments;
     };
@@ -71005,8 +68870,7 @@
       });
     }
     noteHeader.note = function(val) {
-      if (!arguments.length)
-        return _note;
+      if (!arguments.length) return _note;
       _note = val;
       return noteHeader;
     };
@@ -71029,8 +68893,7 @@
       linkEnter.append("span").call(_t.append("note.report"));
     }
     noteReport.note = function(val) {
-      if (!arguments.length)
-        return _note;
+      if (!arguments.length) return _note;
       _note = val;
       return noteReport;
     };
@@ -71056,8 +68919,7 @@
       linkEnter.append("span").call(_t.append("inspector.view_on_osm"));
     }
     viewOnOSM.what = function(_2) {
-      if (!arguments.length)
-        return _what;
+      if (!arguments.length) return _what;
       _what = _2;
       return viewOnOSM;
     };
@@ -71114,16 +68976,12 @@
       noteSave = noteSaveEnter.merge(noteSave).call(userDetails).call(noteSaveButtons);
       function keydown(d3_event) {
         if (!(d3_event.keyCode === 13 && // ↩ Return
-        d3_event.metaKey))
-          return;
+        d3_event.metaKey)) return;
         var osm = services.osm;
-        if (!osm)
-          return;
+        if (!osm) return;
         var hasAuth = osm.authenticated();
-        if (!hasAuth)
-          return;
-        if (!_note.newComment)
-          return;
+        if (!hasAuth) return;
+        if (!_note.newComment) return;
         d3_event.preventDefault();
         select_default2(this).on("keydown.note-input", null);
         window.setTimeout(function() {
@@ -71151,8 +69009,7 @@
       var detailSection = selection2.selectAll(".detail-section").data([0]);
       detailSection = detailSection.enter().append("div").attr("class", "detail-section").merge(detailSection);
       var osm = services.osm;
-      if (!osm)
-        return;
+      if (!osm) return;
       var hasAuth = osm.authenticated();
       var authWarning = detailSection.selectAll(".auth-warning").data(hasAuth ? [] : [0]);
       authWarning.exit().transition().duration(200).style("opacity", 0).remove();
@@ -71168,8 +69025,7 @@
       prose.exit().remove();
       prose = prose.enter().append("p").attr("class", "note-save-prose").call(_t.append("note.upload_explanation")).merge(prose);
       osm.userDetails(function(err, user) {
-        if (err)
-          return;
+        if (err) return;
         var userLink = select_default2(document.createElement("div"));
         if (user.image_url) {
           userLink.append("img").attr("src", user.image_url).attr("class", "icon pre-text user-icon");
@@ -71246,14 +69102,12 @@
       }
     }
     noteEditor.note = function(val) {
-      if (!arguments.length)
-        return _note;
+      if (!arguments.length) return _note;
       _note = val;
       return noteEditor;
     };
     noteEditor.newNote = function(val) {
-      if (!arguments.length)
-        return _newNote;
+      if (!arguments.length) return _newNote;
       _newNote = val;
       return noteEditor;
     };
@@ -71270,8 +69124,7 @@
     var _noteEditor = uiNoteEditor(context).on("change", function() {
       context.map().pan([0, 0]);
       var note = checkSelectedID();
-      if (!note)
-        return;
+      if (!note) return;
       context.ui().sidebar.show(_noteEditor.note(note));
     });
     var _behaviors = [
@@ -71284,8 +69137,7 @@
     ];
     var _newFeature = false;
     function checkSelectedID() {
-      if (!services.osm)
-        return;
+      if (!services.osm) return;
       var note = services.osm.getNote(selectedNoteID);
       if (!note) {
         context.enter(modeBrowse(context));
@@ -71293,8 +69145,7 @@
       return note;
     }
     function selectNote(d3_event, drawn) {
-      if (!checkSelectedID())
-        return;
+      if (!checkSelectedID()) return;
       var selection2 = context.surface().selectAll(".layer-notes .note-" + selectedNoteID);
       if (selection2.empty()) {
         var source = d3_event && d3_event.type === "zoom" && d3_event.sourceEvent;
@@ -71307,28 +69158,24 @@
       }
     }
     function esc() {
-      if (context.container().select(".combobox").size())
-        return;
+      if (context.container().select(".combobox").size()) return;
       context.enter(modeBrowse(context));
     }
     mode.zoomToSelected = function() {
-      if (!services.osm)
-        return;
+      if (!services.osm) return;
       var note = services.osm.getNote(selectedNoteID);
       if (note) {
         context.map().centerZoomEase(note.loc, 20);
       }
     };
     mode.newFeature = function(val) {
-      if (!arguments.length)
-        return _newFeature;
+      if (!arguments.length) return _newFeature;
       _newFeature = val;
       return mode;
     };
     mode.enter = function() {
       var note = checkSelectedID();
-      if (!note)
-        return;
+      if (!note) return;
       _behaviors.forEach(context.install);
       _keybinding.on(_t("inspector.zoom_to.key"), mode.zoomToSelected).on("\u238B", esc, true);
       select_default2(document).call(_keybinding);
@@ -71360,8 +69207,7 @@
     var behavior = behaviorDraw(context).on("click", add).on("cancel", cancel).on("finish", cancel);
     function add(loc) {
       var osm = services.osm;
-      if (!osm)
-        return;
+      if (!osm) return;
       var note = osmNote({ loc, status: "open", comments: [] });
       osm.replaceNote(note);
       context.map().pan([0, 0]);
@@ -71382,8 +69228,7 @@
   // node_modules/osm-community-index/lib/simplify.js
   var import_diacritics2 = __toESM(require_diacritics(), 1);
   function simplify(str) {
-    if (typeof str !== "string")
-      return "";
+    if (typeof str !== "string") return "";
     return import_diacritics2.default.remove(
       str.replace(/&/g, "and").replace(/(İ|i̇)/ig, "i").replace(/[\s\-=_!"#%'*{},.\/:;?\(\)\[\]@\\$\^*+<>«»~`’\u00a1\u00a7\u00b6\u00b7\u00bf\u037e\u0387\u055a-\u055f\u0589\u05c0\u05c3\u05c6\u05f3\u05f4\u0609\u060a\u060c\u060d\u061b\u061e\u061f\u066a-\u066d\u06d4\u0700-\u070d\u07f7-\u07f9\u0830-\u083e\u085e\u0964\u0965\u0970\u0af0\u0df4\u0e4f\u0e5a\u0e5b\u0f04-\u0f12\u0f14\u0f85\u0fd0-\u0fd4\u0fd9\u0fda\u104a-\u104f\u10fb\u1360-\u1368\u166d\u166e\u16eb-\u16ed\u1735\u1736\u17d4-\u17d6\u17d8-\u17da\u1800-\u1805\u1807-\u180a\u1944\u1945\u1a1e\u1a1f\u1aa0-\u1aa6\u1aa8-\u1aad\u1b5a-\u1b60\u1bfc-\u1bff\u1c3b-\u1c3f\u1c7e\u1c7f\u1cc0-\u1cc7\u1cd3\u2000-\u206f\u2cf9-\u2cfc\u2cfe\u2cff\u2d70\u2e00-\u2e7f\u3001-\u3003\u303d\u30fb\ua4fe\ua4ff\ua60d-\ua60f\ua673\ua67e\ua6f2-\ua6f7\ua874-\ua877\ua8ce\ua8cf\ua8f8-\ua8fa\ua92e\ua92f\ua95f\ua9c1-\ua9cd\ua9de\ua9df\uaa5c-\uaa5f\uaade\uaadf\uaaf0\uaaf1\uabeb\ufe10-\ufe16\ufe19\ufe30\ufe45\ufe46\ufe49-\ufe4c\ufe50-\ufe52\ufe54-\ufe57\ufe5f-\ufe61\ufe68\ufe6a\ufe6b\ufeff\uff01-\uff03\uff05-\uff07\uff0a\uff0c\uff0e\uff0f\uff1a\uff1b\uff1f\uff20\uff3c\uff61\uff64\uff65]+/g, "").toLowerCase()
     );
@@ -71400,10 +69245,8 @@
         itemStrings.community = localizerFn("_communities.".concat(communityID));
       }
       ["name", "description", "extendedDescription"].forEach((prop) => {
-        if (defaultStrings[prop])
-          defaultStrings[prop] = localizerFn("_defaults.".concat(item.type, ".").concat(prop));
-        if (itemStrings[prop])
-          itemStrings[prop] = localizerFn("".concat(item.id, ".").concat(prop));
+        if (defaultStrings[prop]) defaultStrings[prop] = localizerFn("_defaults.".concat(item.type, ".").concat(prop));
+        if (itemStrings[prop]) itemStrings[prop] = localizerFn("".concat(item.id, ".").concat(prop));
       });
     }
     let replacements = {
@@ -71432,8 +69275,7 @@
     resolved.extendedDescriptionHTML = resolve(itemStrings.extendedDescription || defaultStrings.extendedDescription, true);
     return resolved;
     function resolve(s2, addLinks) {
-      if (!s2)
-        return void 0;
+      if (!s2) return void 0;
       let result = s2;
       for (let key in replacements) {
         const token = "{".concat(key, "}");
@@ -71460,8 +69302,7 @@
       return result;
     }
     function linkify(url, text) {
-      if (!url)
-        return void 0;
+      if (!url) return void 0;
       text = text || url;
       return '<a target="_blank" href="'.concat(url, '">').concat(text, "</a>");
     }
@@ -71482,8 +69323,7 @@
         data.get("oci_resources"),
         data.get("oci_defaults")
       ]).then((vals) => {
-        if (_oci)
-          return _oci;
+        if (_oci) return _oci;
         if (vals[0] && Array.isArray(vals[0].features)) {
           _sharedLocationManager.mergeCustomGeoJSON(vals[0]);
         }
@@ -71507,11 +69347,9 @@
       });
     }
     function parseEventDate(when) {
-      if (!when)
-        return;
+      if (!when) return;
       let raw = when.trim();
-      if (!raw)
-        return;
+      if (!raw) return;
       if (!/Z$/.test(raw)) {
         raw += "Z";
       }
@@ -71527,8 +69365,7 @@
       summary.append("h3").call(_t.append("success.thank_you" + (_location ? "_location" : ""), { where: _location }));
       summary.append("p").call(_t.append("success.help_html")).append("a").attr("class", "link-out").attr("target", "_blank").attr("href", _t("success.help_link_url")).call(svgIcon("#iD-icon-out-link", "inline")).append("span").call(_t.append("success.help_link_text"));
       let osm = context.connection();
-      if (!osm)
-        return;
+      if (!osm) return;
       let changesetURL = osm.changesetURL(_changeset2.id);
       let table = summary.append("table").attr("class", "summary-table");
       let row = table.append("tr").attr("class", "summary-row");
@@ -71556,8 +69393,7 @@
         let communities = [];
         oci.resources.forEach((resource) => {
           let area = validHere[resource.locationSetID];
-          if (!area)
-            return;
+          if (!area) return;
           const localizer = (stringID) => _t.html("community.".concat(stringID));
           resource.resolved = resolveStrings(resource, oci.defaults, localizer);
           communities.push({
@@ -71653,14 +69489,12 @@
       }
     }
     success.changeset = function(val) {
-      if (!arguments.length)
-        return _changeset2;
+      if (!arguments.length) return _changeset2;
       _changeset2 = val;
       return success;
     };
     success.location = function(val) {
-      if (!arguments.length)
-        return _location;
+      if (!arguments.length) return _location;
       _location = val;
       return success;
     };
@@ -71748,11 +69582,9 @@
     function prepareForSuccess() {
       _success = uiSuccess(context);
       _location = null;
-      if (!services.geocoder)
-        return;
+      if (!services.geocoder) return;
       services.geocoder.reverse(context.map().center(), function(err, result) {
-        if (err || !result || !result.address)
-          return;
+        if (err || !result || !result.address) return;
         var addr = result.address;
         var place = addr && (addr.town || addr.city || addr.county) || "";
         var region = addr && (addr.state || addr.country) || "";
@@ -71805,8 +69637,7 @@
       let comments = selection2.selectAll(".comments-container").data([0]);
       comments = comments.enter().append("div").attr("class", "comments-container").merge(comments);
       services.improveOSM.getComments(_qaItem).then((d2) => {
-        if (!d2.comments)
-          return;
+        if (!d2.comments) return;
         const commentEnter = comments.selectAll(".comment").data(d2.comments).enter().append("div").attr("class", "comment");
         commentEnter.append("div").attr("class", "comment-avatar").call(svgIcon("#iD-icon-avatar", "comment-avatar-icon"));
         const mainEnter = commentEnter.append("div").attr("class", "comment-main");
@@ -71826,17 +69657,14 @@
       });
     }
     function localeDateString2(s2) {
-      if (!s2)
-        return null;
+      if (!s2) return null;
       const options2 = { day: "numeric", month: "short", year: "numeric" };
       const d2 = new Date(s2 * 1e3);
-      if (isNaN(d2.getTime()))
-        return null;
+      if (isNaN(d2.getTime())) return null;
       return d2.toLocaleDateString(_mainLocalizer.localeCode(), options2);
     }
     issueComments.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return issueComments;
     };
@@ -71847,8 +69675,7 @@
   function uiImproveOsmDetails(context) {
     let _qaItem;
     function issueDetail(d2) {
-      if (d2.desc)
-        return d2.desc;
+      if (d2.desc) return d2.desc;
       const issueKey = d2.issueKey;
       d2.replacements = d2.replacements || {};
       d2.replacements.default = { html: _t.html("inspector.unknown") };
@@ -71887,11 +69714,9 @@
             context.enter(modeSelect(context, [entityID]));
           } else {
             context.loadEntity(entityID, (err, result) => {
-              if (err)
-                return;
+              if (err) return;
               const entity2 = result.data.find((e3) => e3.id === entityID);
-              if (entity2)
-                context.enter(modeSelect(context, [entityID]));
+              if (entity2) context.enter(modeSelect(context, [entityID]));
             });
           }
         });
@@ -71910,8 +69735,7 @@
       context.map().pan([0, 0]);
     }
     improveOsmDetails.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return improveOsmDetails;
     };
@@ -71940,8 +69764,7 @@
       headerEnter.append("div").attr("class", "qa-header-label").html(issueTitle);
     }
     improveOsmHeader.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return improveOsmHeader;
     };
@@ -72030,8 +69853,7 @@
       });
     }
     improveOsmEditor.error = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return improveOsmEditor;
     };
@@ -72085,11 +69907,9 @@
             context.enter(modeSelect(context, [entityID]));
           } else {
             context.loadEntity(entityID, (err, result) => {
-              if (err)
-                return;
+              if (err) return;
               const entity2 = result.data.find((e3) => e3.id === entityID);
-              if (entity2)
-                context.enter(modeSelect(context, [entityID]));
+              if (entity2) context.enter(modeSelect(context, [entityID]));
             });
           }
         });
@@ -72108,8 +69928,7 @@
       context.map().pan([0, 0]);
     }
     keepRightDetails.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return keepRightDetails;
     };
@@ -72142,8 +69961,7 @@
       headerEnter.append("div").attr("class", "qa-header-label").html(issueTitle);
     }
     keepRightHeader.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return keepRightHeader;
     };
@@ -72164,8 +69982,7 @@
       linkEnter.append("span").call(_t.append("inspector.view_on_keepRight"));
     }
     viewOnKeepRight.what = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return viewOnKeepRight;
     };
@@ -72255,8 +70072,7 @@
       });
     }
     keepRightEditor.error = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return keepRightEditor;
     };
@@ -72267,8 +70083,7 @@
   function uiOsmoseDetails(context) {
     let _qaItem;
     function issueString(d2, type2) {
-      if (!d2)
-        return "";
+      if (!d2) return "";
       const s2 = services.osmose.getStrings(d2.itemType);
       return type2 in s2 ? s2[type2] : "";
     }
@@ -72298,10 +70113,8 @@
       }
       const thisItem = _qaItem;
       services.osmose.loadIssueDetail(_qaItem).then((d2) => {
-        if (!d2.elems || d2.elems.length === 0)
-          return;
-        if (context.selectedErrorID() !== thisItem.id && context.container().selectAll(".qaItem.osmose.hover.itemId-".concat(thisItem.id)).empty())
-          return;
+        if (!d2.elems || d2.elems.length === 0) return;
+        if (context.selectedErrorID() !== thisItem.id && context.container().selectAll(".qaItem.osmose.hover.itemId-".concat(thisItem.id)).empty()) return;
         if (d2.detail) {
           detailsDiv.append("h4").call(_t.append("QA.osmose.detail_title"));
           detailsDiv.append("p").html((d4) => d4.detail).selectAll("a").attr("rel", "noopener").attr("target", "_blank");
@@ -72327,11 +70140,9 @@
               context.enter(modeSelect(context, [entityID]));
             } else {
               context.loadEntity(entityID, (err, result) => {
-                if (err)
-                  return;
+                if (err) return;
                 const entity2 = result.data.find((e3) => e3.id === entityID);
-                if (entity2)
-                  context.enter(modeSelect(context, [entityID]));
+                if (entity2) context.enter(modeSelect(context, [entityID]));
               });
             }
           });
@@ -72353,8 +70164,7 @@
       });
     }
     osmoseDetails.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return osmoseDetails;
     };
@@ -72366,8 +70176,7 @@
     let _qaItem;
     function issueTitle(d2) {
       const unknown = _t("inspector.unknown");
-      if (!d2)
-        return unknown;
+      if (!d2) return unknown;
       const s2 = services.osmose.getStrings(d2.itemType);
       return "title" in s2 ? s2.title : unknown;
     }
@@ -72384,8 +70193,7 @@
       headerEnter.append("div").attr("class", "qa-header-label").text(issueTitle);
     }
     osmoseHeader.issue = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return osmoseHeader;
     };
@@ -72406,8 +70214,7 @@
       linkEnter.append("span").call(_t.append("inspector.view_on_osmose"));
     }
     viewOnOsmose.what = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return viewOnOsmose;
     };
@@ -72469,8 +70276,7 @@
       });
     }
     osmoseEditor.error = function(val) {
-      if (!arguments.length)
-        return _qaItem;
+      if (!arguments.length) return _qaItem;
       _qaItem = val;
       return osmoseEditor;
     };
@@ -72491,8 +70297,7 @@
         errorEditor = uiImproveOsmEditor(context).on("change", function() {
           context.map().pan([0, 0]);
           var error = checkSelectedID();
-          if (!error)
-            return;
+          if (!error) return;
           context.ui().sidebar.show(errorEditor.error(error));
         });
         break;
@@ -72500,8 +70305,7 @@
         errorEditor = uiKeepRightEditor(context).on("change", function() {
           context.map().pan([0, 0]);
           var error = checkSelectedID();
-          if (!error)
-            return;
+          if (!error) return;
           context.ui().sidebar.show(errorEditor.error(error));
         });
         break;
@@ -72509,8 +70313,7 @@
         errorEditor = uiOsmoseEditor(context).on("change", function() {
           context.map().pan([0, 0]);
           var error = checkSelectedID();
-          if (!error)
-            return;
+          if (!error) return;
           context.ui().sidebar.show(errorEditor.error(error));
         });
         break;
@@ -72524,8 +70327,7 @@
       modeDragNote(context).behavior
     ];
     function checkSelectedID() {
-      if (!errorService)
-        return;
+      if (!errorService) return;
       var error = errorService.getError(selectedErrorID);
       if (!error) {
         context.enter(modeBrowse(context));
@@ -72533,8 +70335,7 @@
       return error;
     }
     mode.zoomToSelected = function() {
-      if (!errorService)
-        return;
+      if (!errorService) return;
       var error = errorService.getError(selectedErrorID);
       if (error) {
         context.map().centerZoomEase(error.loc, 20);
@@ -72542,8 +70343,7 @@
     };
     mode.enter = function() {
       var error = checkSelectedID();
-      if (!error)
-        return;
+      if (!error) return;
       behaviors.forEach(context.install);
       keybinding.on(_t("inspector.zoom_to.key"), mode.zoomToSelected).on("\u238B", esc, true);
       select_default2(document).call(keybinding);
@@ -72552,8 +70352,7 @@
       sidebar.show(errorEditor.error(error));
       context.map().on("drawn.select-error", selectError);
       function selectError(d3_event, drawn) {
-        if (!checkSelectedID())
-          return;
+        if (!checkSelectedID()) return;
         var selection2 = context.surface().selectAll(".itemId-" + selectedErrorID + "." + selectedErrorService);
         if (selection2.empty()) {
           var source = d3_event && d3_event.type === "zoom" && d3_event.sourceEvent;
@@ -72566,8 +70365,7 @@
         }
       }
       function esc() {
-        if (context.container().select(".combobox").size())
-          return;
+        if (context.container().select(".combobox").size()) return;
         context.enter(modeBrowse(context));
       }
     };
@@ -72599,8 +70397,7 @@
       context.keybinding().on(uiCmd("\u2318F"), focusSearch);
       function focusSearch(d3_event) {
         var mode = context.mode() && context.mode().id;
-        if (mode !== "browse")
-          return;
+        if (mode !== "browse") return;
         d3_event.preventDefault();
         search.node().focus();
       }
@@ -72634,8 +70431,7 @@
         var graph = context.graph();
         var visibleCenter = context.map().extent().center();
         var q2 = search.property("value").toLowerCase();
-        if (!q2)
-          return result;
+        if (!q2) return result;
         var locationMatch = sexagesimal.pair(q2.toUpperCase()) || dmsMatcher(q2);
         if (locationMatch) {
           var loc = [Number(locationMatch[0]), Number(locationMatch[1])];
@@ -72662,11 +70458,9 @@
         var localResults = [];
         for (var id2 in allEntities) {
           var entity = allEntities[id2];
-          if (!entity)
-            continue;
+          if (!entity) continue;
           var name = utilDisplayName(entity) || "";
-          if (name.toLowerCase().indexOf(q2) < 0)
-            continue;
+          if (name.toLowerCase().indexOf(q2) < 0) continue;
           var matched = _mainPresetIndex.match(entity, graph);
           var type2 = matched && matched.name() || utilDisplayType(entity.id);
           var extent = entity.extent(graph);
@@ -72679,8 +70473,7 @@
             name,
             distance
           });
-          if (localResults.length > 100)
-            break;
+          if (localResults.length > 100) break;
         }
         localResults = localResults.sort(function byDistance(a2, b2) {
           return a2.distance - b2.distance;
@@ -72771,13 +70564,11 @@
         items.exit().remove();
       }
       function mouseover(d3_event, d2) {
-        if (d2.id === -1)
-          return;
+        if (d2.id === -1) return;
         utilHighlightEntities([d2.id], true, context);
       }
       function mouseout(d3_event, d2) {
-        if (d2.id === -1)
-          return;
+        if (d2.id === -1) return;
         utilHighlightEntities([d2.id], false, context);
       }
       function click(d3_event, d2) {
@@ -72791,8 +70582,7 @@
         } else if (d2.geometry === "note") {
           const noteId = d2.id.replace(/\D/g, "");
           context.loadNote(noteId, (err, result) => {
-            if (err)
-              return;
+            if (err) return;
             const entity = result.data.find((e3) => e3.id === noteId);
             if (entity) {
               const note = services.osm.getNote(noteId);
@@ -72824,8 +70614,7 @@
     var _currentPresets;
     var _autofocus = false;
     function presetList(selection2) {
-      if (!_entityIDs)
-        return;
+      if (!_entityIDs) return;
       var presets = _mainPresetIndex.matchAllGeometry(entityGeometries());
       selection2.html("");
       var messagewrap = selection2.append("div").attr("class", "header fillL");
@@ -72854,8 +70643,7 @@
           d3_event.preventDefault();
           d3_event.stopPropagation();
           var buttons = list2.selectAll(".preset-list-button");
-          if (!buttons.empty())
-            buttons.nodes()[0].focus();
+          if (!buttons.empty()) buttons.nodes()[0].focus();
         }
       }
       function keypress(d3_event) {
@@ -72902,8 +70690,7 @@
     function drawList(list2, presets) {
       presets = presets.matchAllGeometry(entityGeometries());
       var collection = presets.collection.reduce(function(collection2, preset) {
-        if (!preset)
-          return collection2;
+        if (!preset) return collection2;
         if (preset.members) {
           if (preset.members.collection.filter(function(preset2) {
             return preset2.addable();
@@ -73011,8 +70798,7 @@
         sublist = box.append("div").attr("class", "preset-list fillL3");
       }
       item.choose = function() {
-        if (!box || !sublist)
-          return;
+        if (!box || !sublist) return;
         if (shown) {
           shown = false;
           box.transition().duration(200).style("opacity", "0").style("max-height", "0px").style("padding-bottom", "0px");
@@ -73043,8 +70829,7 @@
         selection2.call(item.reference.body);
       }
       item.choose = function() {
-        if (select_default2(this).classed("disabled"))
-          return;
+        if (select_default2(this).classed("disabled")) return;
         if (!context.inIntro()) {
           _mainPresetIndex.setMostRecent(preset, entityGeometries()[0]);
         }
@@ -73071,8 +70856,7 @@
       return item;
     }
     function updateForFeatureHiddenState() {
-      if (!_entityIDs.every(context.hasEntity))
-        return;
+      if (!_entityIDs.every(context.hasEntity)) return;
       var geometries = entityGeometries();
       var button = context.container().selectAll(".preset-list .preset-list-button");
       button.call(uiTooltip().destroyAny);
@@ -73080,8 +70864,7 @@
         var hiddenPresetFeaturesId;
         for (var i3 in geometries) {
           hiddenPresetFeaturesId = context.features().isHiddenPreset(item.preset, geometries[i3]);
-          if (hiddenPresetFeaturesId)
-            break;
+          if (hiddenPresetFeaturesId) break;
         }
         var isHiddenPreset = !context.inIntro() && !!hiddenPresetFeaturesId && (_currentPresets.length !== 1 || item.preset !== _currentPresets[0]);
         select_default2(this).classed("disabled", isHiddenPreset);
@@ -73096,14 +70879,12 @@
       });
     }
     presetList.autofocus = function(val) {
-      if (!arguments.length)
-        return _autofocus;
+      if (!arguments.length) return _autofocus;
       _autofocus = val;
       return presetList;
     };
     presetList.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       _currLoc = null;
       if (_entityIDs && _entityIDs.length) {
@@ -73120,8 +70901,7 @@
       return presetList;
     };
     presetList.presets = function(val) {
-      if (!arguments.length)
-        return _currentPresets;
+      if (!arguments.length) return _currentPresets;
       _currentPresets = val;
       return presetList;
     };
@@ -73134,8 +70914,7 @@
         if (geometry === "vertex" && entity.isOnAddressLine(context.graph())) {
           geometry = "point";
         }
-        if (!counts[geometry])
-          counts[geometry] = 0;
+        if (!counts[geometry]) counts[geometry] = 0;
         counts[geometry] += 1;
       }
       return Object.keys(counts).sort(function(geom1, geom2) {
@@ -73166,26 +70945,17 @@
       presetPane = wrap2.selectAll(".preset-list-pane");
       editorPane = wrap2.selectAll(".entity-editor-pane");
       function shouldDefaultToPresetList() {
-        if (_state !== "select")
-          return false;
-        if (_entityIDs.length !== 1)
-          return false;
+        if (_state !== "select") return false;
+        if (_entityIDs.length !== 1) return false;
         var entityID = _entityIDs[0];
         var entity = context.hasEntity(entityID);
-        if (!entity)
-          return false;
-        if (entity.hasNonGeometryTags())
-          return false;
-        if (_newFeature)
-          return true;
-        if (entity.geometry(context.graph()) !== "vertex")
-          return false;
-        if (context.graph().parentRelations(entity).length)
-          return false;
-        if (context.validator().getEntityIssues(entityID).length)
-          return false;
-        if (entity.isHighwayIntersection(context.graph()))
-          return false;
+        if (!entity) return false;
+        if (entity.hasNonGeometryTags()) return false;
+        if (_newFeature) return true;
+        if (entity.geometry(context.graph()) !== "vertex") return false;
+        if (context.graph().parentRelations(entity).length) return false;
+        if (context.validator().getEntityIssues(entityID).length) return false;
+        if (entity.isHighwayIntersection(context.graph())) return false;
         return true;
       }
       if (shouldDefaultToPresetList()) {
@@ -73232,22 +71002,19 @@
       }
     };
     inspector.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       _state = val;
       entityEditor.state(_state);
       context.container().selectAll(".field-help-body").remove();
       return inspector;
     };
     inspector.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       _entityIDs = val;
       return inspector;
     };
     inspector.newFeature = function(val) {
-      if (!arguments.length)
-        return _newFeature;
+      if (!arguments.length) return _newFeature;
       _newFeature = val;
       return inspector;
     };
@@ -73277,8 +71044,7 @@
       }, geoExtent());
     };
     lasso.p = function(_2) {
-      if (!arguments.length)
-        return lasso;
+      if (!arguments.length) return lasso;
       lasso.coordinates.push(_2);
       draw();
       return lasso;
@@ -73300,12 +71066,9 @@
     function click(d3_event) {
       d3_event.preventDefault();
       var osm = context.connection();
-      if (!osm)
-        return;
-      if (context.inIntro())
-        return;
-      if (context.history().hasChanges() && !window.confirm(_t("source_switch.lose_changes")))
-        return;
+      if (!osm) return;
+      if (context.inIntro()) return;
+      if (context.history().hasChanges() && !window.confirm(_t("source_switch.lose_changes"))) return;
       var isLive = select_default2(this).classed("live");
       isLive = !isLive;
       context.enter(modeBrowse(context));
@@ -73318,8 +71081,7 @@
       selection2.append("a").attr("href", "#").call(_t.append("source_switch.live")).attr("class", "live chip").on("click", click);
     };
     sourceSwitch.keys = function(_2) {
-      if (!arguments.length)
-        return keys2;
+      if (!arguments.length) return keys2;
       keys2 = _2;
       return sourceSwitch;
     };
@@ -73364,8 +71126,7 @@
   // modules/ui/splash.js
   function uiSplash(context) {
     return (selection2) => {
-      if (context.history().hasRestorableChanges())
-        return;
+      if (context.history().hasRestorableChanges()) return;
       let updateMessage = "";
       const sawPrivacyVersion = corePreferences("sawPrivacyVersion");
       let showSplash = !corePreferences("sawSplash");
@@ -73373,8 +71134,7 @@
         updateMessage = _t("splash.privacy_update");
         showSplash = true;
       }
-      if (!showSplash)
-        return;
+      if (!showSplash) return;
       corePreferences("sawSplash", true);
       corePreferences("sawPrivacyVersion", context.privacyVersion);
       _mainFileFetcher.get("intro_graph");
@@ -73411,8 +71171,7 @@
   function uiStatus(context) {
     var osm = context.connection();
     return function(selection2) {
-      if (!osm)
-        return;
+      if (!osm) return;
       function update(err, apiStatus) {
         selection2.html("");
         if (err) {
@@ -73505,26 +71264,22 @@
       key: "-"
     }];
     function zoomIn(d3_event) {
-      if (d3_event.shiftKey)
-        return;
+      if (d3_event.shiftKey) return;
       d3_event.preventDefault();
       context.map().zoomIn();
     }
     function zoomOut(d3_event) {
-      if (d3_event.shiftKey)
-        return;
+      if (d3_event.shiftKey) return;
       d3_event.preventDefault();
       context.map().zoomOut();
     }
     function zoomInFurther(d3_event) {
-      if (d3_event.shiftKey)
-        return;
+      if (d3_event.shiftKey) return;
       d3_event.preventDefault();
       context.map().zoomInFurther();
     }
     function zoomOutFurther(d3_event) {
-      if (d3_event.shiftKey)
-        return;
+      if (d3_event.shiftKey) return;
       d3_event.preventDefault();
       context.map().zoomOutFurther();
     }
@@ -73712,8 +71467,7 @@
         ("PointerEvent" in window ? "pointer" : "mouse") + "down",
         // 'click' fires too late - #5878
         (d3_event, d2) => {
-          if (d3_event.button !== 0)
-            return;
+          if (d3_event.button !== 0) return;
           removeTag(d3_event, d2);
         }
       );
@@ -73727,8 +71481,7 @@
       return false;
     }
     function setTextareaHeight() {
-      if (_tagView !== "text")
-        return;
+      if (_tagView !== "text") return;
       var selection2 = select_default2(this);
       var matches = selection2.node().value.match(/\n/g);
       var lineCount = 2 + Number(matches && matches.length);
@@ -73754,8 +71507,7 @@
         return row.key && row.key.trim() !== "";
       }).map(function(row) {
         var rawVal = row.value;
-        if (typeof rawVal !== "string")
-          rawVal = "*";
+        if (typeof rawVal !== "string") rawVal = "*";
         var val = rawVal ? stringify3(rawVal) : "";
         return stringify3(row.key) + "=" + val;
       }).join("\n");
@@ -73776,14 +71528,11 @@
         }
       });
       var tagDiff = utilTagDiff(_tags, newTags);
-      if (!tagDiff.length)
-        return;
+      if (!tagDiff.length) return;
       _pendingChange = _pendingChange || {};
       tagDiff.forEach(function(change) {
-        if (isReadOnly({ key: change.key }))
-          return;
-        if (change.newVal === "*" && typeof change.oldVal !== "string")
-          return;
+        if (isReadOnly({ key: change.key })) return;
+        if (change.newVal === "*" && typeof change.oldVal !== "string") return;
         if (change.type === "-") {
           _pendingChange[change.key] = void 0;
         } else if (change.type === "+") {
@@ -73802,13 +71551,11 @@
       }
     }
     function bindTypeahead(key, value) {
-      if (isReadOnly(key.datum()))
-        return;
+      if (isReadOnly(key.datum())) return;
       if (Array.isArray(value.datum().value)) {
         value.call(uiCombobox(context, "tag-value").minItems(1).fetcher(function(value2, callback) {
           var keyString = utilGetSetValue(key);
-          if (!_tags[keyString])
-            return;
+          if (!_tags[keyString]) return;
           var data = _tags[keyString].map(function(tagValue) {
             if (!tagValue) {
               return {
@@ -73871,11 +71618,9 @@
       row.selectAll("input.value").call(uiCombobox.off, context);
     }
     function keyChange(d3_event, d2) {
-      if (select_default2(this).attr("readonly"))
-        return;
+      if (select_default2(this).attr("readonly")) return;
       var kOld = d2.key;
-      if (_pendingChange && _pendingChange.hasOwnProperty(kOld) && _pendingChange[kOld] === void 0)
-        return;
+      if (_pendingChange && _pendingChange.hasOwnProperty(kOld) && _pendingChange[kOld] === void 0) return;
       var kNew = context.cleanTagKey(this.value.trim());
       if (isReadOnly({ key: kNew })) {
         this.value = kOld;
@@ -73894,8 +71639,7 @@
       }
       _pendingChange = _pendingChange || {};
       if (kOld) {
-        if (kOld === kNew)
-          return;
+        if (kOld === kNew) return;
         _pendingChange[kNew] = _pendingChange[kOld] || { oldKey: kOld };
         _pendingChange[kOld] = void 0;
       } else {
@@ -73906,26 +71650,21 @@
         utilGetSetValue(inputVal, vNew);
       }
       var existingKeyIndex = _orderedKeys.indexOf(kOld);
-      if (existingKeyIndex !== -1)
-        _orderedKeys[existingKeyIndex] = kNew;
+      if (existingKeyIndex !== -1) _orderedKeys[existingKeyIndex] = kNew;
       d2.key = kNew;
       this.value = kNew;
       scheduleChange();
     }
     function valueChange(d3_event, d2) {
-      if (isReadOnly(d2))
-        return;
-      if (typeof d2.value !== "string" && !this.value)
-        return;
-      if (_pendingChange && _pendingChange.hasOwnProperty(d2.key) && _pendingChange[d2.key] === void 0)
-        return;
+      if (isReadOnly(d2)) return;
+      if (typeof d2.value !== "string" && !this.value) return;
+      if (_pendingChange && _pendingChange.hasOwnProperty(d2.key) && _pendingChange[d2.key] === void 0) return;
       _pendingChange = _pendingChange || {};
       _pendingChange[d2.key] = context.cleanTagValue(this.value);
       scheduleChange();
     }
     function removeTag(d3_event, d2) {
-      if (isReadOnly(d2))
-        return;
+      if (isReadOnly(d2)) return;
       if (d2.key === "") {
         _showBlank = false;
         section.reRender();
@@ -73948,15 +71687,13 @@
     function scheduleChange() {
       var entityIDs = _entityIDs;
       window.setTimeout(function() {
-        if (!_pendingChange)
-          return;
+        if (!_pendingChange) return;
         dispatch14.call("change", this, entityIDs, _pendingChange);
         _pendingChange = null;
       }, 10);
     }
     section.state = function(val) {
-      if (!arguments.length)
-        return _state;
+      if (!arguments.length) return _state;
       if (_state !== val) {
         _orderedKeys = [];
         _state = val;
@@ -73964,8 +71701,7 @@
       return section;
     };
     section.presets = function(val) {
-      if (!arguments.length)
-        return _presets;
+      if (!arguments.length) return _presets;
       _presets = val;
       if (_presets && _presets.length && _presets[0].isFallback()) {
         section.disclosureExpanded(true);
@@ -73975,14 +71711,12 @@
       return section;
     };
     section.tags = function(val) {
-      if (!arguments.length)
-        return _tags;
+      if (!arguments.length) return _tags;
       _tags = val;
       return section;
     };
     section.entityIDs = function(val) {
-      if (!arguments.length)
-        return _entityIDs;
+      if (!arguments.length) return _entityIDs;
       if (!_entityIDs || !val || !utilArrayIdentical(_entityIDs, val)) {
         _entityIDs = val;
         _orderedKeys = [];
@@ -73990,8 +71724,7 @@
       return section;
     };
     section.readOnlyTags = function(val) {
-      if (!arguments.length)
-        return _readOnlyTags;
+      if (!arguments.length) return _readOnlyTags;
       _readOnlyTags = val;
       return section;
     };
@@ -74020,8 +71753,7 @@
       ).selectAll("textarea.tag-text").attr("readonly", true).classed("readonly", true);
     }
     dataEditor.datum = function(val) {
-      if (!arguments.length)
-        return _datum;
+      if (!arguments.length) return _datum;
       _datum = val;
       return this;
     };
@@ -74051,10 +71783,8 @@
       var resizer = selection2.append("div").attr("class", "sidebar-resizer").on(_pointerPrefix + "down.sidebar-resizer", pointerdown);
       var downPointerId, lastClientX, containerLocGetter;
       function pointerdown(d3_event) {
-        if (downPointerId)
-          return;
-        if ("button" in d3_event && d3_event.button !== 0)
-          return;
+        if (downPointerId) return;
+        if ("button" in d3_event && d3_event.button !== 0) return;
         downPointerId = d3_event.pointerId || "mouse";
         lastClientX = d3_event.clientX;
         containerLocGetter = utilFastMouse(container.node());
@@ -74069,8 +71799,7 @@
         }, { passive: false }).on(_pointerPrefix + "move.sidebar-resizer", pointermove).on(_pointerPrefix + "up.sidebar-resizer pointercancel.sidebar-resizer", pointerup);
       }
       function pointermove(d3_event) {
-        if (downPointerId !== (d3_event.pointerId || "mouse"))
-          return;
+        if (downPointerId !== (d3_event.pointerId || "mouse")) return;
         d3_event.preventDefault();
         var dx = d3_event.clientX - lastClientX;
         lastClientX = d3_event.clientX;
@@ -74098,8 +71827,7 @@
         }
       }
       function pointerup(d3_event) {
-        if (downPointerId !== (d3_event.pointerId || "mouse"))
-          return;
+        if (downPointerId !== (d3_event.pointerId || "mouse")) return;
         downPointerId = null;
         resizer.classed("dragging", false);
         select_default2(window).on("touchmove.sidebar-resizer", null).on(_pointerPrefix + "move.sidebar-resizer", null).on(_pointerPrefix + "up.sidebar-resizer pointercancel.sidebar-resizer", null);
@@ -74125,8 +71853,7 @@
           sidebar.show(dataEditor.datum(datum2));
           selection2.selectAll(".sidebar-component").classed("inspector-hover", true);
         } else if (datum2 instanceof osmNote) {
-          if (context.mode().id === "drag-note")
-            return;
+          if (context.mode().id === "drag-note") return;
           _wasNote = true;
           var osm = services.osm;
           if (osm) {
@@ -74203,15 +71930,13 @@
       sidebar.show = function(component, element) {
         featureListWrap.classed("inspector-hidden", true);
         inspectorWrap.classed("inspector-hidden", true);
-        if (_current)
-          _current.remove();
+        if (_current) _current.remove();
         _current = selection2.append("div").attr("class", "sidebar-component").call(component, element);
       };
       sidebar.hide = function() {
         featureListWrap.classed("inspector-hidden", false);
         inspectorWrap.classed("inspector-hidden", true);
-        if (_current)
-          _current.remove();
+        if (_current) _current.remove();
         _current = null;
       };
       sidebar.expand = function(moveMap) {
@@ -74225,8 +71950,7 @@
         }
       };
       sidebar.toggle = function(moveMap) {
-        if (context.inIntro())
-          return;
+        if (context.inIntro()) return;
         var isCollapsed = selection2.classed("collapsed");
         var isCollapsing = !isCollapsed;
         var isRTL = _mainLocalizer.textDirection() === "rtl";
@@ -74336,8 +72060,7 @@
     }
     modes.forEach(function(mode) {
       context.keybinding().on(mode.key, function() {
-        if (!enabled(mode))
-          return;
+        if (!enabled(mode)) return;
         if (mode.id === context.mode().id) {
           context.enter(modeBrowse(context));
         } else {
@@ -74359,11 +72082,9 @@
         var buttonsEnter = buttons.enter().append("button").attr("class", function(d2) {
           return d2.id + " add-button bar-button";
         }).on("click.mode-buttons", function(d3_event, d2) {
-          if (!enabled(d2))
-            return;
+          if (!enabled(d2)) return;
           var currMode = context.mode().id;
-          if (/^draw/.test(currMode))
-            return;
+          if (/^draw/.test(currMode)) return;
           if (d2.id === currMode) {
             context.enter(modeBrowse(context));
           } else {
@@ -74418,8 +72139,7 @@
       return context.map().notesEditable() && mode2 && mode2.id !== "save";
     }
     context.keybinding().on(mode.key, function() {
-      if (!enabled())
-        return;
+      if (!enabled()) return;
       if (mode.id === context.mode().id) {
         context.enter(modeBrowse(context));
       } else {
@@ -74441,11 +72161,9 @@
         var buttonsEnter = buttons.enter().append("button").attr("class", function(d2) {
           return d2.id + " add-button bar-button";
         }).on("click.notes", function(d3_event, d2) {
-          if (!enabled())
-            return;
+          if (!enabled()) return;
           var currMode = context.mode().id;
-          if (/^draw/.test(currMode))
-            return;
+          if (/^draw/.test(currMode)) return;
           if (d2.id === currMode) {
             context.enter(modeBrowse(context));
           } else {
@@ -74520,8 +72238,7 @@
     }
     function updateCount() {
       var val = history.difference().summary().length;
-      if (val === _numChanges)
-        return;
+      if (val === _numChanges) return;
       _numChanges = val;
       if (tooltipBehavior) {
         tooltipBehavior.title(() => _t.append(_numChanges > 0 ? "save.help" : "save.no_changes")).keys([key]);
@@ -74644,18 +72361,15 @@
       });
       context.keybinding().on(commands[0].cmd, function(d3_event) {
         d3_event.preventDefault();
-        if (editable())
-          commands[0].action();
+        if (editable()) commands[0].action();
       }).on(commands[1].cmd, function(d3_event) {
         d3_event.preventDefault();
-        if (editable())
-          commands[1].action();
+        if (editable()) commands[1].action();
       });
       var debouncedUpdate = debounce_default(update, 500, { leading: true, trailing: true });
       context.map().on("move.undo_redo", debouncedUpdate).on("drawn.undo_redo", debouncedUpdate);
       context.history().on("change.undo_redo", function(difference2) {
-        if (difference2)
-          update();
+        if (difference2) update();
       });
       context.on("enter.undo_redo", update);
       function update() {
@@ -74715,8 +72429,7 @@
         }).remove();
         var itemsEnter = toolbarItems.enter().append("div").attr("class", function(d2) {
           var classes = "toolbar-item " + (d2.id || d2).replace("_", "-");
-          if (d2.klass)
-            classes += " " + d2.klass;
+          if (d2.klass) classes += " " + d2.klass;
           return classes;
         });
         var actionableItems = itemsEnter.filter(function(d2) {
@@ -74789,32 +72502,27 @@
       id: id2
     };
     pane.label = function(val) {
-      if (!arguments.length)
-        return _label;
+      if (!arguments.length) return _label;
       _label = val;
       return pane;
     };
     pane.key = function(val) {
-      if (!arguments.length)
-        return _key;
+      if (!arguments.length) return _key;
       _key = val;
       return pane;
     };
     pane.description = function(val) {
-      if (!arguments.length)
-        return _description;
+      if (!arguments.length) return _description;
       _description = val;
       return pane;
     };
     pane.iconName = function(val) {
-      if (!arguments.length)
-        return _iconName;
+      if (!arguments.length) return _iconName;
       _iconName = val;
       return pane;
     };
     pane.sections = function(val) {
-      if (!arguments.length)
-        return _sections;
+      if (!arguments.length) return _sections;
       _sections = val;
       return pane;
     };
@@ -74825,8 +72533,7 @@
       context.ui().togglePanes();
     }
     pane.togglePane = function(d3_event) {
-      if (d3_event)
-        d3_event.preventDefault();
+      if (d3_event) d3_event.preventDefault();
       _paneTooltip.hide();
       context.ui().togglePanes(!_paneSelection.classed("shown") ? _paneSelection : void 0);
     };
@@ -74907,8 +72614,7 @@
       }).attr("class", function(d2) {
         return "display-option-reset display-option-reset-" + d2;
       }).on("click", function(d3_event, d2) {
-        if (d3_event.button !== 0)
-          return;
+        if (d3_event.button !== 0) return;
         updateValue(d2, 1);
       }).call(svgIcon("#iD-icon-" + (_mainLocalizer.textDirection() === "rtl" ? "redo" : "undo")));
       containerEnter.append("a").attr("class", "display-option-resetlink").attr("role", "button").attr("href", "#").call(_t.append("background.reset_all")).on("click", function(d3_event) {
@@ -75145,8 +72851,7 @@
     function inputOffset() {
       var input = select_default2(this);
       var d2 = input.node().value;
-      if (d2 === "")
-        return resetOffset();
+      if (d2 === "") return resetOffset();
       d2 = d2.replace(/;/g, ",").split(",").map(function(n3) {
         return !isNaN(n3) && n3;
       });
@@ -75158,8 +72863,7 @@
       updateValue();
     }
     function dragOffset(d3_event) {
-      if (d3_event.button !== 0)
-        return;
+      if (d3_event.button !== 0) return;
       var origin = [d3_event.clientX, d3_event.clientY];
       var pointerId = d3_event.pointerId || "mouse";
       context.container().append("div").attr("class", "nudge-surface");
@@ -75168,8 +72872,7 @@
         select_default2(window).on("pointercancel.drag-bg-offset", pointerup);
       }
       function pointermove(d3_event2) {
-        if (pointerId !== (d3_event2.pointerId || "mouse"))
-          return;
+        if (pointerId !== (d3_event2.pointerId || "mouse")) return;
         var latest = [d3_event2.clientX, d3_event2.clientY];
         var d2 = [
           -(origin[0] - latest[0]) / 4,
@@ -75179,10 +72882,8 @@
         nudge(d2);
       }
       function pointerup(d3_event2) {
-        if (pointerId !== (d3_event2.pointerId || "mouse"))
-          return;
-        if (d3_event2.button !== 0)
-          return;
+        if (pointerId !== (d3_event2.pointerId || "mouse")) return;
+        if (d3_event2.button !== 0) return;
         context.container().selectAll(".nudge-surface").remove();
         select_default2(window).on(".drag-bg-offset", null);
       }
@@ -75582,8 +73283,7 @@
       }
       function clickWalkthrough(d3_event) {
         d3_event.preventDefault();
-        if (context.inIntro())
-          return;
+        if (context.inIntro()) return;
         context.container().call(uiIntro(context));
         context.ui().togglePanes();
       }
@@ -75617,8 +73317,7 @@
   function uiSectionValidationIssues(id2, severity, context) {
     var _issues = [];
     var section = uiSection(id2, context).label(function() {
-      if (!_issues)
-        return "";
+      if (!_issues) return "";
       var issueCountText = _issues.length > 1e3 ? "1000+" : String(_issues.length);
       return _t.append("inspector.title_count", { title: _t("issues." + severity + "s.list_title"), count: issueCountText });
     }).disclosureContent(renderDisclosureContent).shouldDisplay(function() {
@@ -76039,8 +73738,7 @@
     }
     function setLayer(which, enabled) {
       var mode = context.mode();
-      if (mode && /^draw/.test(mode.id))
-        return;
+      if (mode && /^draw/.test(mode.id)) return;
       var layer = layers.layer(which);
       if (layer) {
         layer.enabled(enabled);
@@ -76198,8 +73896,7 @@
       liEnter.append("button").attr("class", "zoom-to-data").call(
         uiTooltip().title(() => _t.append("map_data.layers.custom.zoom")).placement(_mainLocalizer.textDirection() === "rtl" ? "right" : "left")
       ).on("click", function(d3_event) {
-        if (select_default2(this).classed("disabled"))
-          return;
+        if (select_default2(this).classed("disabled")) return;
         d3_event.preventDefault();
         d3_event.stopPropagation();
         dataLayer.fitZoom();
@@ -76328,8 +74025,7 @@
           return _t.append(name + "." + d2 + ".tooltip");
         }).keys(function(d2) {
           var key = d2 === "wireframe" ? _t("area_fill.wireframe.key") : null;
-          if (d2 === "highlight_edits")
-            key = _t("map_data.highlight_edits.key");
+          if (d2 === "highlight_edits") key = _t("map_data.highlight_edits.key");
           return key ? [key] : null;
         }).placement("top")
       );
@@ -76382,12 +74078,12 @@
       context.layers().on("change", () => updatePhotoList(photoList.select("ul")));
     }
     function updatePhotoList(container) {
-      var _a2;
+      var _a3;
       function locationUnavailable(d2) {
         return !(isArray_default(d2.loc) && isNumber_default(d2.loc[0]) && isNumber_default(d2.loc[1]));
       }
       container.selectAll("li.placeholder").remove();
-      let selection2 = container.selectAll("li").data((_a2 = photoLayer.getPhotos()) != null ? _a2 : [], (d2) => d2.id);
+      let selection2 = container.selectAll("li").data((_a3 = photoLayer.getPhotos()) != null ? _a3 : [], (d2) => d2.id);
       selection2.exit().remove();
       const selectionEnter = selection2.enter().append("li");
       selectionEnter.append("span").classed("filename", true);
@@ -76428,10 +74124,8 @@
         return photoKeys.indexOf(obj.id) !== -1;
       });
       var data = photoLayers.filter(function(obj) {
-        if (!obj.layer.supported())
-          return false;
-        if (layerEnabled(obj))
-          return true;
+        if (!obj.layer.supported()) return false;
+        if (layerEnabled(obj)) return true;
         if (typeof obj.layer.validHere === "function") {
           return obj.layer.validHere(context.map().extent(), context.map().zoom());
         }
@@ -76444,8 +74138,8 @@
         return layerSupported(d2) && d2.layer.enabled();
       }
       function layerRendered(d2) {
-        var _a2, _b, _c;
-        return (_c = (_b = (_a2 = d2.layer).rendered) == null ? void 0 : _b.call(_a2, context.map().zoom())) != null ? _c : true;
+        var _a3, _b3, _c;
+        return (_c = (_b3 = (_a3 = d2.layer).rendered) == null ? void 0 : _b3.call(_a3, context.map().zoom())) != null ? _c : true;
       }
       var ul = selection2.selectAll(".layer-list-photos").data([0]);
       ul = ul.enter().append("ul").attr("class", "layer-list layer-list-photos").merge(ul);
@@ -76460,14 +74154,10 @@
       });
       var labelEnter = liEnter.append("label").each(function(d2) {
         var titleID;
-        if (d2.id === "mapillary-signs")
-          titleID = "mapillary.signs.tooltip";
-        else if (d2.id === "mapillary")
-          titleID = "mapillary_images.tooltip";
-        else if (d2.id === "kartaview")
-          titleID = "kartaview_images.tooltip";
-        else
-          titleID = d2.id.replace(/-/g, "_") + ".tooltip";
+        if (d2.id === "mapillary-signs") titleID = "mapillary.signs.tooltip";
+        else if (d2.id === "mapillary") titleID = "mapillary_images.tooltip";
+        else if (d2.id === "kartaview") titleID = "kartaview_images.tooltip";
+        else titleID = d2.id.replace(/-/g, "_") + ".tooltip";
         select_default2(this).call(
           uiTooltip().title(() => {
             if (!layerRendered(d2)) {
@@ -76483,8 +74173,7 @@
       });
       labelEnter.append("span").html(function(d2) {
         var id2 = d2.id;
-        if (id2 === "mapillary-signs")
-          id2 = "photo_overlays.traffic_signs";
+        if (id2 === "mapillary-signs") id2 = "photo_overlays.traffic_signs";
         return _t.html(id2.replace(/-/g, "_") + ".title");
       });
       li.merge(liEnter).classed("active", layerEnabled).selectAll("input").property("disabled", (d2) => !layerRendered(d2)).property("checked", layerEnabled);
@@ -76569,8 +74258,7 @@
       li.merge(liEnter).classed("active", filterEnabled);
       function usernameValue() {
         var usernames = context.photos().usernames();
-        if (usernames)
-          return usernames.join("; ");
+        if (usernames) return usernames.join("; ");
         return usernames;
       }
     }
@@ -76612,8 +74300,7 @@
       localPhotosEnter.append("button").attr("class", "zoom-to-data").call(
         uiTooltip().title(() => _t.append("local_photos.zoom")).placement(_mainLocalizer.textDirection() === "rtl" ? "right" : "left")
       ).on("click", function(d3_event) {
-        if (select_default2(this).classed("disabled"))
-          return;
+        if (select_default2(this).classed("disabled")) return;
         d3_event.preventDefault();
         d3_event.stopPropagation();
         photoLayer.fitZoom();
@@ -76666,18 +74353,15 @@
     var _lastPointerType;
     function render(container) {
       container.on("click.ui", function(d3_event) {
-        if (d3_event.button !== 0)
-          return;
-        if (!d3_event.composedPath)
-          return;
+        if (d3_event.button !== 0) return;
+        if (!d3_event.composedPath) return;
         var isOkayTarget = d3_event.composedPath().some(function(node) {
           return node.nodeType === 1 && // clicking <input> focuses it and/or changes a value
           (node.nodeName === "INPUT" || // clicking <label> affects its <input> by default
           node.nodeName === "LABEL" || // clicking <a> opens a hyperlink by default
           node.nodeName === "A");
         });
-        if (isOkayTarget)
-          return;
+        if (isOkayTarget) return;
         d3_event.preventDefault();
       });
       var detected = utilDetect();
@@ -76804,8 +74488,7 @@
         d3_event.preventDefault();
         d3_event.stopPropagation();
         var mode = context.mode();
-        if (mode && /^draw/.test(mode.id))
-          return;
+        if (mode && /^draw/.test(mode.id)) return;
         var layer = context.layers().layer("osm");
         if (layer) {
           layer.enabled(!layer.enabled());
@@ -76845,10 +74528,8 @@
       }
       function pan(d2) {
         return function(d3_event) {
-          if (d3_event.shiftKey)
-            return;
-          if (context.container().select(".combobox").size())
-            return;
+          if (d3_event.shiftKey) return;
+          if (context.container().select(".combobox").size()) return;
           d3_event.preventDefault();
           context.map().pan(d2, 100);
         };
@@ -76857,15 +74538,13 @@
     let ui = {};
     let _loadPromise;
     ui.ensureLoaded = () => {
-      if (_loadPromise)
-        return _loadPromise;
+      if (_loadPromise) return _loadPromise;
       return _loadPromise = Promise.all([
         // must have strings and presets before loading the UI
         _mainLocalizer.ensureLoaded(),
         _mainPresetIndex.ensureLoaded()
       ]).then(() => {
-        if (!context.container().empty())
-          render(context.container());
+        if (!context.container().empty()) render(context.container());
       }).catch((err) => console.error(err));
     };
     ui.restart = function() {
@@ -76904,8 +74583,7 @@
         delete _needWidth[selector];
       }
       var selection2 = context.container().select(selector);
-      if (selection2.empty())
-        return;
+      if (selection2.empty()) return;
       var scrollWidth = selection2.property("scrollWidth");
       var clientWidth = selection2.property("clientWidth");
       var needed = _needWidth[selector] || scrollWidth;
@@ -76944,19 +74622,15 @@
     };
     ui.showEditMenu = function(anchorPoint, triggerType, operations) {
       ui.closeEditMenu();
-      if (!operations && context.mode().operations)
-        operations = context.mode().operations();
-      if (!operations || !operations.length)
-        return;
-      if (!context.map().editableDataEnabled())
-        return;
+      if (!operations && context.mode().operations) operations = context.mode().operations();
+      if (!operations || !operations.length) return;
+      if (!context.map().editableDataEnabled()) return;
       var surfaceNode = context.surface().node();
       if (surfaceNode.focus) {
         surfaceNode.focus();
       }
       operations.forEach(function(operation2) {
-        if (operation2.point)
-          operation2.point(anchorPoint);
+        if (operation2.point) operation2.point(anchorPoint);
       });
       _editMenu.anchorLoc(anchorPoint).triggerType(triggerType).operations(operations);
       context.map().supersurface.call(_editMenu);
@@ -76992,34 +74666,29 @@
     let _defaultChangesetSource = context.initialHashParams.source;
     let _defaultChangesetHashtags = context.initialHashParams.hashtags;
     context.defaultChangesetComment = function(val) {
-      if (!arguments.length)
-        return _defaultChangesetComment;
+      if (!arguments.length) return _defaultChangesetComment;
       _defaultChangesetComment = val;
       return context;
     };
     context.defaultChangesetSource = function(val) {
-      if (!arguments.length)
-        return _defaultChangesetSource;
+      if (!arguments.length) return _defaultChangesetSource;
       _defaultChangesetSource = val;
       return context;
     };
     context.defaultChangesetHashtags = function(val) {
-      if (!arguments.length)
-        return _defaultChangesetHashtags;
+      if (!arguments.length) return _defaultChangesetHashtags;
       _defaultChangesetHashtags = val;
       return context;
     };
     let _setsDocumentTitle = true;
     context.setsDocumentTitle = function(val) {
-      if (!arguments.length)
-        return _setsDocumentTitle;
+      if (!arguments.length) return _setsDocumentTitle;
       _setsDocumentTitle = val;
       return context;
     };
     let _documentTitleBase = document.title;
     context.documentTitleBase = function(val) {
-      if (!arguments.length)
-        return _documentTitleBase;
+      if (!arguments.length) return _documentTitleBase;
       _documentTitleBase = val;
       return context;
     };
@@ -77044,8 +74713,7 @@
       return context;
     };
     context.locale = function(locale2) {
-      if (!arguments.length)
-        return _mainLocalizer.localeCode();
+      if (!arguments.length) return _mainLocalizer.localeCode();
       _mainLocalizer.preferredLocaleCodes(locale2);
       return context;
     };
@@ -77110,8 +74778,7 @@
     };
     context.zoomToEntity = (entityID, zoomTo) => {
       context.loadEntity(entityID, (err, result) => {
-        if (err)
-          return;
+        if (err) return;
         if (zoomTo !== false) {
           const entity = result.data.find((e3) => e3.id === entityID);
           if (entity) {
@@ -77120,8 +74787,7 @@
         }
       });
       _map.on("drawn.zoomToEntity", () => {
-        if (!context.hasEntity(entityID))
-          return;
+        if (!context.hasEntity(entityID)) return;
         _map.on("drawn.zoomToEntity", null);
         context.on("enter.zoomToEntity", null);
         context.enter(modeSelect(context, [entityID]));
@@ -77135,8 +74801,7 @@
     };
     let _minEditableZoom = 16;
     context.minEditableZoom = function(val) {
-      if (!arguments.length)
-        return _minEditableZoom;
+      if (!arguments.length) return _minEditableZoom;
       _minEditableZoom = val;
       if (_connection) {
         _connection.tileZoom(val);
@@ -77151,14 +74816,12 @@
     context.cleanRelationRole = (val) => utilCleanOsmString(val, context.maxCharsForRelationRole());
     let _inIntro = false;
     context.inIntro = function(val) {
-      if (!arguments.length)
-        return _inIntro;
+      if (!arguments.length) return _inIntro;
       _inIntro = val;
       return context;
     };
     context.save = () => {
-      if (_inIntro || context.container().select(".modal").size())
-        return;
+      if (_inIntro || context.container().select(".modal").size()) return;
       let canSave;
       if (_mode && _mode.id === "save") {
         canSave = false;
@@ -77204,15 +74867,13 @@
     context.activeID = () => _mode && _mode.activeID && _mode.activeID();
     let _selectedNoteID;
     context.selectedNoteID = function(noteID) {
-      if (!arguments.length)
-        return _selectedNoteID;
+      if (!arguments.length) return _selectedNoteID;
       _selectedNoteID = noteID;
       return context;
     };
     let _selectedErrorID;
     context.selectedErrorID = function(errorID) {
-      if (!arguments.length)
-        return _selectedErrorID;
+      if (!arguments.length) return _selectedErrorID;
       _selectedErrorID = errorID;
       return context;
     };
@@ -77222,16 +74883,14 @@
     context.copyGraph = () => _copyGraph;
     let _copyIDs = [];
     context.copyIDs = function(val) {
-      if (!arguments.length)
-        return _copyIDs;
+      if (!arguments.length) return _copyIDs;
       _copyIDs = val;
       _copyGraph = _history.graph();
       return context;
     };
     let _copyLonLat;
     context.copyLonLat = function(val) {
-      if (!arguments.length)
-        return _copyLonLat;
+      if (!arguments.length) return _copyLonLat;
       _copyLonLat = val;
       return context;
     };
@@ -77254,8 +74913,7 @@
     context.surfaceRect = () => _map.surface.node().getBoundingClientRect();
     context.editable = () => {
       const mode = context.mode();
-      if (!mode || mode.id === "save")
-        return false;
+      if (!mode || mode.id === "save") return false;
       return _map.editableDataEnabled();
     };
     let _debugFlags = {
@@ -77273,52 +74931,45 @@
     context.debugFlags = () => _debugFlags;
     context.getDebug = (flag) => flag && _debugFlags[flag];
     context.setDebug = function(flag, val) {
-      if (arguments.length === 1)
-        val = true;
+      if (arguments.length === 1) val = true;
       _debugFlags[flag] = val;
       dispatch14.call("change");
       return context;
     };
     let _container = select_default2(null);
     context.container = function(val) {
-      if (!arguments.length)
-        return _container;
+      if (!arguments.length) return _container;
       _container = val;
       _container.classed("ideditor", true);
       return context;
     };
     context.containerNode = function(val) {
-      if (!arguments.length)
-        return context.container().node();
+      if (!arguments.length) return context.container().node();
       context.container(select_default2(val));
       return context;
     };
     let _embed;
     context.embed = function(val) {
-      if (!arguments.length)
-        return _embed;
+      if (!arguments.length) return _embed;
       _embed = val;
       return context;
     };
     let _assetPath = "";
     context.assetPath = function(val) {
-      if (!arguments.length)
-        return _assetPath;
+      if (!arguments.length) return _assetPath;
       _assetPath = val;
       _mainFileFetcher.assetPath(val);
       return context;
     };
     let _assetMap = {};
     context.assetMap = function(val) {
-      if (!arguments.length)
-        return _assetMap;
+      if (!arguments.length) return _assetMap;
       _assetMap = val;
       _mainFileFetcher.assetMap(val);
       return context;
     };
     context.asset = (val) => {
-      if (/^http(s)?:\/\//i.test(val))
-        return val;
+      if (/^http(s)?:\/\//i.test(val)) return val;
       const filename = _assetPath + val;
       return _assetMap[filename] || filename;
     };
@@ -77435,14 +75086,12 @@
         { minX: loc[0], minY: loc[1], maxX: loc[0], maxY: loc[1] }
       );
       if (cached.length > 0) {
-        if (callback)
-          callback(null, cached[0].data);
+        if (callback) callback(null, cached[0].data);
         return;
       }
       var params = { zoom: 13, format: "json", addressdetails: 1, lat: loc[1], lon: loc[0] };
       var url = apibase + "reverse?" + utilQsString(params);
-      if (_inflight[url])
-        return;
+      if (_inflight[url]) return;
       var controller = new AbortController();
       _inflight[url] = controller;
       json_default(url, {
@@ -77457,14 +75106,11 @@
         }
         var extent = geoExtent(loc).padByMeters(200);
         _nominatimCache.insert(Object.assign(extent.bbox(), { data: result }));
-        if (callback)
-          callback(null, result);
+        if (callback) callback(null, result);
       }).catch(function(err) {
         delete _inflight[url];
-        if (err.name === "AbortError")
-          return;
-        if (callback)
-          callback(err.message);
+        if (err.name === "AbortError") return;
+        if (callback) callback(err.message);
       });
     },
     search: function(val, callback) {
@@ -77474,8 +75120,7 @@
         format: "json"
       };
       var url = apibase + "search?" + utilQsString(params);
-      if (_inflight[url])
-        return;
+      if (_inflight[url]) return;
       var controller = new AbortController();
       _inflight[url] = controller;
       json_default(url, {
@@ -77488,14 +75133,11 @@
         if (result && result.error) {
           throw new Error(result.error);
         }
-        if (callback)
-          callback(null, result);
+        if (callback) callback(null, result);
       }).catch(function(err) {
         delete _inflight[url];
-        if (err.name === "AbortError")
-          return;
-        if (callback)
-          callback(err.message);
+        if (err.name === "AbortError") return;
+        if (callback) callback(err.message);
       });
     }
   };
@@ -77506,8 +75148,7 @@
   // node_modules/name-suggestion-index/lib/simplify.js
   var import_diacritics3 = __toESM(require_diacritics(), 1);
   function simplify2(str) {
-    if (typeof str !== "string")
-      return "";
+    if (typeof str !== "string") return "";
     return import_diacritics3.default.remove(
       str.replace(/&/g, "and").replace(/İ/ig, "i").replace(/[\s\-=_!"#%'*{},.\/:;?\(\)\[\]@\\$\^*+<>«»~`’\u00a1\u00a7\u00b6\u00b7\u00bf\u037e\u0387\u055a-\u055f\u0589\u05c0\u05c3\u05c6\u05f3\u05f4\u0609\u060a\u060c\u060d\u061b\u061e\u061f\u066a-\u066d\u06d4\u0700-\u070d\u07f7-\u07f9\u0830-\u083e\u085e\u0964\u0965\u0970\u0af0\u0df4\u0e4f\u0e5a\u0e5b\u0f04-\u0f12\u0f14\u0f85\u0fd0-\u0fd4\u0fd9\u0fda\u104a-\u104f\u10fb\u1360-\u1368\u166d\u166e\u16eb-\u16ed\u1735\u1736\u17d4-\u17d6\u17d8-\u17da\u1800-\u1805\u1807-\u180a\u1944\u1945\u1a1e\u1a1f\u1aa0-\u1aa6\u1aa8-\u1aad\u1b5a-\u1b60\u1bfc-\u1bff\u1c3b-\u1c3f\u1c7e\u1c7f\u1cc0-\u1cc7\u1cd3\u2000-\u206f\u2cf9-\u2cfc\u2cfe\u2cff\u2d70\u2e00-\u2e7f\u3001-\u3003\u303d\u30fb\ua4fe\ua4ff\ua60d-\ua60f\ua673\ua67e\ua6f2-\ua6f7\ua874-\ua877\ua8ce\ua8cf\ua8f8-\ua8fa\ua92e\ua92f\ua95f\ua9c1-\ua9cd\ua9de\ua9df\uaa5c-\uaa5f\uaade\uaadf\uaaf0\uaaf1\uabeb\ufe10-\ufe16\ufe19\ufe30\ufe45\ufe46\ufe49-\ufe4c\ufe50-\ufe52\ufe54-\ufe57\ufe5f-\ufe61\ufe68\ufe6a\ufe6b\ufeff\uff01-\uff03\uff05-\uff07\uff0a\uff0c\uff0e\uff0f\uff1a\uff1b\uff1f\uff20\uff3c\uff61\uff64\uff65]+/g, "").toLowerCase()
     );
@@ -77884,8 +75525,7 @@
     //
     buildMatchIndex(data) {
       const that = this;
-      if (that.matchIndex)
-        return;
+      if (that.matchIndex) return;
       that.matchIndex = /* @__PURE__ */ new Map();
       const seenTree = /* @__PURE__ */ new Map();
       Object.keys(data).forEach((tkv) => {
@@ -77912,8 +75552,7 @@
         (exclude.named || []).forEach((s2) => branch.excludeNamed.set(s2, new RegExp(s2, "i")));
         const excludeRegexes = [...branch.excludeGeneric.values(), ...branch.excludeNamed.values()];
         let items = category.items;
-        if (!Array.isArray(items) || !items.length)
-          return;
+        if (!Array.isArray(items) || !items.length) return;
         const primaryName = new RegExp(tree.nameTags.primary, "i");
         const alternateName = new RegExp(tree.nameTags.alternate, "i");
         const notName = /:(colou?r|type|forward|backward|left|right|etymology|pronunciation|wikipedia)$/i;
@@ -77922,34 +75561,28 @@
         const matchGroupKV = /* @__PURE__ */ new Set();
         Object.values(matchGroups).forEach((matchGroup) => {
           const inGroup = matchGroup.some((otherkv) => otherkv === thiskv);
-          if (!inGroup)
-            return;
+          if (!inGroup) return;
           matchGroup.forEach((otherkv) => {
-            if (otherkv === thiskv)
-              return;
+            if (otherkv === thiskv) return;
             matchGroupKV.add(otherkv);
             const otherk = otherkv.split("/", 2)[0];
             genericKV.add("".concat(otherk, "/yes"));
           });
         });
         items.forEach((item) => {
-          if (!item.id)
-            return;
+          if (!item.id) return;
           if (Array.isArray(item.matchTags) && item.matchTags.length) {
             item.matchTags = item.matchTags.filter((matchTag) => !matchGroupKV.has(matchTag) && !genericKV.has(matchTag));
-            if (!item.matchTags.length)
-              delete item.matchTags;
+            if (!item.matchTags.length) delete item.matchTags;
           }
           let kvTags = ["".concat(thiskv)].concat(item.matchTags || []);
           if (!skipGenericKV) {
             kvTags = kvTags.concat(Array.from(genericKV));
           }
           Object.keys(item.tags).forEach((osmkey) => {
-            if (notName.test(osmkey))
-              return;
+            if (notName.test(osmkey)) return;
             const osmvalue = item.tags[osmkey];
-            if (!osmvalue || excludeRegexes.some((regex) => regex.test(osmvalue)))
-              return;
+            if (!osmvalue || excludeRegexes.some((regex) => regex.test(osmvalue))) return;
             if (primaryName.test(osmkey)) {
               kvTags.forEach((kv) => insertName("primary", t2, kv, simplify2(osmvalue), item.id));
             } else if (alternateName.test(osmkey)) {
@@ -78030,28 +75663,23 @@
     //
     buildLocationIndex(data, loco) {
       const that = this;
-      if (that.locationIndex)
-        return;
+      if (that.locationIndex) return;
       that.itemLocation = /* @__PURE__ */ new Map();
       that.locationSets = /* @__PURE__ */ new Map();
       Object.keys(data).forEach((tkv) => {
         const items = data[tkv].items;
-        if (!Array.isArray(items) || !items.length)
-          return;
+        if (!Array.isArray(items) || !items.length) return;
         items.forEach((item) => {
-          if (that.itemLocation.has(item.id))
-            return;
+          if (that.itemLocation.has(item.id)) return;
           let resolved;
           try {
             resolved = loco.resolveLocationSet(item.locationSet);
           } catch (err) {
             console.warn("buildLocationIndex: ".concat(err.message));
           }
-          if (!resolved || !resolved.id)
-            return;
+          if (!resolved || !resolved.id) return;
           that.itemLocation.set(item.id, resolved.id);
-          if (that.locationSets.has(resolved.id))
-            return;
+          if (that.locationSets.has(resolved.id)) return;
           let feature3 = _cloneDeep2(resolved.feature);
           feature3.id = resolved.id;
           feature3.properties.id = resolved.id;
@@ -78130,27 +75758,22 @@
       let results = [];
       gatherResults("primary");
       gatherResults("alternate");
-      if (results.length)
-        return results;
+      if (results.length) return results;
       gatherResults("exclude");
       return results.length ? results : null;
       function gatherResults(which) {
         const kv = "".concat(k2, "/").concat(v2);
         let didMatch = tryMatch(which, kv);
-        if (didMatch)
-          return;
+        if (didMatch) return;
         for (let mg in matchGroups) {
           const matchGroup = matchGroups[mg];
           const inGroup = matchGroup.some((otherkv) => otherkv === kv);
-          if (!inGroup)
-            continue;
+          if (!inGroup) continue;
           for (let i3 = 0; i3 < matchGroup.length; i3++) {
             const otherkv = matchGroup[i3];
-            if (otherkv === kv)
-              continue;
+            if (otherkv === kv) continue;
             didMatch = tryMatch(which, otherkv);
-            if (didMatch)
-              return;
+            if (didMatch) return;
           }
         }
         if (which === "exclude") {
@@ -78163,8 +75786,7 @@
       }
       function tryMatch(which, kv) {
         const branch = that.matchIndex.get(kv);
-        if (!branch)
-          return;
+        if (!branch) return;
         if (which === "exclude") {
           let regex = [...branch.excludeNamed.values()].find((regex2) => regex2.test(n3));
           if (regex) {
@@ -78179,8 +75801,7 @@
           return;
         }
         const leaf = branch[which].get(nsimple);
-        if (!leaf || !leaf.size)
-          return;
+        if (!leaf || !leaf.size) return;
         let hits = Array.from(leaf).map((itemID) => {
           let area = Infinity;
           if (that.itemLocation && that.locationSets) {
@@ -78194,18 +75815,15 @@
           hits = hits.filter(isValidLocation);
           sortFn = byAreaAscending;
         }
-        if (!hits.length)
-          return;
+        if (!hits.length) return;
         hits.sort(sortFn).forEach((hit) => {
-          if (seen.has(hit.itemID))
-            return;
+          if (seen.has(hit.itemID)) return;
           seen.add(hit.itemID);
           results.push(hit);
         });
         return true;
         function isValidLocation(hit) {
-          if (!that.itemLocation)
-            return true;
+          if (!that.itemLocation) return true;
           return matchLocations.find((props) => props.id === that.itemLocation.get(hit.itemID));
         }
         function byAreaAscending(hitA, hitB) {
@@ -78257,8 +75875,7 @@
     };
     let fileMap = _mainFileFetcher.fileMap();
     for (const k2 in sources) {
-      if (!fileMap[k2])
-        fileMap[k2] = sources[k2];
+      if (!fileMap[k2]) fileMap[k2] = sources[k2];
     }
   }
   function loadNsiPresets() {
@@ -78313,15 +75930,12 @@
       matcher.locationSets = /* @__PURE__ */ new Map();
       Object.keys(_nsi.data).forEach((tkv) => {
         const items = _nsi.data[tkv].items;
-        if (!Array.isArray(items) || !items.length)
-          return;
+        if (!Array.isArray(items) || !items.length) return;
         items.forEach((item) => {
-          if (matcher.itemLocation.has(item.id))
-            return;
+          if (matcher.itemLocation.has(item.id)) return;
           const locationSetID = _sharedLocationManager.locationSetID(item.locationSet);
           matcher.itemLocation.set(item.id, locationSetID);
-          if (matcher.locationSets.has(locationSetID))
-            return;
+          if (matcher.locationSets.has(locationSetID)) return;
           const fakeFeature = { id: locationSetID, properties: { id: locationSetID, area: 1 } };
           matcher.locationSets.set(locationSetID, fakeFeature);
         });
@@ -78359,10 +75973,8 @@
           _nsi.ids.set(item.id, item);
           const wd = item.tags[mainTag];
           const wp = item.tags[mainTag.replace("wikidata", "wikipedia")];
-          if (wd)
-            _nsi.qids.set(wd, wd);
-          if (wp && wd)
-            _nsi.qids.set(wp, wd);
+          if (wd) _nsi.qids.set(wd, wd);
+          if (wp && wd) _nsi.qids.set(wp, wd);
         });
       });
     });
@@ -78372,13 +75984,10 @@
     let alternate = /* @__PURE__ */ new Set();
     Object.keys(tags).forEach((osmkey) => {
       const osmvalue = tags[osmkey];
-      if (!osmvalue)
-        return;
-      if (osmkey === "route_master")
-        osmkey = "route";
+      if (!osmvalue) return;
+      if (osmkey === "route_master") osmkey = "route";
       const vmap = _nsi.kvt.get(osmkey);
-      if (!vmap)
-        return;
+      if (!vmap) return;
       if (vmap.get(osmvalue)) {
         primary.add("".concat(osmkey, "/").concat(osmvalue));
       } else if (osmvalue === "yes") {
@@ -78395,16 +76004,12 @@
     let unknown;
     let t2;
     Object.keys(tags).forEach((osmkey) => {
-      if (t2)
-        return;
+      if (t2) return;
       const osmvalue = tags[osmkey];
-      if (!osmvalue)
-        return;
-      if (osmkey === "route_master")
-        osmkey = "route";
+      if (!osmvalue) return;
+      if (osmkey === "route_master") osmkey = "route";
       const vmap = _nsi.kvt.get(osmkey);
-      if (!vmap)
-        return;
+      if (!vmap) return;
       if (osmvalue === "yes") {
         unknown = "unknown";
       } else {
@@ -78421,8 +76026,7 @@
     let testNameFragments = false;
     let patterns2;
     let t2 = identifyTree(tags);
-    if (!t2)
-      return empty2;
+    if (!t2) return empty2;
     if (t2 === "transit") {
       patterns2 = {
         primary: /^network$/i,
@@ -78462,8 +76066,7 @@
     }
     Object.keys(tags).forEach((osmkey) => {
       const osmvalue = tags[osmkey];
-      if (!osmvalue)
-        return;
+      if (!osmvalue) return;
       if (isNamelike(osmkey, "primary")) {
         if (/;/.test(osmvalue)) {
           foundSemi = true;
@@ -78493,8 +76096,7 @@
       return { primary, alternate };
     }
     function isNamelike(osmkey, which) {
-      if (osmkey === "old_name")
-        return false;
+      if (osmkey === "old_name") return false;
       return patterns2[which].test(osmkey) && !notNames.test(osmkey);
     }
   }
@@ -78550,8 +76152,7 @@
     }
     const tryNames = gatherNames(tags);
     const foundQID = _nsi.qids.get(tags.wikidata) || _nsi.qids.get(tags.wikipedia);
-    if (foundQID)
-      tryNames.primary.add(foundQID);
+    if (foundQID) tryNames.primary.add(foundQID);
     if (!tryNames.primary.size && !tryNames.alternate.size) {
       return changed ? { newTags, matched: null } : null;
     }
@@ -78559,19 +76160,15 @@
     for (let i3 = 0; i3 < tuples.length; i3++) {
       const tuple = tuples[i3];
       const hits = _nsi.matcher.match(tuple.k, tuple.v, tuple.n, loc);
-      if (!hits || !hits.length)
-        continue;
-      if (hits[0].match !== "primary" && hits[0].match !== "alternate")
-        break;
+      if (!hits || !hits.length) continue;
+      if (hits[0].match !== "primary" && hits[0].match !== "alternate") break;
       let itemID, item;
       for (let j2 = 0; j2 < hits.length; j2++) {
         const hit = hits[j2];
         itemID = hit.itemID;
-        if (_nsi.dissolved[itemID])
-          continue;
+        if (_nsi.dissolved[itemID]) continue;
         item = _nsi.ids.get(itemID);
-        if (!item)
-          continue;
+        if (!item) continue;
         const mainTag = item.mainTag;
         const itemQID = item.tags[mainTag];
         const notQID = newTags["not:".concat(mainTag)];
@@ -78586,8 +76183,7 @@
           break;
         }
       }
-      if (!item)
-        continue;
+      if (!item) continue;
       item = JSON.parse(JSON.stringify(item));
       const tkv = item.tkv;
       const parts = tkv.split("/", 3);
@@ -78597,8 +76193,7 @@
       const properties = category.properties || {};
       let preserveTags = item.preserveTags || properties.preserveTags || [];
       ["building", "emergency", "internet_access", "takeaway"].forEach((osmkey) => {
-        if (k2 !== osmkey)
-          preserveTags.push("^".concat(osmkey, "$"));
+        if (k2 !== osmkey) preserveTags.push("^".concat(osmkey, "$"));
       });
       const regexes = preserveTags.map((s2) => new RegExp(s2, "i"));
       let keepTags = {};
@@ -78608,8 +76203,7 @@
         }
       });
       _nsi.kvt.forEach((vmap, k3) => {
-        if (newTags[k3] === "yes")
-          delete newTags[k3];
+        if (newTags[k3] === "yes") delete newTags[k3];
       });
       if (foundQID) {
         delete newTags.wikipedia;
@@ -78632,8 +76226,7 @@
             const name = nameParts.slice(0, split).join(" ");
             const branch = nameParts.slice(split).join(" ");
             const nameHits = _nsi.matcher.match(k2, v2, name, loc);
-            if (!nameHits || !nameHits.length)
-              continue;
+            if (!nameHits || !nameHits.length) continue;
             if (nameHits.some((hit) => hit.itemID === itemID)) {
               if (branch) {
                 if (notBranches.test(branch)) {
@@ -78660,18 +76253,15 @@
   }
   function _isGenericName(tags) {
     const n3 = tags.name;
-    if (!n3)
-      return false;
+    if (!n3) return false;
     const tryNames = { primary: /* @__PURE__ */ new Set([n3]), alternate: /* @__PURE__ */ new Set() };
     const tryKVs = gatherKVs(tags);
-    if (!tryKVs.primary.size && !tryKVs.alternate.size)
-      return false;
+    if (!tryKVs.primary.size && !tryKVs.alternate.size) return false;
     const tuples = gatherTuples(tryKVs, tryNames);
     for (let i3 = 0; i3 < tuples.length; i3++) {
       const tuple = tuples[i3];
       const hits = _nsi.matcher.match(tuple.k, tuple.v, tuple.n);
-      if (hits && hits.length && hits[0].match === "excludeGeneric")
-        return true;
+      if (hits && hits.length && hits[0].match === "excludeGeneric") return true;
     }
     return false;
   }
@@ -78743,18 +76333,12 @@
     controller.abort();
   }
   function maxPageAtZoom(z2) {
-    if (z2 < 15)
-      return 2;
-    if (z2 === 15)
-      return 5;
-    if (z2 === 16)
-      return 10;
-    if (z2 === 17)
-      return 20;
-    if (z2 === 18)
-      return 40;
-    if (z2 > 18)
-      return 80;
+    if (z2 < 15) return 2;
+    if (z2 === 15) return 5;
+    if (z2 === 16) return 10;
+    if (z2 === 17) return 20;
+    if (z2 === 18) return 40;
+    if (z2 > 18) return 80;
   }
   function loadTiles2(which, url, projection2) {
     var currZoom = Math.floor(geoScaleToZoom(projection2.scale()));
@@ -78785,11 +76369,9 @@
       bbTopLeft: [bbox2.maxY, bbox2.minX].join(","),
       bbBottomRight: [bbox2.minY, bbox2.maxX].join(",")
     }, true);
-    if (nextPage > maxPages)
-      return;
+    if (nextPage > maxPages) return;
     var id2 = tile.id + "," + String(nextPage);
-    if (cache.loaded[id2] || cache.inflight[id2])
-      return;
+    if (cache.loaded[id2] || cache.inflight[id2]) return;
     var controller = new AbortController();
     cache.inflight[id2] = controller;
     var options2 = {
@@ -78924,8 +76506,7 @@
       loadTiles2("images", url, projection2);
     },
     ensureViewerLoaded: function(context) {
-      if (_loadViewerPromise2)
-        return _loadViewerPromise2;
+      if (_loadViewerPromise2) return _loadViewerPromise2;
       var wrap2 = context.container().select(".photoviewer").selectAll(".kartaview-wrapper").data([0]);
       var that = this;
       var wrapEnter = wrap2.enter().append("div").attr("class", "photo-wrapper kartaview-wrapper").classed("hide", true).call(imgZoom2.on("zoom", zoomPan2)).on("dblclick.zoom", null);
@@ -78945,18 +76526,14 @@
       }
       function rotate(deg) {
         return function() {
-          if (!_oscSelectedImage)
-            return;
+          if (!_oscSelectedImage) return;
           var sequenceKey = _oscSelectedImage.sequence_id;
           var sequence = _oscCache.sequences[sequenceKey];
-          if (!sequence)
-            return;
+          if (!sequence) return;
           var r2 = sequence.rotation || 0;
           r2 += deg;
-          if (r2 > 180)
-            r2 -= 360;
-          if (r2 < -180)
-            r2 += 360;
+          if (r2 > 180) r2 -= 360;
+          if (r2 < -180) r2 += 360;
           sequence.rotation = r2;
           var wrap3 = context.container().select(".photoviewer .kartaview-wrapper");
           wrap3.transition().duration(100).call(imgZoom2.transform, identity2);
@@ -78965,16 +76542,13 @@
       }
       function step(stepBy) {
         return function() {
-          if (!_oscSelectedImage)
-            return;
+          if (!_oscSelectedImage) return;
           var sequenceKey = _oscSelectedImage.sequence_id;
           var sequence = _oscCache.sequences[sequenceKey];
-          if (!sequence)
-            return;
+          if (!sequence) return;
           var nextIndex = _oscSelectedImage.sequence_index + stepBy;
           var nextImage = sequence.images[nextIndex];
-          if (!nextImage)
-            return;
+          if (!nextImage) return;
           context.map().centerEase(nextImage.loc);
           that.selectImage(context, nextImage.key);
         };
@@ -78995,8 +76569,7 @@
       _oscSelectedImage = null;
       this.updateUrlImage(null);
       var viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(null);
+      if (!viewer.empty()) viewer.datum(null);
       viewer.classed("hide", true).selectAll(".photo-wrapper").classed("hide", true);
       context.container().selectAll(".viewfield-group, .sequence, .icon-sign").classed("currentView", false);
       return this.setStyles(context, null, true);
@@ -79006,12 +76579,10 @@
       _oscSelectedImage = d2;
       this.updateUrlImage(imageKey);
       var viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(d2);
+      if (!viewer.empty()) viewer.datum(d2);
       this.setStyles(context, null, true);
       context.container().selectAll(".icon-sign").classed("currentView", false);
-      if (!d2)
-        return this;
+      if (!d2) return this;
       var wrap2 = context.container().select(".photoviewer .kartaview-wrapper");
       var imageWrap = wrap2.selectAll(".kartaview-image-wrap");
       var attribution = wrap2.selectAll(".photo-attribution").text("");
@@ -79033,12 +76604,10 @@
       }
       return this;
       function localeDateString2(s2) {
-        if (!s2)
-          return null;
+        if (!s2) return null;
         var options2 = { day: "numeric", month: "short", year: "numeric" };
         var d4 = new Date(s2);
-        if (isNaN(d4.getTime()))
-          return null;
+        if (isNaN(d4.getTime())) return null;
         return d4.toLocaleDateString(_mainLocalizer.localeCode(), options2);
       }
     },
@@ -79218,7 +76787,7 @@
   var _loadViewerPromise3;
   var _vegbilderCache;
   async function fetchAvailableLayers() {
-    var _a2, _b, _c;
+    var _a3, _b3, _c;
     const params = {
       service: "WFS",
       request: "GetCapabilities",
@@ -79238,11 +76807,11 @@
     let node;
     const availableLayers = [];
     while ((node = l2.iterateNext()) !== null) {
-      const match = (_a2 = node.textContent) == null ? void 0 : _a2.match(regexMatcher);
+      const match = (_a3 = node.textContent) == null ? void 0 : _a3.match(regexMatcher);
       if (match) {
         availableLayers.push({
           name: match[0],
-          is_sphere: !!((_b = match.groups) == null ? void 0 : _b.image_type),
+          is_sphere: !!((_b3 = match.groups) == null ? void 0 : _b3.image_type),
           year: parseInt((_c = match.groups) == null ? void 0 : _c.year, 10)
         });
       }
@@ -79279,8 +76848,7 @@
   async function loadTile2(cache, typename, tile) {
     const bbox2 = tile.extent.bbox();
     const tileid = tile.id;
-    if (cache.loaded.get(tileid) === true || cache.inflight.has(tileid))
-      return;
+    if (cache.loaded.get(tileid) === true || cache.inflight.has(tileid)) return;
     const params = {
       service: "WFS",
       request: "GetFeature",
@@ -79508,11 +77076,9 @@
       const line_strings = [];
       for (const { data } of _vegbilderCache.rtree.search(bbox2)) {
         const sequence = _vegbilderCache.image2sequence_map.get(data.key);
-        if (!sequence)
-          continue;
+        if (!sequence) continue;
         const { key, geometry, images } = sequence;
-        if (seen.has(key))
-          continue;
+        if (seen.has(key)) continue;
         seen.add(key);
         const line = {
           type: "LineString",
@@ -79526,8 +77092,7 @@
     },
     cachedImage: function(key) {
       for (const { points } of _vegbilderCache.wfslayers.values()) {
-        if (points.has(key))
-          return points.get(key);
+        if (points.has(key)) return points.get(key);
       }
     },
     getSequenceForImage: function(image) {
@@ -79545,18 +77110,15 @@
       return _currentFrame;
     },
     ensureViewerLoaded: function(context) {
-      if (_loadViewerPromise3)
-        return _loadViewerPromise3;
+      if (_loadViewerPromise3) return _loadViewerPromise3;
       const step = (stepBy) => () => {
         const viewer = context.container().select(".photoviewer");
         const selected = viewer.empty() ? void 0 : viewer.datum();
-        if (!selected)
-          return;
+        if (!selected) return;
         const sequence = this.getSequenceForImage(selected);
         const nextIndex = sequence.images.indexOf(selected) + stepBy;
         const nextImage = sequence.images[nextIndex];
-        if (!nextImage)
-          return;
+        if (!nextImage) return;
         context.map().centerEase(nextImage.loc);
         this.selectImage(context, nextImage.key, true);
       };
@@ -79585,8 +77147,7 @@
         viewer.datum(d2);
       }
       this.setStyles(context, null, true);
-      if (!d2)
-        return this;
+      if (!d2) return this;
       const wrap2 = context.container().select(".photoviewer .vegbilder-wrapper");
       const attribution = wrap2.selectAll(".photo-attribution").text("");
       if (d2.captured_at) {
@@ -79610,8 +77171,7 @@
     hideViewer: function(context) {
       this.updateUrlImage(null);
       const viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(null);
+      if (!viewer.empty()) viewer.datum(null);
       viewer.classed("hide", true).selectAll(".photo-wrapper").classed("hide", true);
       context.container().selectAll(".viewfield-group, .sequence").classed("currentView", false);
       return this.setStyles(context, null, true);
@@ -79620,7 +77180,7 @@
     // Reset is only necessary when interacting with the viewport because
     // this implicitly changes the currently selected bubble/sequence
     setStyles: function(context, hovered, reset) {
-      var _a2, _b;
+      var _a3, _b3;
       if (reset) {
         context.container().selectAll(".viewfield-group").classed("highlighted", false).classed("hovered", false).classed("currentView", false);
         context.container().selectAll(".sequence").classed("highlighted", false).classed("currentView", false);
@@ -79628,13 +77188,13 @@
       const hoveredImageKey = hovered == null ? void 0 : hovered.key;
       const hoveredSequence = this.getSequenceForImage(hovered);
       const hoveredSequenceKey = hoveredSequence == null ? void 0 : hoveredSequence.key;
-      const hoveredImageKeys = (_a2 = hoveredSequence == null ? void 0 : hoveredSequence.images.map((d2) => d2.key)) != null ? _a2 : [];
+      const hoveredImageKeys = (_a3 = hoveredSequence == null ? void 0 : hoveredSequence.images.map((d2) => d2.key)) != null ? _a3 : [];
       const viewer = context.container().select(".photoviewer");
       const selected = viewer.empty() ? void 0 : viewer.datum();
       const selectedImageKey = selected == null ? void 0 : selected.key;
       const selectedSequence = this.getSequenceForImage(selected);
       const selectedSequenceKey = selectedSequence == null ? void 0 : selectedSequence.key;
-      const selectedImageKeys = (_b = selectedSequence == null ? void 0 : selectedSequence.images.map((d2) => d2.key)) != null ? _b : [];
+      const selectedImageKeys = (_b3 = selectedSequence == null ? void 0 : selectedSequence.images.map((d2) => d2.key)) != null ? _b3 : [];
       const highlightedImageKeys = utilArrayUnion(hoveredImageKeys, selectedImageKeys);
       context.container().selectAll(".layer-vegbilder .viewfield-group").classed("highlighted", (d2) => highlightedImageKeys.indexOf(d2.key) !== -1).classed("hovered", (d2) => d2.key === hoveredImageKey).classed("currentView", (d2) => d2.key === selectedImageKey);
       context.container().selectAll(".layer-vegbilder .sequence").classed("highlighted", (d2) => d2.key === hoveredSequenceKey).classed("currentView", (d2) => d2.key === selectedSequenceKey);
@@ -79687,10 +77247,17 @@
       };
     }
     function token(k2, v2) {
-      if (arguments.length === 1)
-        return _store.getItem(o2.url + k2);
-      else if (arguments.length === 2)
-        return _store.setItem(o2.url + k2, v2);
+      var key = o2.url + k2;
+      if (arguments.length === 1) {
+        var val = _store.getItem(key) || "";
+        return val.replace(/"/g, "");
+      } else if (arguments.length === 2) {
+        if (v2) {
+          return _store.setItem(key, v2);
+        } else {
+          return _store.removeItem(key);
+        }
+      }
     }
     oauth2.authenticated = function() {
       return !!token("oauth2_access_token");
@@ -79773,7 +77340,8 @@
         scope: o2.scope,
         state,
         code_challenge: pkce.code_challenge,
-        code_challenge_method: pkce.code_challenge_method
+        code_challenge_method: pkce.code_challenge_method,
+        locale: o2.locale || ""
       });
       if (o2.singlepage) {
         if (_store.isMocked) {
@@ -79797,9 +77365,9 @@
       window.authComplete = function(url2) {
         var params2 = utilStringQs2(url2.split("?")[1]);
         if (params2.state !== state) {
-          error = new Error("Invalid state");
-          error.status = "invalid-state";
-          callback(error);
+          var error2 = new Error("Invalid state");
+          error2.status = "invalid-state";
+          callback(error2);
           return;
         }
         _getAccessToken(params2.code, pkce.code_verifier, accessTokenDone);
@@ -79933,8 +77501,7 @@
         callback(e3, null);
       };
       xhr.open(method, url, true);
-      for (var h2 in headers)
-        xhr.setRequestHeader(h2, headers[h2]);
+      for (var h2 in headers) xhr.setRequestHeader(h2, headers[h2]);
       xhr.send(data);
       return xhr;
     };
@@ -79945,8 +77512,7 @@
       return oauth2;
     };
     oauth2.options = function(val) {
-      if (!arguments.length)
-        return o2;
+      if (!arguments.length) return o2;
       o2 = val;
       o2.apiUrl = o2.apiUrl || "https://api.openstreetmap.org";
       o2.url = o2.url || "https://www.openstreetmap.org";
@@ -79970,8 +77536,7 @@
   }
   function utilStringQs2(str) {
     var i3 = 0;
-    while (i3 < str.length && (str[i3] === "?" || str[i3] === "#"))
-      i3++;
+    while (i3 < str.length && (str[i3] === "?" || str[i3] === "#")) i3++;
     str = str.slice(i3);
     return str.split("&").reduce(function(obj, pair3) {
       var parts = pair3.split("=");
@@ -80080,12 +77645,10 @@
   }
   function abortUnwantedRequests4(cache, visibleTiles) {
     Object.keys(cache.inflight).forEach(function(k2) {
-      if (cache.toLoad[k2])
-        return;
+      if (cache.toLoad[k2]) return;
       if (visibleTiles.find(function(tile) {
         return k2 === tile.id;
-      }))
-        return;
+      })) return;
       abortRequest5(cache.inflight[k2]);
       delete cache.inflight[k2];
     });
@@ -80159,8 +77722,7 @@
         for (var j2 = 0; j2 < childNodes.length; j2++) {
           var node = childNodes[j2];
           var nodeName = node.nodeName;
-          if (nodeName === "#text")
-            continue;
+          if (nodeName === "#text") continue;
           parsedComment[nodeName] = node.textContent;
           if (nodeName === "uid") {
             var uid = node.textContent;
@@ -80242,10 +77804,8 @@
       return callback({ message: "No JSON", status: -1 });
     }
     var json = payload;
-    if (typeof json !== "object")
-      json = JSON.parse(payload);
-    if (!json.elements)
-      return callback({ message: "No JSON", status: -1 });
+    if (typeof json !== "object") json = JSON.parse(payload);
+    if (!json.elements) return callback({ message: "No JSON", status: -1 });
     var children2 = json.elements;
     var handle = window.requestIdleCallback(function() {
       _deferred.delete(handle);
@@ -80253,21 +77813,18 @@
       var result;
       for (var i3 = 0; i3 < children2.length; i3++) {
         result = parseChild(children2[i3]);
-        if (result)
-          results.push(result);
+        if (result) results.push(result);
       }
       callback(null, results);
     });
     _deferred.add(handle);
     function parseChild(child) {
       var parser3 = jsonparsers[child.type];
-      if (!parser3)
-        return null;
+      if (!parser3) return null;
       var uid;
       uid = osmEntity.id.fromOSM(child.type, child.id);
       if (options2.skipSeen) {
-        if (_tileCache.seen[uid])
-          return null;
+        if (_tileCache.seen[uid]) return null;
         _tileCache.seen[uid] = true;
       }
       return parser3(child, uid);
@@ -80279,10 +77836,8 @@
       return callback({ message: "No JSON", status: -1 });
     }
     var json = payload;
-    if (typeof json !== "object")
-      json = JSON.parse(payload);
-    if (!json.users && !json.user)
-      return callback({ message: "No JSON", status: -1 });
+    if (typeof json !== "object") json = JSON.parse(payload);
+    if (!json.users && !json.user) return callback({ message: "No JSON", status: -1 });
     var objs = json.users || [json];
     var handle = window.requestIdleCallback(function() {
       _deferred.delete(handle);
@@ -80290,8 +77845,7 @@
       var result;
       for (var i3 = 0; i3 < objs.length; i3++) {
         result = parseObj(objs[i3]);
-        if (result)
-          results.push(result);
+        if (result) results.push(result);
       }
       callback(null, results);
     });
@@ -80373,8 +77927,7 @@
       for (var i3 = 0; i3 < childNodes.length; i3++) {
         var node = childNodes[i3];
         var nodeName = node.nodeName;
-        if (nodeName === "#text")
-          continue;
+        if (nodeName === "#text") continue;
         if (nodeName === "comments") {
           props[nodeName] = parseComments(node.childNodes);
         } else {
@@ -80429,16 +77982,14 @@
       var result;
       for (var i3 = 0; i3 < children2.length; i3++) {
         result = parseChild(children2[i3]);
-        if (result)
-          results.push(result);
+        if (result) results.push(result);
       }
       callback(null, results);
     });
     _deferred.add(handle);
     function parseChild(child) {
       var parser3 = parsers[child.nodeName];
-      if (!parser3)
-        return null;
+      if (!parser3) return null;
       var uid;
       if (child.nodeName === "user") {
         uid = child.attributes.id.value;
@@ -80451,8 +78002,7 @@
       } else {
         uid = osmEntity.id.fromOSM(child.nodeName, child.attributes.id.value);
         if (options2.skipSeen) {
-          if (_tileCache.seen[uid])
-            return null;
+          if (_tileCache.seen[uid]) return null;
           _tileCache.seen[uid] = true;
         }
       }
@@ -80497,8 +78047,7 @@
       Object.values(_tileCache.inflight).forEach(abortRequest5);
       Object.values(_noteCache.inflight).forEach(abortRequest5);
       Object.values(_noteCache.inflightPost).forEach(abortRequest5);
-      if (_changeset.inflight)
-        abortRequest5(_changeset.inflight);
+      if (_changeset.inflight) abortRequest5(_changeset.inflight);
       _tileCache = { toLoad: {}, loaded: {}, inflight: {}, seen: {}, rtree: new import_rbush10.default() };
       _noteCache = { toLoad: {}, loaded: {}, inflight: {}, inflightPost: {}, note: {}, closed: {}, rtree: new import_rbush10.default() };
       _userCache = { toLoad: {}, user: {} };
@@ -80545,8 +78094,7 @@
       var cid = _connectionID;
       function done(err, payload) {
         if (that.getConnectionId() !== cid) {
-          if (callback)
-            callback({ message: "Connection Switched", status: -1 });
+          if (callback) callback({ message: "Connection Switched", status: -1 });
           return;
         }
         var isAuthenticated = that.authenticated();
@@ -80591,8 +78139,7 @@
         fn(url, { signal: controller.signal }).then(function(data) {
           done(null, data);
         }).catch(function(err) {
-          if (err.name === "AbortError")
-            return;
+          if (err.name === "AbortError") return;
           var match = err.message.match(/^\d{3}/);
           if (match) {
             done({ status: +match[0], statusText: err.message });
@@ -80614,8 +78161,7 @@
       this.loadFromAPI(
         "/api/0.6/" + type2 + "/" + osmID + (type2 !== "node" ? "/full" : "") + ".json",
         function(err, entities) {
-          if (callback)
-            callback(err, { data: entities });
+          if (callback) callback(err, { data: entities });
         },
         options2
       );
@@ -80627,8 +78173,7 @@
       this.loadFromAPI(
         "/api/0.6/notes/" + id2,
         function(err, entities) {
-          if (callback)
-            callback(err, { data: entities });
+          if (callback) callback(err, { data: entities });
         },
         options2
       );
@@ -80642,8 +78187,7 @@
       this.loadFromAPI(
         "/api/0.6/" + type2 + "/" + osmID + "/" + version + ".json",
         function(err, entities) {
-          if (callback)
-            callback(err, { data: entities });
+          if (callback) callback(err, { data: entities });
         },
         options2
       );
@@ -80657,8 +78201,7 @@
       this.loadFromAPI(
         "/api/0.6/" + type2 + "/" + osmID + "/relations.json",
         function(err, entities) {
-          if (callback)
-            callback(err, { data: entities });
+          if (callback) callback(err, { data: entities });
         },
         options2
       );
@@ -80680,8 +78223,7 @@
           that.loadFromAPI(
             "/api/0.6/" + type2 + ".json?" + type2 + "=" + arr.join(),
             function(err, entities) {
-              if (callback)
-                callback(err, { data: entities });
+              if (callback) callback(err, { data: entities });
             },
             options2
           );
@@ -80730,8 +78272,7 @@
       }
       function uploadedChangeset(err) {
         _changeset.inflight = null;
-        if (err)
-          return callback(err, changeset);
+        if (err) return callback(err, changeset);
         window.setTimeout(function() {
           callback(null, changeset);
         }, 2500);
@@ -80763,8 +78304,7 @@
       });
       if (cached.length || !this.authenticated()) {
         callback(void 0, cached);
-        if (!this.authenticated())
-          return;
+        if (!this.authenticated()) return;
       }
       utilArrayChunk(toLoad, 150).forEach((function(arr) {
         oauth.xhr({
@@ -80773,12 +78313,10 @@
         }, wrapcb(this, done, _connectionID));
       }).bind(this));
       function done(err, payload) {
-        if (err)
-          return callback(err);
+        if (err) return callback(err);
         var options2 = { skipSeen: true };
         return parseUserJSON(payload, function(err2, results) {
-          if (err2)
-            return callback(err2);
+          if (err2) return callback(err2);
           return callback(void 0, results);
         }, options2);
       }
@@ -80795,12 +78333,10 @@
         path: "/api/0.6/user/" + uid + ".json"
       }, wrapcb(this, done, _connectionID));
       function done(err, payload) {
-        if (err)
-          return callback(err);
+        if (err) return callback(err);
         var options2 = { skipSeen: true };
         return parseUserJSON(payload, function(err2, results) {
-          if (err2)
-            return callback(err2);
+          if (err2) return callback(err2);
           return callback(void 0, results[0]);
         }, options2);
       }
@@ -80816,12 +78352,10 @@
         path: "/api/0.6/user/details.json"
       }, wrapcb(this, done, _connectionID));
       function done(err, payload) {
-        if (err)
-          return callback(err);
+        if (err) return callback(err);
         var options2 = { skipSeen: false };
         return parseUserJSON(payload, function(err2, results) {
-          if (err2)
-            return callback(err2);
+          if (err2) return callback(err2);
           _userDetails = results[0];
           return callback(void 0, _userDetails);
         }, options2);
@@ -80895,8 +78429,7 @@
         } else {
           var waynodes = xml.getElementsByTagName("waynodes");
           var maxWayNodes = waynodes.length && parseInt(waynodes[0].getAttribute("maximum"), 10);
-          if (maxWayNodes && isFinite(maxWayNodes))
-            _maxWayNodes = maxWayNodes;
+          if (maxWayNodes && isFinite(maxWayNodes)) _maxWayNodes = maxWayNodes;
           var apiStatus = xml.getElementsByTagName("status");
           var val = apiStatus[0].getAttribute("api");
           return callback(void 0, val);
@@ -80926,8 +78459,7 @@
     // Load data (entities) from the API in tiles
     // GET /api/0.6/map?bbox=
     loadTiles: function(projection2, callback) {
-      if (_off)
-        return;
+      if (_off) return;
       var tiles = tiler6.zoomExtent([_tileZoom4, _tileZoom4]).getTiles(projection2);
       var hadRequests = hasInflightRequests(_tileCache);
       abortUnwantedRequests4(_tileCache, tiles);
@@ -80941,10 +78473,8 @@
     // Load a single data tile
     // GET /api/0.6/map?bbox=
     loadTile: function(tile, callback) {
-      if (_off)
-        return;
-      if (_tileCache.loaded[tile.id] || _tileCache.inflight[tile.id])
-        return;
+      if (_off) return;
+      if (_tileCache.loaded[tile.id] || _tileCache.inflight[tile.id]) return;
       if (!hasInflightRequests(_tileCache)) {
         dispatch10.call("loading");
       }
@@ -80978,15 +78508,13 @@
     },
     // load the tile that covers the given `loc`
     loadTileAtLoc: function(loc, callback) {
-      if (Object.keys(_tileCache.toLoad).length > 50)
-        return;
+      if (Object.keys(_tileCache.toLoad).length > 50) return;
       var k2 = geoZoomToScale(_tileZoom4 + 1);
       var offset = geoRawMercator().scale(k2)(loc);
       var projection2 = geoRawMercator().transform({ k: k2, x: -offset[0], y: -offset[1] });
       var tiles = tiler6.zoomExtent([_tileZoom4, _tileZoom4]).getTiles(projection2);
       tiles.forEach(function(tile) {
-        if (_tileCache.toLoad[tile.id] || _tileCache.loaded[tile.id] || _tileCache.inflight[tile.id])
-          return;
+        if (_tileCache.toLoad[tile.id] || _tileCache.loaded[tile.id] || _tileCache.inflight[tile.id]) return;
         _tileCache.toLoad[tile.id] = true;
         this.loadTile(tile, callback);
       }, this);
@@ -80995,22 +78523,19 @@
     // GET /api/0.6/notes?bbox=
     loadNotes: function(projection2, noteOptions) {
       noteOptions = Object.assign({ limit: 1e4, closed: 7 }, noteOptions);
-      if (_off)
-        return;
+      if (_off) return;
       var that = this;
       var path = "/api/0.6/notes?limit=" + noteOptions.limit + "&closed=" + noteOptions.closed + "&bbox=";
       var throttleLoadUsers = throttle_default(function() {
         var uids = Object.keys(_userCache.toLoad);
-        if (!uids.length)
-          return;
+        if (!uids.length) return;
         that.loadUsers(uids, function() {
         });
       }, 750);
       var tiles = tiler6.zoomExtent([_noteZoom, _noteZoom]).getTiles(projection2);
       abortUnwantedRequests4(_noteCache, tiles);
       tiles.forEach(function(tile) {
-        if (_noteCache.loaded[tile.id] || _noteCache.inflight[tile.id])
-          return;
+        if (_noteCache.loaded[tile.id] || _noteCache.inflight[tile.id]) return;
         var options2 = { skipSeen: false };
         _noteCache.inflight[tile.id] = that.loadFromAPI(
           path + tile.extent.toParam(),
@@ -81035,8 +78560,7 @@
       if (_noteCache.inflightPost[note.id]) {
         return callback({ message: "Note update already inflight", status: -2 }, note);
       }
-      if (!note.loc[0] || !note.loc[1] || !note.newComment)
-        return;
+      if (!note.loc[0] || !note.loc[1] || !note.newComment) return;
       var comment = note.newComment;
       if (note.newCategory && note.newCategory !== "None") {
         comment += " #" + note.newCategory;
@@ -81080,8 +78604,7 @@
         action = "reopen";
       } else {
         action = "comment";
-        if (!note.newComment)
-          return;
+        if (!note.newComment) return;
       }
       var path = "/api/0.6/notes/" + note.id + "/" + action;
       if (note.newComment) {
@@ -81114,8 +78637,7 @@
     },
     /* connection options for source switcher (optional) */
     apiConnections: function(val) {
-      if (!arguments.length)
-        return _apiConnections;
+      if (!arguments.length) return _apiConnections;
       _apiConnections = val;
       return this;
     },
@@ -81208,19 +78730,16 @@
       _userDetails = void 0;
       function done(err, res) {
         if (err) {
-          if (callback)
-            callback(err);
+          if (callback) callback(err);
           return;
         }
         if (that.getConnectionId() !== cid) {
-          if (callback)
-            callback({ message: "Connection Switched", status: -1 });
+          if (callback) callback({ message: "Connection Switched", status: -1 });
           return;
         }
         _rateLimitError = void 0;
         dispatch10.call("change");
-        if (callback)
-          callback(err, res);
+        if (callback) callback(err, res);
         that.userChangesets(function() {
         });
       }
@@ -81230,8 +78749,7 @@
       return _imageryBlocklists;
     },
     tileZoom: function(val) {
-      if (!arguments.length)
-        return _tileZoom4;
+      if (!arguments.length) return _tileZoom4;
       _tileZoom4 = val;
       return this;
     },
@@ -81251,15 +78769,13 @@
     },
     // remove a single note from the cache
     removeNote: function(note) {
-      if (!(note instanceof osmNote) || !note.id)
-        return;
+      if (!(note instanceof osmNote) || !note.id) return;
       delete _noteCache.note[note.id];
       updateRtree4(encodeNoteRtree(note), false);
     },
     // replace a single note in the cache
     replaceNote: function(note) {
-      if (!(note instanceof osmNote) || !note.id)
-        return;
+      if (!(note instanceof osmNote) || !note.id) return;
       _noteCache.note[note.id] = note;
       updateRtree4(encodeNoteRtree(note), true);
       return note;
@@ -81278,20 +78794,16 @@
   var _localeIDs = { en: false };
   var debouncedRequest = debounce_default(request, 500, { leading: false });
   function request(url, callback) {
-    if (_inflight2[url])
-      return;
+    if (_inflight2[url]) return;
     var controller = new AbortController();
     _inflight2[url] = controller;
     json_default(url, { signal: controller.signal }).then(function(result) {
       delete _inflight2[url];
-      if (callback)
-        callback(null, result);
+      if (callback) callback(null, result);
     }).catch(function(err) {
       delete _inflight2[url];
-      if (err.name === "AbortError")
-        return;
-      if (callback)
-        callback(err.message);
+      if (err.name === "AbortError") return;
+      if (callback) callback(err.message);
     });
   }
   var osm_wikibase_default = {
@@ -81313,8 +78825,7 @@
      * @param langCode string e.g. 'fr' for French
      */
     claimToValue: function(entity, property, langCode) {
-      if (!entity.claims[property])
-        return void 0;
+      if (!entity.claims[property]) return void 0;
       var locale2 = _localeIDs[langCode];
       var preferredPick, localePick;
       entity.claims[property].forEach(function(stmt) {
@@ -81339,8 +78850,7 @@
      * @param property string e.g. 'P31' for monolingual wiki page title
      */
     monolingualClaimToValueObj: function(entity, property) {
-      if (!entity || !entity.claims[property])
-        return void 0;
+      if (!entity || !entity.claims[property]) return void 0;
       return entity.claims[property].reduce(function(acc, obj) {
         var value = obj.mainsnak.datavalue.value;
         acc[value.language] = value.text;
@@ -81489,8 +78999,7 @@
             break;
           }
         }
-        if (!description && Object.values(entity.descriptions).length)
-          description = Object.values(entity.descriptions)[0];
+        if (!description && Object.values(entity.descriptions).length) description = Object.values(entity.descriptions)[0];
         var result = {
           title: entity.title,
           description: description ? description.value : "",
@@ -81530,8 +79039,7 @@
               break;
             }
           }
-          if (result.wiki)
-            break;
+          if (result.wiki) break;
         }
         callback(null, result);
         function getWikiInfo(wiki2, langCode, tKey) {
@@ -81549,8 +79057,7 @@
       _localeIDs[langCode] = qid;
     },
     apibase: function(val) {
-      if (!arguments.length)
-        return apibase3;
+      if (!arguments.length) return apibase3;
       apibase3 = val;
       return this;
     }
@@ -81590,12 +79097,10 @@
     i3.abort();
   }
   function localeTimestamp2(s2) {
-    if (!s2)
-      return null;
+    if (!s2) return null;
     const options2 = { day: "numeric", month: "short", year: "numeric" };
     const d2 = new Date(s2);
-    if (isNaN(d2.getTime()))
-      return null;
+    if (isNaN(d2.getTime())) return null;
     return d2.toLocaleString(_mainLocalizer.localeCode(), options2);
   }
   function loadTiles3(which, url, projection2, margin) {
@@ -81614,13 +79119,11 @@
     const cache = _ssCache[which];
     const nextPage = cache.nextPage[tile.id] || 0;
     const id2 = tile.id + "," + String(nextPage);
-    if (cache.loaded[id2] || cache.inflight[id2])
-      return;
+    if (cache.loaded[id2] || cache.inflight[id2]) return;
     cache.inflight[id2] = getBubbles(url, tile, (response) => {
       cache.loaded[id2] = true;
       delete cache.inflight[id2];
-      if (!response)
-        return;
+      if (!response) return;
       if (response.resourceSets[0].resources.length === maxResults2) {
         const split = tile.extent.split();
         loadNextTilePage2(which, url, { id: tile.id + ",a", extent: split[0] });
@@ -81630,8 +79133,7 @@
       }
       const features = response.resourceSets[0].resources.map((bubble) => {
         const bubbleId = bubble.imageUrl;
-        if (cache.points[bubbleId])
-          return null;
+        if (cache.points[bubbleId]) return null;
         const loc = [bubble.lon, bubble.lat];
         const d2 = {
           loc,
@@ -82154,18 +79656,15 @@
      * loadBubbles()
      */
     loadBubbles: function(projection2, margin) {
-      if (margin === void 0)
-        margin = 2;
+      if (margin === void 0) margin = 2;
       loadTiles3("bubbles", streetsideApi, projection2, margin);
     },
     viewer: function() {
       return _pannellumViewer2;
     },
     initViewer: function() {
-      if (!window.pannellum)
-        return;
-      if (_pannellumViewer2)
-        return;
+      if (!window.pannellum) return;
+      if (_pannellumViewer2) return;
       _currScene += 1;
       const sceneID = _currScene.toString();
       const options2 = {
@@ -82176,8 +79675,7 @@
       _pannellumViewer2 = window.pannellum.viewer("ideditor-viewer-streetside", options2);
     },
     ensureViewerLoaded: function(context) {
-      if (_loadViewerPromise4)
-        return _loadViewerPromise4;
+      if (_loadViewerPromise4) return _loadViewerPromise4;
       let wrap2 = context.container().select(".photoviewer").selectAll(".ms-wrapper").data([0]);
       let wrapEnter = wrap2.enter().append("div").attr("class", "photo-wrapper ms-wrapper").classed("hide", true);
       let that = this;
@@ -82208,8 +79706,7 @@
         let loadedCount = 0;
         function loaded() {
           loadedCount += 1;
-          if (loadedCount === 2)
-            resolve();
+          if (loadedCount === 2) resolve();
         }
         const head = select_default2("head");
         head.selectAll("#ideditor-streetside-viewercss").data([0]).enter().append("link").attr("id", "ideditor-streetside-viewercss").attr("rel", "stylesheet").attr("crossorigin", "anonymous").attr("href", context.asset(pannellumViewerCSS2)).on("load.serviceStreetside", loaded).on("error.serviceStreetside", function() {
@@ -82226,8 +79723,7 @@
         return () => {
           let viewer = context.container().select(".photoviewer");
           let selected = viewer.empty() ? void 0 : viewer.datum();
-          if (!selected)
-            return;
+          if (!selected) return;
           let nextID = stepBy === 1 ? selected.ne : selected.pr;
           let yaw = _pannellumViewer2.getYaw();
           let ca = selected.ca + yaw;
@@ -82257,10 +79753,8 @@
           }, geoExtent());
           let minDist = Infinity;
           _ssCache.bubbles.rtree.search(extent.bbox()).forEach((d2) => {
-            if (d2.data.key === selected.key)
-              return;
-            if (!geoPointInPolygon(d2.data.loc, poly))
-              return;
+            if (d2.data.key === selected.key) return;
+            if (!geoPointInPolygon(d2.data.loc, poly)) return;
             let dist = geoVecLength(d2.data.loc, selected.loc);
             let theta = selected.ca - d2.data.ca;
             let minTheta = Math.min(Math.abs(theta), 360 - Math.abs(theta));
@@ -82273,16 +79767,14 @@
             }
           });
           let nextBubble = nextID && that.cachedImage(nextID);
-          if (!nextBubble)
-            return;
+          if (!nextBubble) return;
           context.map().centerEase(nextBubble.loc);
           that.selectImage(context, nextBubble.key).yaw(yaw).showViewer(context);
         };
       }
     },
     yaw: function(yaw) {
-      if (typeof yaw !== "number")
-        return yaw;
+      if (typeof yaw !== "number") return yaw;
       _sceneOptions.yaw = yaw;
       return this;
     },
@@ -82303,8 +79795,7 @@
      */
     hideViewer: function(context) {
       let viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(null);
+      if (!viewer.empty()) viewer.datum(null);
       viewer.classed("hide", true).selectAll(".photo-wrapper").classed("hide", true);
       context.container().selectAll(".viewfield-group, .sequence, .icon-sign").classed("currentView", false);
       this.updateUrlImage(null);
@@ -82317,14 +79808,12 @@
       let that = this;
       let d2 = this.cachedImage(key);
       let viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(d2);
+      if (!viewer.empty()) viewer.datum(d2);
       this.setStyles(context, null, true);
       let wrap2 = context.container().select(".photoviewer .ms-wrapper");
       let attribution = wrap2.selectAll(".photo-attribution").html("");
       wrap2.selectAll(".pnlm-load-box").style("display", "block");
-      if (!d2)
-        return this;
+      if (!d2) return this;
       this.updateUrlImage(key);
       _sceneOptions.northOffset = d2.ca;
       let line1 = attribution.append("div").attr("class", "attribution-row");
@@ -82502,19 +79991,15 @@
   }
   function filterValues(allowUpperCase) {
     return function(d2) {
-      if (d2.value.match(/[;,]/) !== null)
-        return false;
-      if (!allowUpperCase && d2.value.match(/[A-Z*]/) !== null)
-        return false;
+      if (d2.value.match(/[;,]/) !== null) return false;
+      if (!allowUpperCase && d2.value.match(/[A-Z*]/) !== null) return false;
       return d2.count > 100 || d2.in_wiki;
     };
   }
   function filterRoles(geometry) {
     return function(d2) {
-      if (d2.role === "")
-        return false;
-      if (d2.role.match(/[A-Z*;,]/) !== null)
-        return false;
+      if (d2.role === "") return false;
+      if (d2.role.match(/[A-Z*;,]/) !== null) return false;
       return Number(d2[tag_members_fractions[geometry]]) > 0;
     };
   }
@@ -82542,22 +80027,17 @@
   }
   var debouncedRequest2 = debounce_default(request2, 300, { leading: false });
   function request2(url, params, exactMatch, callback, loaded) {
-    if (_inflight3[url])
-      return;
-    if (checkCache(url, params, exactMatch, callback))
-      return;
+    if (_inflight3[url]) return;
+    if (checkCache(url, params, exactMatch, callback)) return;
     var controller = new AbortController();
     _inflight3[url] = controller;
     json_default(url, { signal: controller.signal }).then(function(result) {
       delete _inflight3[url];
-      if (loaded)
-        loaded(null, result);
+      if (loaded) loaded(null, result);
     }).catch(function(err) {
       delete _inflight3[url];
-      if (err.name === "AbortError")
-        return;
-      if (loaded)
-        loaded(err.message);
+      if (err.name === "AbortError") return;
+      if (loaded) loaded(err.message);
     });
   }
   function checkCache(url, params, exactMatch, callback) {
@@ -82570,8 +80050,7 @@
         callback(null, hit);
         return true;
       }
-      if (exactMatch || !testQuery.length)
-        return false;
+      if (exactMatch || !testQuery.length) return false;
       testQuery = testQuery.slice(0, -1);
       testUrl = url.replace(/&query=(.*?)&/, "&query=" + testQuery + "&");
     } while (testQuery.length >= 0);
@@ -82604,11 +80083,9 @@
         lang: _mainLocalizer.languageCode()
       };
       this.keys(params, function(err, data) {
-        if (err)
-          return;
+        if (err) return;
         data.forEach(function(d2) {
-          if (d2.value === "opening_hours")
-            return;
+          if (d2.value === "opening_hours") return;
           _popularKeys[d2.value] = true;
         });
       });
@@ -82735,8 +80212,7 @@
       });
     },
     apibase: function(_2) {
-      if (!arguments.length)
-        return apibase4;
+      if (!arguments.length) return apibase4;
       apibase4 = _2;
       return this;
     }
@@ -82777,10 +80253,8 @@
             if (!(0, import_fast_deep_equal11.default)(feature3.geometry, featureClip.geometry)) {
               isClipped = true;
             }
-            if (!feature3.geometry.coordinates.length)
-              continue;
-            if (!feature3.geometry.coordinates[0].length)
-              continue;
+            if (!feature3.geometry.coordinates.length) continue;
+            if (!feature3.geometry.coordinates[0].length) continue;
           }
           var featurehash = utilHashcode((0, import_fast_json_stable_stringify2.default)(feature3));
           var propertyhash = utilHashcode((0, import_fast_json_stable_stringify2.default)(feature3.properties || {}));
@@ -82814,8 +80288,7 @@
     return features;
   }
   function loadTile3(source, tile) {
-    if (source.loaded[tile.id] || source.inflight[tile.id])
-      return;
+    if (source.loaded[tile.id] || source.inflight[tile.id]) return;
     var url = source.template.replace("{x}", tile.xyz[0]).replace("{y}", tile.xyz[1]).replace(/\{[t-]y\}/, Math.pow(2, tile.xyz[2]) - tile.xyz[1] - 1).replace(/\{z(oom)?\}/, tile.xyz[2]).replace(/\{switch:([^}]+)\}/, function(s2, r2) {
       var subdomains = r2.split(",");
       return subdomains[(tile.xyz[0] + tile.xyz[1]) % subdomains.length];
@@ -82866,20 +80339,17 @@
     },
     data: function(sourceID, projection2) {
       var source = _vtCache[sourceID];
-      if (!source)
-        return [];
+      if (!source) return [];
       var tiles = tiler8.getTiles(projection2);
       var seen = {};
       var results = [];
       for (var i3 = 0; i3 < tiles.length; i3++) {
         var features = source.loaded[tiles[i3].id];
-        if (!features || !features.length)
-          continue;
+        if (!features || !features.length) continue;
         for (var j2 = 0; j2 < features.length; j2++) {
           var feature3 = features[j2];
           var hash = feature3.__featurehash__;
-          if (seen[hash])
-            continue;
+          if (seen[hash]) continue;
           seen[hash] = true;
           results.push(Object.assign({}, feature3));
         }
@@ -82922,8 +80392,7 @@
     // Search for Wikidata items matching the query
     itemsForSearchQuery: function(query, callback, language) {
       if (!query) {
-        if (callback)
-          callback("No query", {});
+        if (callback) callback("No query", {});
         return;
       }
       var lang = this.languagesToQuery()[0];
@@ -82949,19 +80418,16 @@
             throw new Error(result.error);
           }
         }
-        if (callback)
-          callback(null, result.search || {});
+        if (callback) callback(null, result.search || {});
       }).catch(function(err) {
-        if (callback)
-          callback(err.message, {});
+        if (callback) callback(err.message, {});
       });
     },
     // Given a Wikipedia language and article title,
     // return an array of corresponding Wikidata entities.
     itemsByTitle: function(lang, title, callback) {
       if (!title) {
-        if (callback)
-          callback("No title", {});
+        if (callback) callback("No title", {});
         return;
       }
       lang = lang || "en";
@@ -82979,11 +80445,9 @@
         if (result && result.error) {
           throw new Error(result.error);
         }
-        if (callback)
-          callback(null, result.entities || {});
+        if (callback) callback(null, result.entities || {});
       }).catch(function(err) {
-        if (callback)
-          callback(err.message, {});
+        if (callback) callback(err.message, {});
       });
     },
     languagesToQuery: function() {
@@ -82999,8 +80463,7 @@
         return;
       }
       if (_wikidataCache[qid]) {
-        if (callback)
-          callback(null, _wikidataCache[qid]);
+        if (callback) callback(null, _wikidataCache[qid]);
         return;
       }
       var langs = this.languagesToQuery();
@@ -83021,11 +80484,9 @@
         if (result && result.error) {
           throw new Error(result.error);
         }
-        if (callback)
-          callback(null, result.entities[qid] || {});
+        if (callback) callback(null, result.entities[qid] || {});
       }).catch(function(err) {
-        if (callback)
-          callback(err.message, {});
+        if (callback) callback(err.message, {});
       });
     },
     // Pass `params` object of the form:
@@ -83058,8 +80519,7 @@
             break;
           }
         }
-        if (!description && Object.values(entity.descriptions).length)
-          description = Object.values(entity.descriptions)[0];
+        if (!description && Object.values(entity.descriptions).length) description = Object.values(entity.descriptions)[0];
         var result = {
           title: entity.id,
           description: description ? description.value : "",
@@ -83117,8 +80577,7 @@
     },
     search: function(lang, query, callback) {
       if (!query) {
-        if (callback)
-          callback("No Query", []);
+        if (callback) callback("No Query", []);
         return;
       }
       lang = lang || "en";
@@ -83144,14 +80603,12 @@
           callback(null, titles);
         }
       }).catch(function(err) {
-        if (callback)
-          callback(err, []);
+        if (callback) callback(err, []);
       });
     },
     suggestions: function(lang, query, callback) {
       if (!query) {
-        if (callback)
-          callback("", []);
+        if (callback) callback("", []);
         return;
       }
       lang = lang || "en";
@@ -83169,17 +80626,14 @@
         } else if (!result || result.length < 2) {
           throw new Error("No Results");
         }
-        if (callback)
-          callback(null, result[1] || []);
+        if (callback) callback(null, result[1] || []);
       }).catch(function(err) {
-        if (callback)
-          callback(err.message, []);
+        if (callback) callback(err.message, []);
       });
     },
     translations: function(lang, title, callback) {
       if (!title) {
-        if (callback)
-          callback("No Title");
+        if (callback) callback("No Title");
         return;
       }
       var url = endpoint.replace("en", lang) + utilQsString({
@@ -83207,8 +80661,7 @@
           callback(null, translations);
         }
       }).catch(function(err) {
-        if (callback)
-          callback(err.message);
+        if (callback) callback(err.message);
       });
     }
   };
@@ -83269,8 +80722,7 @@
   function loadTile4(which, url, tile) {
     const cache = _cache4.requests;
     const tileId = "".concat(tile.id, "-").concat(which);
-    if (cache.loaded[tileId] || cache.inflight[tileId])
-      return;
+    if (cache.loaded[tileId] || cache.inflight[tileId]) return;
     const controller = new AbortController();
     cache.inflight[tileId] = controller;
     const requestUrl = url.replace("{x}", tile.xyz[0]).replace("{y}", tile.xyz[1]).replace("{z}", tile.xyz[2]);
@@ -83465,10 +80917,8 @@
       }
     },
     initViewer: function() {
-      if (!window.pannellum)
-        return;
-      if (_pannellumViewer3)
-        return;
+      if (!window.pannellum) return;
+      if (_pannellumViewer3) return;
       _currScene2 += 1;
       const sceneID = _currScene2.toString();
       const options2 = {
@@ -83484,11 +80934,9 @@
       this.setActiveImage(d2);
       this.updateUrlImage(d2.id);
       let viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(d2);
+      if (!viewer.empty()) viewer.datum(d2);
       this.setStyles(context, null);
-      if (!d2)
-        return this;
+      if (!d2) return this;
       let wrap2 = context.container().select(".photoviewer .mapilio-wrapper");
       let attribution = wrap2.selectAll(".photo-attribution").text("");
       if (d2.capture_time) {
@@ -83518,12 +80966,10 @@
         }
       });
       function localeDateString2(s2) {
-        if (!s2)
-          return null;
+        if (!s2) return null;
         var options2 = { day: "numeric", month: "short", year: "numeric" };
         var d4 = new Date(s2);
-        if (isNaN(d4.getTime()))
-          return null;
+        if (isNaN(d4.getTime())) return null;
         return d4.toLocaleDateString(_mainLocalizer.localeCode(), options2);
       }
       return this;
@@ -83547,8 +80993,7 @@
       if (!imgWrap.empty()) {
         imgWrap.remove();
       }
-      if (_loadViewerPromise5)
-        return _loadViewerPromise5;
+      if (_loadViewerPromise5) return _loadViewerPromise5;
       let wrap2 = context.container().select(".photoviewer").selectAll(".mapilio-wrapper").data([0]);
       let wrapEnter = wrap2.enter().append("div").attr("class", "photo-wrapper mapilio-wrapper").classed("hide", true).on("dblclick.zoom", null);
       wrapEnter.append("div").attr("class", "photo-attribution fillD");
@@ -83566,8 +81011,7 @@
         let loadedCount = 0;
         function loaded() {
           loadedCount += 1;
-          if (loadedCount === 2)
-            resolve();
+          if (loadedCount === 2) resolve();
         }
         const head = select_default2("head");
         head.selectAll("#ideditor-mapilio-viewercss").data([0]).enter().append("link").attr("id", "ideditor-mapilio-viewercss").attr("rel", "stylesheet").attr("crossorigin", "anonymous").attr("href", context.asset(pannellumViewerCSS3)).on("load.serviceMapilio", loaded).on("error.serviceMapilio", function() {
@@ -83581,12 +81025,10 @@
       });
       function step(stepBy) {
         return function() {
-          if (!_activeImage)
-            return;
+          if (!_activeImage) return;
           const imageId = _activeImage.id;
           const nextIndex = imageId + stepBy;
-          if (!nextIndex)
-            return;
+          if (!nextIndex) return;
           const nextImage = _cache4.images.forImageId[nextIndex];
           context.map().centerEase(nextImage.loc);
           that.selectImage(context, nextImage.id);
@@ -83612,8 +81054,7 @@
      */
     hideViewer: function(context) {
       let viewer = context.container().select(".photoviewer");
-      if (!viewer.empty())
-        viewer.datum(null);
+      if (!viewer.empty()) viewer.datum(null);
       this.updateUrlImage(null);
       viewer.classed("hide", true).selectAll(".photo-wrapper").classed("hide", true);
       context.container().selectAll(".viewfield-group, .sequence, .icon-sign").classed("currentView", false);
@@ -83658,8 +81099,7 @@
     var _lastLoc;
     var _note;
     function startNudge(d3_event, nudge) {
-      if (_nudgeInterval)
-        window.clearInterval(_nudgeInterval);
+      if (_nudgeInterval) window.clearInterval(_nudgeInterval);
       _nudgeInterval = window.setInterval(function() {
         context.map().pan(nudge);
         doMove(d3_event, nudge);
@@ -83754,8 +81194,7 @@
       }
     }
     function esc() {
-      if (context.container().select(".combobox").size())
-        return;
+      if (context.container().select(".combobox").size()) return;
       context.enter(modeBrowse(context));
     }
     mode.zoomToSelected = function() {
@@ -83796,15 +81235,13 @@
     function keydown(d3_event) {
       if (d3_event.keyCode === 32) {
         var activeNode = document.activeElement;
-        if (activeNode && (/* @__PURE__ */ new Set(["INPUT", "TEXTAREA"])).has(activeNode.nodeName))
-          return;
+        if (activeNode && (/* @__PURE__ */ new Set(["INPUT", "TEXTAREA"])).has(activeNode.nodeName)) return;
       }
       if (d3_event.keyCode === 93 || // context menu key
       d3_event.keyCode === 32) {
         d3_event.preventDefault();
       }
-      if (d3_event.repeat)
-        return;
+      if (d3_event.repeat) return;
       cancelLongPress();
       if (d3_event.shiftKey) {
         context.surface().classed("behavior-multiselect", true);
@@ -83833,8 +81270,7 @@
         var pointer = _downPointers.spacebar;
         if (pointer) {
           delete _downPointers.spacebar;
-          if (pointer.done)
-            return;
+          if (pointer.done) return;
           d3_event.preventDefault();
           _lastInteractionType = "spacebar";
           click(pointer.firstEvent, pointer.lastEvent, "spacebar");
@@ -83844,8 +81280,7 @@
     function pointerdown(d3_event) {
       var id2 = (d3_event.pointerId || "mouse").toString();
       cancelLongPress();
-      if (d3_event.buttons && d3_event.buttons !== 1)
-        return;
+      if (d3_event.buttons && d3_event.buttons !== 1) return;
       context.ui().closeEditMenu();
       if (d3_event.pointerType !== "mouse") {
         _longPressTimeout = window.setTimeout(didLongPress, 500, id2, "longdown-" + (d3_event.pointerType || "mouse"));
@@ -83857,8 +81292,7 @@
     }
     function didLongPress(id2, interactionType) {
       var pointer = _downPointers[id2];
-      if (!pointer)
-        return;
+      if (!pointer) return;
       for (var i3 in _downPointers) {
         _downPointers[i3].done = true;
       }
@@ -83882,20 +81316,17 @@
     function pointerup(d3_event) {
       var id2 = (d3_event.pointerId || "mouse").toString();
       var pointer = _downPointers[id2];
-      if (!pointer)
-        return;
+      if (!pointer) return;
       delete _downPointers[id2];
       if (_multiselectionPointerId === id2) {
         _multiselectionPointerId = null;
       }
-      if (pointer.done)
-        return;
+      if (pointer.done) return;
       click(pointer.firstEvent, d3_event, id2);
     }
     function pointercancel(d3_event) {
       var id2 = (d3_event.pointerId || "mouse").toString();
-      if (!_downPointers[id2])
-        return;
+      if (!_downPointers[id2]) return;
       delete _downPointers[id2];
       if (_multiselectionPointerId === id2) {
         _multiselectionPointerId = null;
@@ -83955,13 +81386,11 @@
         var mode = context.mode();
         var selectedIDs = mode.id === "select" ? mode.selectedIDs() : [];
         for (var pointerId2 in _downPointers) {
-          if (pointerId2 === "spacebar" || pointerId2 === skipPointerId)
-            continue;
+          if (pointerId2 === "spacebar" || pointerId2 === skipPointerId) continue;
           var pointerInfo = _downPointers[pointerId2];
           var p12 = pointGetter(pointerInfo.firstEvent);
           var p22 = pointGetter(pointerInfo.lastEvent);
-          if (geoVecLength(p12, p22) > _tolerancePx)
-            continue;
+          if (geoVecLength(p12, p22) > _tolerancePx) continue;
           var datum2 = pointerInfo.firstEvent.target.__data__;
           var entity = datum2 && datum2.properties && datum2.properties.entity || datum2;
           if (context.graph().hasEntity(entity.id)) {
@@ -83980,8 +81409,7 @@
       var showMenu = _showMenu;
       var interactionType = _lastInteractionType;
       var entity = datum2 && datum2.properties && datum2.properties.entity;
-      if (entity)
-        datum2 = entity;
+      if (entity) datum2 = entity;
       if (datum2 && datum2.type === "midpoint") {
         datum2 = datum2.parents[0];
       }
@@ -83992,8 +81420,7 @@
         context.selectedErrorID(null);
         if (!isMultiselect) {
           if (!showMenu || selectedIDs.length <= 1 || selectedIDs.indexOf(datum2.id) === -1) {
-            if (alsoSelectId === datum2.id)
-              alsoSelectId = null;
+            if (alsoSelectId === datum2.id) alsoSelectId = null;
             selectedIDs = (alsoSelectId ? [alsoSelectId] : []).concat([datum2.id]);
             newMode = mode.id === "select" ? mode.selectedIDs(selectedIDs) : modeSelect(context, selectedIDs).selectBehavior(behavior);
             context.enter(newMode);
@@ -84027,13 +81454,11 @@
         }
       }
       context.ui().closeEditMenu();
-      if (showMenu)
-        context.ui().showEditMenu(point2, interactionType);
+      if (showMenu) context.ui().showEditMenu(point2, interactionType);
       resetProperties();
     }
     function cancelLongPress() {
-      if (_longPressTimeout)
-        window.clearTimeout(_longPressTimeout);
+      if (_longPressTimeout) window.clearTimeout(_longPressTimeout);
       _longPressTimeout = null;
     }
     function resetProperties() {
@@ -84303,8 +81728,7 @@
             if (way.nodes.indexOf(node.id) !== -1) {
               count += 1;
             }
-            if (count > 1)
-              break;
+            if (count > 1) break;
           }
           if (count > 1) {
             sharedActions.push(action);
@@ -84348,25 +81772,21 @@
       return _disconnectingVertexIds;
     };
     operation2.available = function() {
-      if (_actions.length === 0)
-        return false;
-      if (_otherIDs.length !== 0)
-        return false;
+      if (_actions.length === 0) return false;
+      if (_otherIDs.length !== 0) return false;
       if (_vertexIDs.length !== 0 && _wayIDs.length !== 0 && !_wayIDs.every(function(wayID) {
         return _vertexIDs.some(function(vertexID) {
           var way = context.entity(wayID);
           return way.nodes.indexOf(vertexID) !== -1;
         });
-      }))
-        return false;
+      })) return false;
       return true;
     };
     operation2.disabled = function() {
       var reason;
       for (var actionIndex in _actions) {
         reason = _actions[actionIndex].disabled(context.graph());
-        if (reason)
-          return reason;
+        if (reason) return reason;
       }
       if (_extent && _extent.percentContainedIn(context.map().extent()) < 0.8) {
         return "too_large." + ((_vertexIDs.length ? _vertexIDs : _wayIDs).length === 1 ? "single" : "multiple");
@@ -84377,8 +81797,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = _coords.filter(function(loc) {
@@ -84438,8 +81857,7 @@
       var graph = context.graph();
       var entity = graph.entity(entityID);
       var preset = _mainPresetIndex.match(entity, graph);
-      if (!preset || preset.isFallback())
-        return null;
+      if (!preset || preset.isFallback()) return null;
       if (entity.type === "node" && preset.id !== "address" && Object.keys(entity.tags).some(function(key) {
         return key.match(/^addr:.{1,}/);
       })) {
@@ -84461,19 +81879,15 @@
         for (var i3 in selectedIDs) {
           var entityID = selectedIDs[i3];
           var type2 = downgradeTypeForEntityID(entityID);
-          if (!type2)
-            continue;
+          if (!type2) continue;
           var tags = Object.assign({}, graph.entity(entityID).tags);
           for (var key in tags) {
-            if (type2 === "address" && addressKeysToKeep.indexOf(key) !== -1)
-              continue;
+            if (type2 === "address" && addressKeysToKeep.indexOf(key) !== -1) continue;
             if (type2 === "building") {
-              if (buildingKeysToKeep.indexOf(key) !== -1 || key.match(/^building:.{1,}/) || key.match(/^roof:.{1,}/))
-                continue;
+              if (buildingKeysToKeep.indexOf(key) !== -1 || key.match(/^building:.{1,}/) || key.match(/^roof:.{1,}/)) continue;
             }
             if (type2 !== "generic") {
-              if (key.match(/^addr:.{1,}/) || key.match(/^source:.{1,}/))
-                continue;
+              if (key.match(/^addr:.{1,}/) || key.match(/^source:.{1,}/)) continue;
             }
             delete tags[key];
           }
@@ -84528,14 +81942,11 @@
     var _actions = selectedIDs.map(function(entityID) {
       var graph = context.graph();
       var entity = graph.hasEntity(entityID);
-      if (!entity || !entity.hasInterestingTags())
-        return null;
-      if (entity.type === "node" && graph.parentWays(entity).length === 0)
-        return null;
+      if (!entity || !entity.hasInterestingTags()) return null;
+      if (entity.type === "node" && graph.parentWays(entity).length === 0) return null;
       if (entity.type !== "node") {
         var preset = _mainPresetIndex.match(entity, graph);
-        if (preset.geometry.indexOf("point") === -1)
-          return null;
+        if (preset.geometry.indexOf("point") === -1) return null;
       }
       _extent = _extent ? _extent.extend(entity.extent(graph)) : entity.extent(graph);
       return actionExtract(entityID, context.projection);
@@ -84589,28 +82000,20 @@
     var _action = getAction();
     function getAction() {
       var join = actionJoin(selectedIDs);
-      if (!join.disabled(context.graph()))
-        return join;
+      if (!join.disabled(context.graph())) return join;
       var merge2 = actionMerge(selectedIDs);
-      if (!merge2.disabled(context.graph()))
-        return merge2;
+      if (!merge2.disabled(context.graph())) return merge2;
       var mergePolygon = actionMergePolygon(selectedIDs);
-      if (!mergePolygon.disabled(context.graph()))
-        return mergePolygon;
+      if (!mergePolygon.disabled(context.graph())) return mergePolygon;
       var mergeNodes = actionMergeNodes(selectedIDs);
-      if (!mergeNodes.disabled(context.graph()))
-        return mergeNodes;
-      if (join.disabled(context.graph()) !== "not_eligible")
-        return join;
-      if (merge2.disabled(context.graph()) !== "not_eligible")
-        return merge2;
-      if (mergePolygon.disabled(context.graph()) !== "not_eligible")
-        return mergePolygon;
+      if (!mergeNodes.disabled(context.graph())) return mergeNodes;
+      if (join.disabled(context.graph()) !== "not_eligible") return join;
+      if (merge2.disabled(context.graph()) !== "not_eligible") return merge2;
+      if (mergePolygon.disabled(context.graph()) !== "not_eligible") return mergePolygon;
       return mergeNodes;
     }
     var operation2 = function() {
-      if (operation2.disabled())
-        return;
+      if (operation2.disabled()) return;
       context.perform(_action, operation2.annotation());
       context.validator().validate();
       var resultIDs = selectedIDs.filter(context.hasEntity);
@@ -84618,8 +82021,7 @@
         var interestingIDs = resultIDs.filter(function(id2) {
           return context.entity(id2).hasInterestingTags();
         });
-        if (interestingIDs.length)
-          resultIDs = interestingIDs;
+        if (interestingIDs.length) resultIDs = interestingIDs;
       }
       context.enter(modeSelect(context, resultIDs));
     };
@@ -84628,8 +82030,7 @@
     };
     operation2.disabled = function() {
       var actionDisabled = _action.disabled(context.graph());
-      if (actionDisabled)
-        return actionDisabled;
+      if (actionDisabled) return actionDisabled;
       var osm = context.connection();
       if (osm && _action.resultingWayNodesLength && _action.resultingWayNodesLength(context.graph()) > osm.maxWayNodes()) {
         return "too_many_vertices";
@@ -84666,11 +82067,9 @@
   function operationPaste(context) {
     var _pastePoint;
     var operation2 = function() {
-      if (!_pastePoint)
-        return;
+      if (!_pastePoint) return;
       var oldIDs = context.copyIDs();
-      if (!oldIDs.length)
-        return;
+      if (!oldIDs.length) return;
       var projection2 = context.projection;
       var extent = geoExtent();
       var oldGraph = context.copyGraph();
@@ -84741,18 +82140,14 @@
     function actions(situation) {
       return selectedIDs.map(function(entityID) {
         var entity = context.hasEntity(entityID);
-        if (!entity)
-          return null;
+        if (!entity) return null;
         if (situation === "toolbar") {
-          if (entity.type === "way" && (!entity.isOneWay() && !entity.isSided()))
-            return null;
+          if (entity.type === "way" && (!entity.isOneWay() && !entity.isSided())) return null;
         }
         var geometry = entity.geometry(context.graph());
-        if (entity.type !== "node" && geometry !== "line")
-          return null;
+        if (entity.type !== "node" && geometry !== "line") return null;
         var action = actionReverse(entityID);
-        if (action.disabled(context.graph()))
-          return null;
+        if (action.disabled(context.graph())) return null;
         return action;
       }).filter(Boolean);
     }
@@ -84762,10 +82157,8 @@
         var entity = context.hasEntity(act.entityID());
         return entity && entity.type === "node";
       }).length;
-      if (nodeActionCount === 0)
-        return "line";
-      if (nodeActionCount === acts.length)
-        return "point";
+      if (nodeActionCount === 0) return "line";
+      if (nodeActionCount === acts.length) return "point";
       return "feature";
     }
     operation2.available = function(situation) {
@@ -84804,8 +82197,7 @@
     var _waysAmount = "single";
     var _nodesAmount = _vertexIds.length === 1 ? "single" : "multiple";
     if (_isAvailable) {
-      if (_selectedWayIds.length)
-        _action.limitWays(_selectedWayIds);
+      if (_selectedWayIds.length) _action.limitWays(_selectedWayIds);
       _ways = _action.ways(context.graph());
       var geometries = {};
       _ways.forEach(function(way) {
@@ -84898,15 +82290,12 @@
         endNodeIDs = endNodeIDs.filter(function(n3) {
           return endNodeIDs.indexOf(n3) === endNodeIDs.lastIndexOf(n3);
         });
-        if (utilArrayDifference(startNodeIDs, endNodeIDs).length + utilArrayDifference(endNodeIDs, startNodeIDs).length !== 2)
-          return null;
+        if (utilArrayDifference(startNodeIDs, endNodeIDs).length + utilArrayDifference(endNodeIDs, startNodeIDs).length !== 2) return null;
         var wayNodeIDs = utilGetAllNodes(_wayIDs, context.graph()).map(function(node) {
           return node.id;
         });
-        if (wayNodeIDs.length <= 2)
-          return null;
-        if (_nodeIDs.length === 2 && (wayNodeIDs.indexOf(_nodeIDs[0]) === -1 || wayNodeIDs.indexOf(_nodeIDs[1]) === -1))
-          return null;
+        if (wayNodeIDs.length <= 2) return null;
+        if (_nodeIDs.length === 2 && (wayNodeIDs.indexOf(_nodeIDs[0]) === -1 || wayNodeIDs.indexOf(_nodeIDs[1]) === -1)) return null;
         if (_nodeIDs.length) {
           _extent = utilTotalExtent(_nodeIDs, context.graph());
         }
@@ -84916,8 +82305,7 @@
       return null;
     }
     function operation2() {
-      if (!_action)
-        return;
+      if (!_action) return;
       context.perform(_action, operation2.annotation());
       window.setTimeout(function() {
         context.validator().validate();
@@ -84939,8 +82327,7 @@
       }
       return false;
       function someMissing() {
-        if (context.inIntro())
-          return false;
+        if (context.inIntro()) return false;
         var osm = context.connection();
         if (osm) {
           var missing = _coords.filter(function(loc) {
@@ -85060,8 +82447,7 @@
     function checkFocusedParent() {
       if (_focusedParentWayId) {
         var parents = parentWaysIdsOfSelection(true);
-        if (parents.indexOf(_focusedParentWayId) === -1)
-          _focusedParentWayId = null;
+        if (parents.indexOf(_focusedParentWayId) === -1) _focusedParentWayId = null;
       }
     }
     function parentWayIdForVertexNavigation() {
@@ -85072,8 +82458,7 @@
       return parentIds.length ? parentIds[0] : null;
     }
     mode.selectedIDs = function(val) {
-      if (!arguments.length)
-        return selectedIDs;
+      if (!arguments.length) return selectedIDs;
       selectedIDs = val;
       return mode;
     };
@@ -85081,20 +82466,17 @@
       context.map().zoomToEase(selectedEntities());
     };
     mode.newFeature = function(val) {
-      if (!arguments.length)
-        return _newFeature;
+      if (!arguments.length) return _newFeature;
       _newFeature = val;
       return mode;
     };
     mode.selectBehavior = function(val) {
-      if (!arguments.length)
-        return _selectBehavior;
+      if (!arguments.length) return _selectBehavior;
       _selectBehavior = val;
       return mode;
     };
     mode.follow = function(val) {
-      if (!arguments.length)
-        return _follow;
+      if (!arguments.length) return _follow;
       _follow = val;
       return mode;
     };
@@ -85127,14 +82509,12 @@
       return _operations;
     };
     mode.enter = function() {
-      if (!checkSelectedIDs())
-        return;
+      if (!checkSelectedIDs()) return;
       context.features().forceVisible(selectedIDs);
       _modeDragNode.restoreSelectedIDs(selectedIDs);
       loadOperations();
       if (!_behaviors.length) {
-        if (!_selectBehavior)
-          _selectBehavior = behaviorSelect(context);
+        if (!_selectBehavior) _selectBehavior = behaviorSelect(context);
         _behaviors = [
           behaviorPaste(context),
           _breatheBehavior,
@@ -85172,8 +82552,7 @@
       }
       function nudgeSelection(delta) {
         return function() {
-          if (!context.map().withinEditableZoom())
-            return;
+          if (!context.map().withinEditableZoom()) return;
           var moveOp = operationMove(context, selectedIDs);
           if (moveOp.disabled()) {
             context.ui().flash.duration(4e3).iconName("#iD-operation-" + moveOp.id).iconClass("operation disabled").label(moveOp.tooltip())();
@@ -85185,12 +82564,10 @@
       }
       function scaleSelection(factor) {
         return function() {
-          if (!context.map().withinEditableZoom())
-            return;
+          if (!context.map().withinEditableZoom()) return;
           let nodes = utilGetAllNodes(selectedIDs, context.graph());
           let isUp = factor > 1;
-          if (nodes.length <= 1)
-            return;
+          if (nodes.length <= 1) return;
           let extent2 = utilTotalExtent(selectedIDs, context.graph());
           function scalingDisabled() {
             if (tooSmall()) {
@@ -85204,15 +82581,13 @@
             }
             return false;
             function tooSmall() {
-              if (isUp)
-                return false;
+              if (isUp) return false;
               let dLon = Math.abs(extent2[1][0] - extent2[0][0]);
               let dLat = Math.abs(extent2[1][1] - extent2[0][1]);
               return dLon < geoMetersToLon(1, extent2[1][1]) && dLat < geoMetersToLat(1);
             }
             function someMissing() {
-              if (context.inIntro())
-                return false;
+              if (context.inIntro()) return false;
               let osm = context.connection();
               if (osm) {
                 let missing = nodes.filter(function(n3) {
@@ -85245,13 +82620,11 @@
         };
       }
       function didDoubleUp(d3_event, loc2) {
-        if (!context.map().withinEditableZoom())
-          return;
+        if (!context.map().withinEditableZoom()) return;
         var target = select_default2(d3_event.target);
         var datum2 = target.datum();
         var entity = datum2 && datum2.properties && datum2.properties.entity;
-        if (!entity)
-          return;
+        if (!entity) return;
         if (entity instanceof osmWay && target.classed("target")) {
           var choice = geoChooseEdge(context.graph().childNodes(entity), loc2, context.projection);
           var prev = entity.nodes[choice.index - 1];
@@ -85270,8 +82643,7 @@
         }
       }
       function selectElements() {
-        if (!checkSelectedIDs())
-          return;
+        if (!checkSelectedIDs()) return;
         var surface = context.surface();
         surface.selectAll(".selected-member").classed("selected-member", false);
         surface.selectAll(".selected").classed("selected", false);
@@ -85291,8 +82663,7 @@
         }
       }
       function esc() {
-        if (context.container().select(".combobox").size())
-          return;
+        if (context.container().select(".combobox").size()) return;
         context.enter(modeBrowse(context));
       }
       function firstVertex(d3_event) {
@@ -85333,8 +82704,7 @@
         d3_event.preventDefault();
         var parentId = parentWayIdForVertexNavigation();
         _focusedParentWayId = parentId;
-        if (!parentId)
-          return;
+        if (!parentId) return;
         var way = context.entity(parentId);
         var length2 = way.nodes.length;
         var curr = way.nodes.indexOf(selectedIDs[0]);
@@ -85354,8 +82724,7 @@
         d3_event.preventDefault();
         var parentId = parentWayIdForVertexNavigation();
         _focusedParentWayId = parentId;
-        if (!parentId)
-          return;
+        if (!parentId) return;
         var way = context.entity(parentId);
         var length2 = way.nodes.length;
         var curr = way.nodes.indexOf(selectedIDs[0]);
@@ -85374,8 +82743,7 @@
       function focusNextParent(d3_event) {
         d3_event.preventDefault();
         var parents = parentWaysIdsOfSelection(true);
-        if (!parents || parents.length < 2)
-          return;
+        if (!parents || parents.length < 2) return;
         var index = parents.indexOf(_focusedParentWayId);
         if (index < 0 || index > parents.length - 2) {
           _focusedParentWayId = parents[0];
@@ -85392,8 +82760,7 @@
         d3_event.preventDefault();
         var currentSelectedIds = mode.selectedIDs();
         var parentIds = _focusedParentWayId ? [_focusedParentWayId] : parentWaysIdsOfSelection(false);
-        if (!parentIds.length)
-          return;
+        if (!parentIds.length) return;
         context.enter(
           mode.selectedIDs(parentIds)
         );
@@ -85403,10 +82770,8 @@
         d3_event.preventDefault();
         var currentSelectedIds = mode.selectedIDs();
         var childIds = _focusedVertexIds ? _focusedVertexIds.filter((id2) => context.hasEntity(id2)) : childNodeIdsOfSelection(true);
-        if (!childIds || !childIds.length)
-          return;
-        if (currentSelectedIds.length === 1)
-          _focusedParentWayId = currentSelectedIds[0];
+        if (!childIds || !childIds.length) return;
+        if (currentSelectedIds.length === 1) _focusedParentWayId = currentSelectedIds[0];
         context.enter(
           mode.selectedIDs(childIds)
         );
@@ -85477,8 +82842,7 @@
         ];
       }
       function lassoed() {
-        if (!lasso)
-          return [];
+        if (!lasso) return [];
         var graph = context.graph();
         var limitToNodes;
         if (context.map().editableDataEnabled(
@@ -85516,8 +82880,7 @@
       }
       function pointerup() {
         select_default2(window).on(_pointerPrefix + "move.lasso", null).on(_pointerPrefix + "up.lasso", null);
-        if (!lasso)
-          return;
+        if (!lasso) return;
         var ids = lassoed();
         lasso.close();
         if (ids.length) {
@@ -85544,15 +82907,13 @@
     var _selectBehavior;
     var _behaviors = [];
     mode.selectBehavior = function(val) {
-      if (!arguments.length)
-        return _selectBehavior;
+      if (!arguments.length) return _selectBehavior;
       _selectBehavior = val;
       return mode;
     };
     mode.enter = function() {
       if (!_behaviors.length) {
-        if (!_selectBehavior)
-          _selectBehavior = behaviorSelect(context);
+        if (!_selectBehavior) _selectBehavior = behaviorSelect(context);
         _behaviors = [
           behaviorPaste(context),
           behaviorHover(context).on("hover", context.ui().sidebar.hover),
@@ -85580,8 +82941,7 @@
       }
     };
     mode.sidebar = function(_2) {
-      if (!arguments.length)
-        return sidebar;
+      if (!arguments.length) return sidebar;
       sidebar = _2;
       return mode;
     };
@@ -85681,16 +83041,14 @@
       return baseTitle;
     }
     function updateTitle(includeChangeCount) {
-      if (!context.setsDocumentTitle())
-        return;
+      if (!context.setsDocumentTitle()) return;
       var newTitle = computedTitle(includeChangeCount);
       if (document.title !== newTitle) {
         document.title = newTitle;
       }
     }
     function updateHashIfNeeded() {
-      if (context.inIntro())
-        return;
+      if (context.inIntro()) return;
       var latestHash = computedHash();
       if (_cachedHash !== latestHash) {
         _cachedHash = latestHash;
@@ -85716,16 +83074,14 @@
       );
     }, 500);
     function hashchange() {
-      if (window.location.hash === _cachedHash)
-        return;
+      if (window.location.hash === _cachedHash) return;
       _cachedHash = window.location.hash;
       var q2 = utilStringQs(_cachedHash);
       var mapArgs = (q2.map || "").split("/").map(Number);
       if (mapArgs.length < 3 || mapArgs.some(isNaN)) {
         updateHashIfNeeded();
       } else {
-        if (_cachedHash === computedHash())
-          return;
+        if (_cachedHash === computedHash()) return;
         var mode = context.mode();
         context.map().centerZoom([mapArgs[2], Math.min(_latitudeLimit, Math.max(-_latitudeLimit, mapArgs[1]))], mapArgs[0]);
         if (q2.id && mode) {
